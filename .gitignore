@@ -1,0 +1,11 @@
+# R files
+.Rproj.user
+.Rhistory
+.RData
+
+# macOS files
+.DS_Store
+
+# misc
+*temp*
+*.docx
