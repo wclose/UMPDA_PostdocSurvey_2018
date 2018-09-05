@@ -7,6 +7,9 @@ source("code/tidy_survey.R")
 
 # creating juxtaposition categories ---------------------------------------
 
+# NOTE: need to filter out NA responses to stratification questions (unless it's valid)
+
+
 # # breakdown categories
 # UMMS, LSA, Eng, other
 # Domestic v. International and/or EFL v. EAL
@@ -33,6 +36,30 @@ list <- postdoc_college %>%
 tidy_survey_data %>% 
   filter(response_id %in% list)
 
+# create fn: 
+# id_list <- for _ in unique(!is.na(college)), filter( == paste(i)), pull(response_id)
+# paste(dfname_i) <- tidy_survey_data %>% filter response_id %in% id_list
+# return(paste(dfname_i))
+# map to create named list of new dataframes
+# map to do stats
+# map to make plots
+# integrate into Rmd
+paste(unique((postdoc_college$college)), "test", sep = "_")
+
+college_list <- c("UMMS", "ENG", "LSA", "Other")
+
+test_function <- function(colleges) {
+  id_list <- postdoc_college %>% 
+    filter(college == colleges) %>% 
+    pull(response_id)
+  relevant_info <- tidy_survey_data %>% 
+    filter(response_id %in% unique(id_list))
+  return(relevant_info)
+}
+
+test_function("Other")
+
+map(college_list, test_function)
 
 
 
@@ -46,6 +73,26 @@ tidy_survey_data %>%
                                question_no == "Q11" & !is.na(response) ~ "international", # anything other NA = non-citizen
                                question_no == "Q11" & is.na(response) ~ "domestic", # anything NA = citizen
                                TRUE ~ NA_character_)) # makes all other rows "NA"
+
+residency_status <- c("domestic","international")
+
+
+
+big_data <- tidy_survey_data %>% 
+  mutate(college = case_when(question_no != "Q6" ~ NA_character_, # makes college col "NA" for all questions other than Q6
+                             question_no == "Q6" & response == "Medicine" ~ "UMMS", # school of medicine
+                             question_no == "Q6" & response == "Literature,Science,and_the_Arts" ~ "LSA", # lit, science, and arts
+                             question_no == "Q6" & response == "Engineering" ~ "ENG", # engineering
+                             TRUE ~ "Other"), # makes remaining responses for college category "Other" to aggregate remaining colleges
+         residency = case_when(question_no == "Q10" & !is.na(response) ~ "domestic", # anything other than NA = citizen
+                               question_no == "Q10" & is.na(response) ~ "international", # anything NA = non-citizen
+                               question_no == "Q11" & !is.na(response) ~ "international", # anything other NA = non-citizen
+                               question_no == "Q11" & is.na(response) ~ "domestic", # anything NA = citizen
+                               TRUE ~ NA_character_)) # makes all other rows "NA"
+
+
+
+
 
 # english as first language v. english as acquired language
 tidy_survey_data %>% 
