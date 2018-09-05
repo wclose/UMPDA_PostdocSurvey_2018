@@ -18,7 +18,8 @@ tidy_survey_data <- survey_data %>%
   spread(ResponseId, response) %>% # spreading the table back out to separate question text from responses
   rename(question = "Response ID") %>% # renaming col containing question text
   gather(response_id, response, -contains("question")) %>% # re-gathering data putting all response IDs in one col and answers in another
-  select(response_id, question_no, question, response) %>% # rearranging the cols to be human readable
+  separate(question_no, into = c("question_no", "subquestion_no"), sep = "_", extra = "merge", fill = "right") %>% # separating the subquestion numbers into a different col
+  select(response_id, question_no, subquestion_no, question, response) %>% # rearranging the cols to be human readable
   mutate_all(funs(str_replace_all(., " \\, | \\,|\\, ", ","))) %>% # removing spaces around commas specifically to make lists easier
   mutate_all(funs(str_replace_all(., "  | |\\n", "_"))) %>% # getting rid of spaces and line breaks ("\n") in questions
   mutate_all(funs(str_replace_all(., "\\)|\\(", ""))) %>% # getting rid of symbols that may cause problems
