@@ -43,6 +43,31 @@ response_freq <- map(multi_choice_question_list, get_response_freq) %>% # runnin
 # response_freq$Q12
 
 
+####### need to figure out how to setup functions to allow input of lists of dataframes and questions
+
+# inputs needed for function
+# 1 data = strat list (list of dataframes with response_ids classified accodring to strat categories)
+# 2 question list = list of multiple choice questions to be used for generating response frequencies and graphs
+
+# function for generating individual response frequencies
+test_get_response_freq <- function(question_no_chr) { # question_no_chr = question number in character format (aka need quotes)
+  freq <- tidy_survey_data %>% # assigning the output to a variable
+    filter(question_no == question_no_chr) %>% # selects rows containing responses for specific questions
+    group_by(question_no, subquestion_no, question, response) %>% # groups by question and response to provide summary stats
+    summarize(n = n()) %>% # creates col for number of a given response (n)
+    mutate(percent_freq = n/sum(n)*100) # creates col for percent of total responses attributed to a given response
+  return(freq) # returns the calculated/modified data frame
+}
+
+get_response_data <- function(x) {
+  data <- map_df(x, get_response_freq)
+  return(data)
+}
+
+response_freq <- map(multi_choice_question_list, get_response_data)
+
+
+
 
 # typed statistics --------------------------------------------------------
 
