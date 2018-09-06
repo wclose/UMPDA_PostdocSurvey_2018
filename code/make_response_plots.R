@@ -52,17 +52,18 @@ response_plots$Q12
 make_stack_response_plot <- function(df) { # df = properly formatted data frame with data
   freq_plot <- df %>% # assigning the output
     ggplot() +
-    geom_bar(aes(x = question, y = percent_freq, fill = response, group = subquestion_no), # adding bars
+    geom_bar(aes(x = question_no, y = percent_freq, fill = response), # adding bars
              color = "black", show.legend = T, stat = "identity", width = 0.75, position = "stack") +
     #geom_text(aes(x = response, y = percent_freq, label = paste0(round(percent_freq, 1), "%")), vjust = -0.5) + # adding response freq over bars
     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
-    scale_x_discrete(labels = c(str_replace_all(df$question, "_", " "))) + # reformatting axis labels to look nice
+    #scale_x_discrete(labels = c(str_replace_all(df$question, "_", " "))) + # reformatting axis labels to look nice
     labs(#title = text_wrapper(str_replace_all(unique(df$question), "_", " "), width = 60), # reformatting remainging labels to look nice
          y = "Proportion of Postdoctoral Respondents (%)",
          x = "Responses") +
-    coord_flip() +
+    #coord_flip() +
     theme_classic() + # changing color scheme, etc.
-    theme(plot.title = element_text(hjust = 0.5)) # centering the title over the plot
+    theme(plot.title = element_text(hjust = 0.5)) + # centering the title over the plot
+    facet_wrap( ~ question)
   return(freq_plot) # returning the plot to environment
 }
 
