@@ -7,6 +7,10 @@ source("code/tidy_survey.R")
 
 # classifying data based on desired stratifications -----------------------
 
+
+############ is there a cleaner/easier way to classify and design the functions?
+
+
 ### stratification categories ###
 # 1 UMMS, LSA, Eng, other
 # 2 Domestic v. International and/or EFL v. EAL
@@ -19,18 +23,7 @@ source("code/tidy_survey.R")
 # 9 Satisfied v. not satisfied
 
 classified_survey_data <- tidy_survey_data %>% 
-  mutate(stratification_type = case_when(question_no == "Q6" ~ "college_school",
-                                         question_no == "Q10" | question_no == "Q11" ~ "residency",
-                                         question_no == "Q12" ~ "first_language",
-                                         question_no == "Q17" ~ "dependents",
-                                         question_no == "Q16" ~ "relationship_status",
-                                         question_no == "Q14" ~ "gender",
-                                         question_no == "Q15" ~ "pop_representation",
-                                         question_no == "Q31" ~ "career_track",
-                                         question_no == "Q8" ~ "postdoc_no",
-                                         question_no == "Q39" ~ "satisfaction",
-                                         TRUE ~ NA_character_),
-         stratifications = case_when(question_no == "Q6" & response == "Medicine" ~ "umms", # school of medicine
+  mutate(stratifications = case_when(question_no == "Q6" & response == "Medicine" ~ "umms", # school of medicine
                                      question_no == "Q6" & response == "Literature,Science,and_the_Arts" ~ "lsa", # lit, science, and arts
                                      question_no == "Q6" & response == "Engineering" ~ "eng", # engineering
                                      question_no == "Q6" & !is.na(response) & response != "Prefer_not_to_answer" ~ "other_school", # classifying other schools as "Other"
@@ -64,7 +57,7 @@ classified_survey_data <- tidy_survey_data %>%
 
 # breaking up data by stratification categories ---------------------------
 
-# creating the function to separate the data into different data frames based on individual stratification categories
+# creating the function to separate the data into different data frames based on stratification categories
 make_stratified_data <- function(strat_col_values) {
   resp_id_list <- classified_survey_data %>% 
     filter(stratifications == strat_col_values) %>%
@@ -75,9 +68,12 @@ make_stratified_data <- function(strat_col_values) {
   return(stratified_data)
 }
 
+# creating list of names for naming list of comparison classifications
 list_names <- c("college_school", "postdoc_no", "residency", "language", "gender", "pop_representation",
                 "relationship_status", "dependents", "career_track", "satisfaction")
 
+# creating a named list of all of the desired breakdowns for comparisons then naming the output list
+# the output will maintain the names given to the items in the input list which is why naming at this step is so important
 strat_list <- list(c("umms", "eng", "lsa", "other"), 
                    c("first_postdoc", "not_first_postdoc"),
                    c("domestic", "international"),
@@ -90,13 +86,16 @@ strat_list <- list(c("umms", "eng", "lsa", "other"),
                    c("satisfied", "unsatisfied", "neutral_satisfaction")) %>% 
   set_names(list_names)
 
+# setting up a function to allow use of map to iterate through each set of stratification classifications
 get_strat_data <- function(x) {
-  data <- map_df(x, make_stratified_data)
-  return(data)
+  data <- map_df(x, make_stratified_data) # map_df iterates through each item in input list then collates output as a single dataframe
+  return(data) 
 }
 
-map(strat_list, get_strat_data)
+# using map to run the functions using the different classifications of data
+strat_data <- map(strat_list, get_strat_data) # running a nested map series takes collated data and outputs as one dataframe in the list per stratification category
 
+names(strat_data) # checking to make sure the names were propagated through
 
 
 # notes -------------------------------------------------------------------
