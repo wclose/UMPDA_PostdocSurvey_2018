@@ -70,36 +70,34 @@ make_stratified_data <- function(strat_col_values) {
     filter(stratifications == strat_col_values) %>%
     pull(response_id) # extracts all values from col as text string
   stratified_data <- tidy_survey_data %>% 
-    filter(response_id %in% resp_id_list) # extracts responses to all questions for each response_id in id_list
+    filter(response_id %in% resp_id_list) %>%  # extracts responses to all questions for each response_id in id_list
+    mutate(strat_id = strat_col_values)
   return(stratified_data)
 }
 
-stratification_categories <- unique(na.omit(classified_survey_data$stratifications))
+list_names <- c("college_school", "postdoc_no", "residency", "language", "gender", "pop_representation",
+                "relationship_status", "dependents", "career_track", "satisfaction")
 
-stratified_data <- map(stratification_categories, make_stratified_data) %>% 
-  set_names(stratification_categories)
+strat_list <- list(c("umms", "eng", "lsa", "other"), 
+                   c("first_postdoc", "not_first_postdoc"),
+                   c("domestic", "international"),
+                   c("english_first", "english_acquired"),
+                   c("male", "female", "non_binary"),
+                   c("under_represented", "well_represented"),
+                   c("single_unmarried", "married_partnership", "widowed", "divorced_separated"),
+                   c("dependents", "no_dependents"),
+                   c("academic_research", "academic_teaching", "non_academic", "career_unsure"),
+                   c("satisfied", "unsatisfied", "neutral_satisfaction")) %>% 
+  set_names(list_names)
 
-
-
-get_response_freq2 <- function(question_no_chr) { # question_no_chr = question number in character format (aka need quotes)
-  freq <- stratified_data$domestic %>% # assigning the output to a variable
-    filter(question_no == question_no_chr) %>% # selects rows containing responses for specific questions
-    group_by(question_no, subquestion_no, question, response) %>% # groups by question and response to provide summary stats
-    summarize(n = n()) %>% # creates col for number of a given response (n)
-    mutate(percent_freq = n/sum(n)*100) # creates col for percent of total responses attributed to a given response
-  return(freq) # returns the calculated/modified data frame
+get_strat_data <- function(x) {
+  data <- map_df(x, make_stratified_data)
+  return(data)
 }
 
-get_response_freq2(stratified_data$domestic, "Q37")
-
-map(multi_choice_question_list, get_response_freq2) %>% 
-  set_names(paste(names(stratified_data)[[1]], multi_choice_question_list, sep = "_"))
+map(strat_list, get_strat_data)
 
 
-
-names(stratified_data)[[1]]
-
-pmap(list(df = stratified_data, question_no_chr = multi_choice_question_list), get_response_freq2)
 
 # notes -------------------------------------------------------------------
 
@@ -155,3 +153,40 @@ pmap(list(df = stratified_data, question_no_chr = multi_choice_question_list), g
 #   strat_col = c(rep("college", length(unique(na.omit(big_data$college)))), rep("residency", length(unique(na.omit(big_data$residency))))),
 #   strat_col_values = c(unique(na.omit(big_data$college)), unique(na.omit(big_data$residency)))
 # )
+
+# # testing the function
+# stratification_categories <- gender #unique(na.omit(classified_survey_data$stratifications))
+# 
+# # using map to test and label all of the 
+# stratified_data <- map_df(stratification_categories, make_stratified_data)
+
+# list(college_school <- c("umms", "eng", "lsa", "other"), 
+#      postdoc_no <- c("first_postdoc", "not_first_postdoc"),
+#      residency <- c("domestic", "international"),
+#      language <- c("english_first", "english_acquired"),
+#      gender <- c("male", "female", "non_binary"),
+#      pop_representation <- c("under_represented", "well_represented"),
+#      relationship_status <- c("single_unmarried", "married_partnership", "widowed", "divorced_separated"),
+#      dependents <- c("dependents", "no_dependents"),
+#      career_track <- c("academic_research", "academic_teaching", "non_academic", "career_unsure"),
+#      satisfaction <- c("satisfied", "unsatisfied", "neutral_satisfaction"))
+
+# get_response_freq2 <- function(question_no_chr) { # question_no_chr = question number in character format (aka need quotes)
+#   freq <- stratified_data$domestic %>% # assigning the output to a variable
+#     filter(question_no == question_no_chr) %>% # selects rows containing responses for specific questions
+#     group_by(question_no, subquestion_no, question, response) %>% # groups by question and response to provide summary stats
+#     summarize(n = n()) %>% # creates col for number of a given response (n)
+#     mutate(percent_freq = n/sum(n)*100) # creates col for percent of total responses attributed to a given response
+#   return(freq) # returns the calculated/modified data frame
+# }
+# 
+# get_response_freq2(stratified_data$domestic, "Q37")
+# 
+# map(multi_choice_question_list, get_response_freq2) %>% 
+#   set_names(paste(names(stratified_data)[[1]], multi_choice_question_list, sep = "_"))
+# 
+# 
+# 
+# names(stratified_data)[[1]]
+# 
+# pmap(list(df = stratified_data, question_no_chr = multi_choice_question_list), get_response_freq2)
