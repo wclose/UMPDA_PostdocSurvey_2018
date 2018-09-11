@@ -67,7 +67,50 @@ make_stack_response_plot <- function(df) { # df = properly formatted data frame 
   return(freq_plot) # returning the plot to environment
 }
 
-make_stack_response_plot(response_freq$Q35)
+# make_stack_response_plot(response_freq$Q35)
+# 
+# # toy data set
+# test <- strat_response_freq$language %>% 
+#   filter(question_no == "Q35" & !is.na(response) & response != "Prefer_not_to_answer")
+# 
+# test_2 <- strat_response_freq$language %>% 
+#   filter(question_no == "Q14" & !is.na(response) & response != "Prefer_not_to_answer")
+# 
+# # basic layout for the plots
+# test %>% 
+#   ggplot(aes(x = strat_id, y = percent_freq, fill = response)) +
+#   geom_bar(stat = "identity") +
+#   facet_wrap(~ subquestion_no)
+
+# creating a plotting function that makes new graph for each question
+test_plot_function <- function(df, question_no_chr) {
+  df %>% 
+    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% 
+    ggplot(aes(x = strat_id, y = percent_freq, fill = response)) +
+    geom_bar(stat = "identity") +
+    facet_wrap(~ subquestion_no)
+}
+
+# testing it out
+test_plot_function(strat_response_freq$language, "Q35")
+
+# making function to allow use of pmap to iterate through each plot needing to be made
+# NOTE: can make list of input questions as a new variable to be populated when ran (makes it more DRY)
+test_function <- function(list_strat_response_freq_df) {
+  arguments <- data_frame(df = list(list_strat_response_freq_df), # 1st col = input df repeated to be same length as number of questions
+                          question_no_chr = c(multi_choice_question_list))
+  data <- pmap(arguments, test_plot_function) # collating data during map and assigning output
+  return(data)
+}
+
+
+# testing the pmap function
+test_output <- test_function(strat_response_freq$language, multi_choice_question_list)
+test_output
+
+# # making plots for all of the stratified data sets
+# map(strat_response_freq, test_function)
+
 
 # typed plots -------------------------------------------------------------
 
