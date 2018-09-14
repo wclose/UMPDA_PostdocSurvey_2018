@@ -22,12 +22,47 @@ text_wrapper <- function(x, ...)
 
 ########## generating map of locations within the US ##########
 
+# creating test df of only domestic locations
 test_us <- tidy_survey_data %>% 
   filter(question_no == "Q10" & !is.na(response))
 
-string_test <- test_us$response[c(1:10)]
 
-str_split(string_test, ",|_")
+
+string_test <- test_us$response
+test_names <- c("MI", "Michigan")
+
+test_string <- c("this_is,my_test string.ok", "this")
+test_string
+
+test_output <- map(string_test, test_function)
+str_detect(test_string, "^this$")
+str_detect(output, paste0("^", "MI", "$"))
+
+# can use "\\b" as regex to recognize boundaries of words
+str_replace_all(test_string, "\\b", "-")
+str_extract(string_test, "\\bMaryland\\b")
+
+# by changing "_" back to " ", it creates word boundaries that can be used for parsing the data
+test <- test_us %>% 
+  mutate(new = str_replace_all(response, "_", " "),
+         new2 = case_when(str_detect(new, "\\bMaryland\\b") ~ str_extract(new, "\\bMaryland\\b"),
+                          str_detect(new, "\\bMI\\b") ~ str_extract(new, "\\bMI\\b")))
+
+# created function to search for states in a specific df
+# need to supply it with a list of state abbreviations and names
+# NOTE: need to convert all names to one type (abbreviation or spelled out)
+test_function <- function(x, state) {
+  data <- x %>% 
+    mutate(response = str_replace_all(response, "_", " "),
+           location = case_when(str_detect(response, regex(paste0("\\b", state, "\\b"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
+                                  str_extract(response, regex(paste0("\\b", state, "\\b"), ignore_case = T)))) # extracting the state information to a new col
+  return(data)
+}
+
+# testing out test_function()
+test_function(test_us, "MI") %>% 
+  group_by(location) %>% 
+  summarize(count = n())
 
 
 
