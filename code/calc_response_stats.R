@@ -34,12 +34,13 @@ get_response_freq <- function(question_no_chr) { # question_no_chr = question nu
 }
 
 # use map() to generate a named list containing response freq data frames for muliple choice questions
-response_freq <- map(multi_choice_question_list, get_response_freq) %>% # running get_response_freq for each item in question list
-  set_names(multi_choice_question_list) # naming the items in the list by question number
+response_freq <- map_df(multi_choice_question_list, get_response_freq) # running get_response_freq for each item in question list
 
 
 
 ########## END ##########
+
+
 
 ########## generating responses based on stratifications ##########
 
