@@ -9,6 +9,7 @@
 # project specific files
 data/*
 !README.md
+notes/*
 
 # misc
 *temp*
