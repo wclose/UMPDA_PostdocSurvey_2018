@@ -3,6 +3,10 @@
 # loading tidyverse and dataset
 source("code/calc_response_stats.R")
 
+# built in data sets don't include us territories so made new set
+# reading in list of us states/territories with abbreviations
+us_states_territories <- read_csv("data/us_state_territories.csv")
+
 
 
 # misc functions ----------------------------------------------------------
@@ -16,57 +20,76 @@ text_wrapper <- function(x, ...)
 
 
 
-# maps of phd locations ---------------------------------------------------
+# maps of degree locations ------------------------------------------------
 
-# NOTE: need to adjust question to apply to Ph.D.s and M.D.s
+# NOTE: need to adjust question to apply to Ph.D.s, M.D.s, and J.D.s (do J.D.s count as postdocs?)
+# NOTE: some US citizens completed degrees outside the US, need to adjust question if/else flow for citizenship question
+
+
 
 ########## generating map of locations within the US ##########
 
-# creating test df of only domestic locations
-test_us <- tidy_survey_data %>% 
-  filter(question_no == "Q10" & !is.na(response))
-
-
-
-string_test <- test_us$response
-test_names <- c("MI", "Michigan")
-
-test_string <- c("this_is,my_test string.ok", "this")
-test_string
-
-test_output <- map(string_test, test_function)
-str_detect(test_string, "^this$")
-str_detect(output, paste0("^", "MI", "$"))
-
-# can use "\\b" as regex to recognize boundaries of words
-str_replace_all(test_string, "\\b", "-")
-str_extract(string_test, "\\bMaryland\\b")
-
-# by changing "_" back to " ", it creates word boundaries that can be used for parsing the data
-test <- test_us %>% 
-  mutate(new = str_replace_all(response, "_", " "),
-         new2 = case_when(str_detect(new, "\\bMaryland\\b") ~ str_extract(new, "\\bMaryland\\b"),
-                          str_detect(new, "\\bMI\\b") ~ str_extract(new, "\\bMI\\b")))
-
-# created function to search for states in a specific df
-# need to supply it with a list of state abbreviations and names
-# NOTE: need to convert all names to one type (abbreviation or spelled out)
-test_function <- function(x, state) {
-  data <- x %>% 
+# creating function to extract the us state from the responses and convert all to abbreviations for uniformity and plotting
+# added in step to filter data to only relevant question about locations within us
+extract_us_region <- function(df) {
+  us_region <- c(us_states_territories$abb, us_states_territories$name) # creating vector of states and abbreviations
+  us_region_to_abb <- tolower(us_states_territories$abb) %>% # creates a named vector to enable extraction based on full name
+    set_names(tolower(us_states_territories$name))
+  data <- df %>%
+    filter(question_no == "Q10" & !is.na(response)) %>% 
     mutate(response = str_replace_all(response, "_", " "),
-           location = case_when(str_detect(response, regex(paste0("\\b", state, "\\b"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
-                                  str_extract(response, regex(paste0("\\b", state, "\\b"), ignore_case = T)))) # extracting the state information to a new col
+           location = tolower(case_when(str_detect(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
+                                          str_extract(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)),  # extracting the state information to a new col
+                                        TRUE ~ NA_character_)), 
+           location = ifelse(location %in% names(us_region_to_abb), us_region_to_abb[location], location)) # converts location to state abbreviation based on presence of state name
   return(data)
 }
 
-# testing out test_function()
-test_function(test_us, "MI") %>% 
-  group_by(location) %>% 
-  summarize(count = n())
+# extracting us region data and adding as a new col creating state_data df
+us_data <- extract_us_region(tidy_survey_data)
+
+# # getting counts for each state/territory
+# us_data %>% 
+#   group_by(question_no, subquestion_no, question, location) %>% # groups by question and response to provide summary stats
+#   summarize(n = n()) # creates col for number of a given response (n)
+
+# making function to generate counts of locations/regions
+get_location_counts <- function(df) {
+  df %>% 
+    group_by(question_no, subquestion_no, question, location) %>% # groups by question and response to provide summary stats
+    summarize(n = n()) # creates col for number of a given response (n)
+}
+
+# # testing get_location_counts
+# get_location_counts(us_data)
+
+# saving count data for us states
+us_location_counts <- get_location_counts(us_data)
+
+# working on plotting location information
+crimes <- data.frame(state = tolower(rownames(USArrests)), USArrests)
+crimesm <- reshape2::melt(crimes, id = 1)
+if (require(maps)) {
+  states_map <- map_data("state")
+  ggplot(crimes, aes(map_id = state)) +
+    geom_map(aes(fill = Murder), map = states_map) +
+    expand_limits(x = states_map$long, y = states_map$lat)
+  
+  last_plot() + coord_map()
+  ggplot(crimesm, aes(map_id = state)) +
+    geom_map(aes(fill = value), map = states_map) +
+    expand_limits(x = states_map$long, y = states_map$lat) +
+    facet_wrap( ~ variable)
+}
+
+crimes
+
+
 
 
 
 ########## END ##########
+
 
 
 ########## generating map of locations outside the US ##########
@@ -85,6 +108,8 @@ test_int <- tidy_survey_data %>%
 # multiple choice plots ---------------------------------------------------
 
 # NOTE: Q22 responses need to be broken up and retabulated before graphing
+
+
 
 ########## generating plots for entire dataset ##########
 
@@ -176,8 +201,8 @@ make_strat_response_plot <- function(df, question_no_chr) {
 
 # # testing make_strat_response_plot
 # make_strat_response_plot(strat_response_freq$language, "Q16")
-make_strat_response_plot(strat_response_freq$language, "Q35")
-make_strat_response_plot(strat_response_freq$college_school, "Q35")
+# make_strat_response_plot(strat_response_freq$language, "Q35")
+# make_strat_response_plot(strat_response_freq$college_school, "Q35")
 
 # making function to cycle through each question for each data frame
 make_all_strat_response_plots <- function(strat_response_freq_df, question_no_chr_list) {
@@ -197,10 +222,10 @@ make_all_strat_response_plots <- function(strat_response_freq_df, question_no_ch
 # NOTE: question_no_chr_list is passed on to make_all_strat_response_plots()
 strat_response_plots <- map(.x = strat_response_freq, .f = make_all_strat_response_plots, question_no_chr_list = multi_choice_question_list)
 
-# verifying the plots
-strat_response_plots$language$Q12
-strat_response_plots$college_school[[1]]
-strat_response_plots$residency$Q16
+# # verifying the plots
+# strat_response_plots$residency$Q35
+# strat_response_plots$college_school[[1]]
+# strat_response_plots$residency$Q16
 
 ########## END ##########
 
@@ -224,22 +249,159 @@ strat_response_plots$residency$Q16
 
 # notes -------------------------------------------------------------------
 
-# making function to generate plots for multi choice questions
-make_response_plot <- function(df) { # df = properly formatted data frame with data
-  freq_plot <- df %>% # assigning the output
-    ggplot() +
-    geom_bar(aes(x = response, y = percent_freq, fill = response, group = subquestion_no), # adding bars
-             color = "black", show.legend = F, stat = "identity", width = 0.75) +
-    geom_text(aes(x = response, y = percent_freq, label = paste0(round(percent_freq, 1), "%")), vjust = -0.5) + # adding response freq over bars
-    scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
-    scale_x_discrete(labels = c(str_replace_all(df$response, "_", " "))) + # reformatting axis labels to look nice
-    labs(title = text_wrapper(str_replace_all(unique(df$question), "_", " "), width = 60), # reformatting remainging labels to look nice
-         y = "Proportion of Postdoctoral Respondents (%)",
-         x = "Responses") +
-    theme_classic() + # changing color scheme, etc.
-    theme(plot.title = element_text(hjust = 0.5)) # centering the title over the plot
-  return(freq_plot) # returning the plot to environment
-}
+########## generating map of locations within the US ##########
+
+# string_test <- test_us$response
+# test_names <- c("MI", "Michigan")
+# 
+# test_string <- c("this_is,my_test string.ok", "this")
+# 
+# # can use "\\b" as regex to recognize boundaries of words
+# str_replace_all(test_string, "\\b", "-")
+# str_extract(string_test, "\\bMaryland\\b")
+# 
+# # by changing "_" back to " ", it creates word boundaries that can be used for parsing the data
+# test <- test_us %>%
+#   mutate(new = str_replace_all(response, "_", " "),
+#          new2 = case_when(str_detect(new, "\\bMaryland\\b") ~ str_extract(new, "\\bMaryland\\b"),
+#                           str_detect(new, "\\bMI\\b") ~ str_extract(new, "\\bMI\\b")))
+
+# created function to search for states in a specific df
+# need to supply it with a list of state abbreviations and names
+# NOTE: need to convert all names to one type (abbreviation or spelled out)
+# test_function <- function(df, state) {
+#   data <- df %>% 
+#     mutate(response = str_replace_all(response, "_", " "),
+#            location = case_when(str_detect(response, regex(paste0("\\b", state, "\\b"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
+#                                   str_extract(response, regex(paste0("\\b", state, "\\b"), ignore_case = T)))) # extracting the state information to a new col
+#   return(data)
+# }
+# 
+# test_function(test_us, us_states)
+
+
+# # testing out test_function()
+# test_function(test_us, "mi") %>% 
+#   group_by(location) %>% 
+#   summarize(count = n())
+
+# map(.x = us_states, .f = test_function, df = test_us)
+
+# # creating list of states and abbreviations for testing
+# us_states <- c(state.name, state.abb)
+# 
+# # instead of creating a named list, a named vector works better for indexing within a function
+# test_names <- tolower(state.abb) %>% 
+#   set_names(tolower(state.name))
+# 
+# # testing the indexing functionality
+# test_names["alaska"]
+# 
+# # seeing if it works in the dataframe
+# test %>%
+#   mutate(location = ifelse(location %in% names(test_names), test_names[location], location))
+
+# # checking to make sure pasting the list of states and abbreviations works properly
+# paste0("\\b", us_states, "\\b")
+# paste(paste0("\\b", us_states, "\\b"), collapse = "|")
+
+# testing the output
+#test <- test_function2(test_us)
+
+# # a bunch of for loops that kind of worked but not quite what I wanted
+# for (i in unique(test$location)) {
+#   if (i %in% tolower(state.name)) {
+#     print(i)
+#   }
+# }
+# 
+# 
+# change_name_to_abb <- function(df) {
+#   for (i in df$location) {
+#     if (i %in% names(test_names)) {
+#       return(test_names[[i]])
+#     }
+#   }
+# }
+# 
+# 
+# if (test$location %in% names(test_names)) {
+#   print(test_names)
+# }
+
+# ifelse(test$location %in% names(test_names), test_names[[as.character(test$location)]], NA_character_)
+
+# test_names$alabama
+# test_names[["alabama"]]
+# as.character(test$location)
+# 
+# 
+# change_name_to_abb(test)
+# test %>% 
+#   mutate(loc_test = change_name_to_abb(.))
+# 
+# test2 <- for (i in test$location) {
+#   if (i %in% names(test_names)) {
+#     return(test_names[[i]])
+#   }
+# }
+# 
+# for (i in test$location) {
+#   if (i %in% names(test_names)) {
+#     print(i)
+#   }
+# }
+
+# # creating test df of only domestic locations
+# test_us <- tidy_survey_data %>%
+#   filter(question_no == "Q10" & !is.na(response))
+
+# # creating function to extract the us state from the responses and convert all to abbreviations for uniformity and plotting
+# extract_us_state <- function(df) {
+#   us_state <- c(state.abb, state.name) # creating vector of states and abbreviations
+#   us_state_name_to_abb <- tolower(state.abb) %>% # creates a named vector to enable extraction based on full name
+#     set_names(tolower(state.name))
+#   data <- df %>%
+#     mutate(response = str_replace_all(response, "_", " "),
+#            location = tolower(case_when(str_detect(response, regex(paste(paste0("\\b", us_state, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
+#                                   str_extract(response, regex(paste(paste0("\\b", us_state, "\\b"), collapse = "|"), ignore_case = T)),  # extracting the state information to a new col
+#                                 TRUE ~ NA_character_)), 
+#            location = ifelse(location %in% names(us_state_name_to_abb), us_state_name_to_abb[location], location)) # converts location to state abbreviation based on presence of state name
+#   return(data)
+# }
+
+# # testing extract_us_state()
+# extract_us_state(test_us)
+
+########## END ##########
+
+
+
+########## generating map of locations outside the US ##########
+
+
+
+########## END ##########
+
+
+########## generating plots for entire dataset ##########
+
+# # making function to generate plots for multi choice questions
+# make_response_plot <- function(df) { # df = properly formatted data frame with data
+#   freq_plot <- df %>% # assigning the output
+#     ggplot() +
+#     geom_bar(aes(x = response, y = percent_freq, fill = response, group = subquestion_no), # adding bars
+#              color = "black", show.legend = F, stat = "identity", width = 0.75) +
+#     geom_text(aes(x = response, y = percent_freq, label = paste0(round(percent_freq, 1), "%")), vjust = -0.5) + # adding response freq over bars
+#     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
+#     scale_x_discrete(labels = c(str_replace_all(df$response, "_", " "))) + # reformatting axis labels to look nice
+#     labs(title = text_wrapper(str_replace_all(unique(df$question), "_", " "), width = 60), # reformatting remainging labels to look nice
+#          y = "Proportion of Postdoctoral Respondents (%)",
+#          x = "Responses") +
+#     theme_classic() + # changing color scheme, etc.
+#     theme(plot.title = element_text(hjust = 0.5)) # centering the title over the plot
+#   return(freq_plot) # returning the plot to environment
+# }
 # 
 # # testing response plotting function
 # make_response_plot(response_freq$Q6)
