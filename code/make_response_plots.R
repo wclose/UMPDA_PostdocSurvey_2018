@@ -29,19 +29,19 @@ text_wrapper <- function(x, ...)
 
 ########## generating map of locations within the US ##########
 
-# creating function to extract the us state from the responses and convert all to abbreviations for uniformity and plotting
+# creating function to extract the us state from the responses and convert all abbreviations to full names for uniformity and plotting
 # added in step to filter data to only relevant question about locations within us
 extract_us_region <- function(df) {
   us_region <- c(us_states_territories$abb, us_states_territories$name) # creating vector of states and abbreviations
-  us_region_to_abb <- tolower(us_states_territories$abb) %>% # creates a named vector to enable extraction based on full name
-    set_names(tolower(us_states_territories$name))
+  us_abb_to_region <- tolower(us_states_territories$name) %>% # creates a named vector to enable extraction based on full name
+    set_names(tolower(us_states_territories$abb))
   data <- df %>%
     filter(question_no == "Q10" & !is.na(response)) %>% 
     mutate(response = str_replace_all(response, "_", " "),
            location = tolower(case_when(str_detect(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
                                           str_extract(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)),  # extracting the state information to a new col
                                         TRUE ~ NA_character_)), 
-           location = ifelse(location %in% names(us_region_to_abb), us_region_to_abb[location], location)) # converts location to state abbreviation based on presence of state name
+           location = ifelse(location %in% names(us_abb_to_region), us_abb_to_region[location], location)) # converts location to state abbreviation based on presence of state name
   return(data)
 }
 
