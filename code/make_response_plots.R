@@ -7,6 +7,9 @@ source("code/calc_response_stats.R")
 # reading in list of us states/territories with abbreviations
 us_states_territories <- read_csv("data/us_state_territories.csv")
 
+# converting df to be all lower case
+us_states_territories <- us_states_territories %>%
+  mutate_all(tolower)
 
 
 # misc functions ----------------------------------------------------------
@@ -33,8 +36,8 @@ text_wrapper <- function(x, ...)
 # added in step to filter data to only relevant question about locations within us
 extract_us_region <- function(df) {
   us_region <- c(us_states_territories$abb, us_states_territories$name) # creating vector of states and abbreviations
-  us_abb_to_region <- tolower(us_states_territories$name) %>% # creates a named vector to enable extraction based on full name
-    set_names(tolower(us_states_territories$abb))
+  us_abb_to_region <- us_states_territories$name %>% # creates a named vector to enable extraction based on full name
+    set_names(us_states_territories$abb)
   data <- df %>%
     filter(question_no == "Q10" & !is.na(response)) %>% 
     mutate(response = str_replace_all(response, "_", " "),
@@ -57,33 +60,65 @@ us_data <- extract_us_region(tidy_survey_data)
 get_location_counts <- function(df) {
   df %>% 
     group_by(question_no, subquestion_no, question, location) %>% # groups by question and response to provide summary stats
-    summarize(n = n()) # creates col for number of a given response (n)
+    summarize(n = n()) %>% # creates col for number of a given response (n)
+    mutate(percent_freq = n/sum(n)*100) %>% 
+    ungroup()
 }
 
 # # testing get_location_counts
 # get_location_counts(us_data)
 
-# saving count data for us states
-us_location_counts <- get_location_counts(us_data)
 
-# working on plotting location information
-crimes <- data.frame(state = tolower(rownames(USArrests)), USArrests)
-crimesm <- reshape2::melt(crimes, id = 1)
-if (require(maps)) {
+##### turn this into a function ####
+# saving count data for us states and filling in missing states
+us_location_counts <- get_location_counts(us_data) %>% 
+  select(location, percent_freq) %>% # selects only the location and count cols
+  right_join(select(us_states_territories, name), by = c("location" = "name")) #%>% # joining with list of states/territories to add any missing
+  # mutate(n = ifelse(is.na(n), 0, n)) # making any missing counts for a state/territory = 0
+
+
+# # working on plotting location information
+# crimes <- data.frame(state = tolower(rownames(USArrests)), USArrests)
+# crimesm <- reshape2::melt(crimes, id = 1)
+# if (require(maps)) {
+#   states_map <- map_data("state")
+#   ggplot(crimes, aes(map_id = state)) +
+#     geom_map(aes(fill = Murder), map = states_map) +
+#     expand_limits(x = states_map$long, y = states_map$lat)
+#   
+#   last_plot() + coord_map()
+#   ggplot(crimesm, aes(map_id = state)) +
+#     geom_map(aes(fill = value), map = states_map) +
+#     expand_limits(x = states_map$long, y = states_map$lat) +
+#     facet_wrap( ~ variable)
+# }
+
+# need mapproj package to display proper dimensions
+library(mapproj)
+library(fiftystater)
+library(viridis)
+
+# making function for mapping locations within the us
+plot_us_degree_locations <- function(df) {
   states_map <- map_data("state")
-  ggplot(crimes, aes(map_id = state)) +
-    geom_map(aes(fill = Murder), map = states_map) +
-    expand_limits(x = states_map$long, y = states_map$lat)
-  
-  last_plot() + coord_map()
-  ggplot(crimesm, aes(map_id = state)) +
-    geom_map(aes(fill = value), map = states_map) +
+  plot <- df %>% 
+    ggplot(aes(map_id = location)) +
+    geom_map(aes(fill = percent_freq), map = states_map, color = "black", size = 0.2) + # plots the map
     expand_limits(x = states_map$long, y = states_map$lat) +
-    facet_wrap( ~ variable)
+    scale_fill_continuous(type = "viridis", na.value = "white") + # making NA values = white and scaling using viridis palette
+    labs(title = "Locations of Ph.D. Granting Institutions for University of Michigan Postdocs",
+         fill = "Percent of Respondents") +
+    coord_map() + # gives map proper dimensions
+    theme(axis.title = element_blank(),
+          axis.text = element_blank(),
+          axis.ticks = element_blank(),
+          panel.grid = element_blank(),
+          panel.background = element_rect(fill = "white"))
+  return(plot)
 }
 
-crimes
-
+# plotting the data
+plot_us_degree_locations(us_location_counts)
 
 
 
