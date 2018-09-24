@@ -56,12 +56,19 @@ us_data <- extract_us_region(tidy_survey_data)
 #   group_by(question_no, subquestion_no, question, location) %>% # groups by question and response to provide summary stats
 #   summarize(n = n()) # creates col for number of a given response (n)
 
+# counting the number of people that responded to the location questions for use in calculating percents later
+location_number <- tidy_survey_data %>% 
+  filter(question_no == "Q10" & !is.na(response) | question_no == "Q11" & !is.na(response)) %>% 
+  select(response_id) %>%
+  unique(.) %>%
+  nrow()
+
 # making function to generate counts of locations/regions
 get_location_counts <- function(df) {
   df %>% 
     group_by(question_no, subquestion_no, question, location) %>% # groups by question and response to provide summary stats
     summarize(n = n()) %>% # creates col for number of a given response (n)
-    mutate(percent_freq = n/sum(n)*100) %>% 
+    mutate(percent_freq = n/location_number*100) %>% 
     ungroup()
 }
 
@@ -93,22 +100,25 @@ us_location_counts <- get_location_counts(us_data) %>%
 #     facet_wrap( ~ variable)
 # }
 
-# need mapproj package to display proper dimensions
-library(mapproj)
-library(fiftystater)
-library(viridis)
+# packages needed to plot map
+library(mapproj) # needed to maintain dimensions
+library(fiftystater) # needed to plot HI and AK in insets
+library(viridis) # needed for color scaling
+
+# NOTE: only plots us states, still need to work on including us territories
 
 # making function for mapping locations within the us
 plot_us_degree_locations <- function(df) {
   states_map <- map_data("state")
   plot <- df %>% 
     ggplot(aes(map_id = location)) +
-    geom_map(aes(fill = percent_freq), map = states_map, color = "black", size = 0.2) + # plots the map
-    expand_limits(x = states_map$long, y = states_map$lat) +
+    geom_map(aes(fill = percent_freq), map = fifty_states, color = "black", size = 0.2) + # plots the map
+    expand_limits(x = fifty_states$long, y = fifty_states$lat) +
     scale_fill_continuous(type = "viridis", na.value = "white") + # making NA values = white and scaling using viridis palette
-    labs(title = "Locations of Ph.D. Granting Institutions for University of Michigan Postdocs",
+    labs(title = "Locations of U.S. Ph.D. Granting Institutions for University of Michigan Postdocs",
          fill = "Percent of Respondents") +
     coord_map() + # gives map proper dimensions
+    fifty_states_inset_boxes() + # package function to add boxes around insets for AK and HI
     theme(axis.title = element_blank(),
           axis.text = element_blank(),
           axis.ticks = element_blank(),
@@ -118,9 +128,19 @@ plot_us_degree_locations <- function(df) {
 }
 
 # plotting the data
-plot_us_degree_locations(us_location_counts)
+us_degree_locations <- plot_us_degree_locations(us_location_counts)
 
+# # playing around with more customized maps
+# library(units)
+# library(tigris)
+# us.map <- tigris::states(cb = T, year = 2015)
+# test <- us_location_counts
+# test <- fortify(us.map, region = "GEOID")
 
+# Things to work on:
+# Include map of world around it
+# Include us territories
+# Change percent of respondents to be based on total dataset
 
 
 ########## END ##########
@@ -138,6 +158,8 @@ test_int <- tidy_survey_data %>%
 
 ########## END ##########
 
+detach("package:mapproj", unload = TRUE)
+detach("package:maps", unload = TRUE)
 
 
 # multiple choice plots ---------------------------------------------------
@@ -150,8 +172,11 @@ test_int <- tidy_survey_data %>%
 
 # creating a plotting function that makes new graph for each question for entire dataset
 make_response_plot <- function(df, question_no_chr) {
-  response_plot <- df %>% 
-    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
+  response_data <- df %>% 
+    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
+  response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
+  aspect <- 0.2*response_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
+  response_plot <- response_data %>% 
     ggplot(aes(x = question_no, y = percent_freq, fill = response)) + # plotting the stratified categories by response
     geom_bar(stat = "identity", show.legend = F, color = "black") + # bar plot
     geom_text(aes(x = question_no, y = percent_freq, label = paste0(format(round(percent_freq, digits = 1), nsmall = 1), "")), # adding response freq over bars
@@ -159,14 +184,15 @@ make_response_plot <- function(df, question_no_chr) {
     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
     facet_grid(str_replace_all(question, "_", " ") ~ str_replace_all(response, c("_" = " ", "," = ", ")), # plots each question/group of subquestions
                switch = "y", # moves y axis strip to opposite side of plot
-               labeller = label_wrap_gen(width = 50, multi_line = TRUE)) + # allows text wrapping in strip labels
+               labeller = label_wrap_gen(width = 60, multi_line = TRUE)) + # allows text wrapping in strip labels
     labs(x = "", # removing x label since the facet labels are the new x labels
          y = "Proportion of postdoctoral respondents (%)") +
     coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
     # NOTE: x and y commands are now swapped due to coord_flip rotating the axes
     theme(axis.line = element_line(size = 0.5, colour = "black"), # formatting axis lines as desired
-          axis.title = element_text(size = 11), # making all chart titles a consistent size
+          axis.title = element_text(size = 10), # making all chart titles a consistent size
           axis.title.x = element_text(margin = margin(10,0,0,0)), # adding space between x axis title and axis labels
+          axis.text = element_text(size = 8),
           axis.text.y = element_blank(), # removing y axis text since there's only one group
           axis.ticks.y = element_blank(), # removing y axis tick marks since there's only one group
           plot.margin = margin(20,30,20,20), # giving plot a bit of padding on edges in case something is plotted out of bounds
@@ -174,23 +200,94 @@ make_response_plot <- function(df, question_no_chr) {
           panel.background = element_rect(fill = "white"), # making panels have white background
           panel.spacing = unit(1, "lines"), # increasing spacing between panels
           panel.spacing.x = unit(2.5, "lines"), # adding a bit more horizontal space between panels
-          strip.text = element_text(size = 11), # setting strip labels to same size as other plot labels
+          strip.text = element_text(size = 10), # setting strip labels to same size as other plot labels
           strip.text.y = element_text(angle = 180, margin = margin(0,20,0,-10)), # formatting and positioning new y labels
-          strip.background.x = element_rect(fill = "white", color = "black"), # formatting strip col labels
+          strip.text.x = element_text(margin = margin(15,0,15,0)),
+          strip.background.x = element_rect(fill = "white", color = NA), # formatting strip col labels
           strip.background.y = element_rect(fill = "white", color = NA), # removing border from strip row labels (new y labels)
           strip.placement = "outside", # moving strip row labels outside y axis labels to make them the new y labels
           # formatting plots to have a consistent size
-          aspect.ratio = 0.075) # making size of bars compared to plot consistent
+          aspect.ratio = aspect) # making size of bars compared to plot consistent
   return(response_plot)
 }
+
+# test14 <- response_freq %>% 
+#   filter(question_no == "Q12")
+# length(unique(test14$response))
+# 0.075*2/7
 
 # iterating through the list of question numbers over the df response_freq which contains all the data
 response_plots <- map(.x = multi_choice_question_list, .f = make_response_plot, df = response_freq) %>% 
   set_names(multi_choice_question_list)
 
-# # testing the output
-# response_plots$Q12
+# testing the output
+response_plots$Q35
+test <- response_plots[1:2]
 
+# creating function to save plots
+save_multichoice_plots <- function(plot_name, category, question_no_chr) {
+  ggsave(plot = plot_name, filename = paste0("results/", paste(category, question_no_chr, sep = "_"), ".png"),
+         device = "png", width = 20, dpi = 300)
+}
+
+save_multichoice_plots(response_plots$Q35, "test", "Q35")
+
+# setting up mapping function to loop through all plots and question numbers
+save_all_multichoice_plots <- function(plot_list, category, question_no_chr_list) {
+  arguments <- data_frame(plot_name = plot_list,
+                          question_no_chr = c(question_no_chr_list))
+  pmap(arguments, save_multichoice_plots, category = category)
+}
+
+# saving all of the plots
+save_all_multichoice_plots(response_plots, "all", multi_choice_question_list)
+
+# library(cowplot)
+# # 
+# # #test2 <- 
+# plot_grid(response_plots$Q12, response_plots$Q35, label_size = 20, align = "v", axis = "l", ncol = 1)
+
+
+
+# trying grobbing
+library(grid)
+library(gridExtra)
+
+# lines up individual graphs but has gaps if one question has more responses
+g1 <- ggplotGrob(response_plots$Q12)
+g2 <- ggplotGrob(response_plots$Q7)
+
+# g1$heights <- g2$heights
+# g1$widths <- g2$widths
+
+g2$widths
+
+g1$widths[4] <- unit(10, "cm")
+g2$widths[4] <- unit(10, "cm")
+
+# g1$heights[grep("1null", g1$heights)] <- unit(0.075, "null")
+# g2$heights
+
+grid.arrange(g3, g2)
+
+# trying to adjust bar height
+
+g3 <- ggplotGrob(response_plots$Q35)
+g4 <- ggplotGrob(response_plots$Q38)
+
+# g3$heights[grep("1null", g3$heights)] <- unit(0.5, "null")
+# g4$heights[grep("1null", g4$heights)] <- unit(0.9, "null")
+
+# g3$widths[4] <- unit(8.52942746844515, "cm")
+g3$widths[4] <- unit(10, "cm")
+g4$widths[4] <- unit(10, "cm")
+
+grid.arrange(g3, g4)
+
+# devtools::install_github("thomasp85/patchwork")
+# library(patchwork)
+# response_plots$Q12 + response_plots$Q35 + response_plots$Q31 + plot_layout(ncol = 1)
+list.files(path = "results/", pattern = "all", full.names = TRUE)
 
 
 ########## END ##########
@@ -204,7 +301,7 @@ make_strat_response_plot <- function(df, question_no_chr) {
   response_plot <- df %>% 
     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
     ggplot(aes(x = strat_id, y = percent_freq, fill = response)) + # plotting the stratified categories by response
-    geom_bar(stat = "identity", show.legend = F, color = "black") + # bar plot
+    geom_bar(stat = "identity", show.legend = F, color = "black", width = 0.075) + # bar plot
     geom_text(aes(x = strat_id, y = percent_freq, label = paste0(format(round(percent_freq, digits = 1), nsmall = 1), "")), # adding response freq over bars
               hjust = -0.25, size = 2.82) + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
     scale_x_discrete(labels = c(str_replace_all(unique(df$strat_id), "_", " "))) + # reformatting axis labels to look nice
@@ -226,11 +323,11 @@ make_strat_response_plot <- function(df, question_no_chr) {
           panel.spacing.x = unit(2.5, "lines"), # adding a bit more horizontal space between panels
           strip.text = element_text(size = 11), # setting strip labels to same size as other plot labels
           strip.text.y = element_text(angle = 180, margin = margin(0,20,0,-10)), # formatting and positioning new y labels
-          strip.background.x = element_rect(fill = "white", color = "black"), # formatting strip col labels
+          strip.background.x = element_rect(fill = "white", color = NA), # formatting strip col labels
           strip.background.y = element_rect(fill = "white", color = NA), # removing border from strip row labels (new y labels)
-          strip.placement = "outside", # moving strip row labels outside y axis labels to make them the new y labels
+          strip.placement = "outside")#, # moving strip row labels outside y axis labels to make them the new y labels
           # formatting plots to have a consistent size
-          aspect.ratio = (0.075*length(unique(df$strat_id)))) # making size of bars compared to plot consistent
+          #aspect.ratio = (0.075*length(unique(df$strat_id)))) # making size of bars compared to plot consistent
   return(response_plot)
 }
 
@@ -257,10 +354,10 @@ make_all_strat_response_plots <- function(strat_response_freq_df, question_no_ch
 # NOTE: question_no_chr_list is passed on to make_all_strat_response_plots()
 strat_response_plots <- map(.x = strat_response_freq, .f = make_all_strat_response_plots, question_no_chr_list = multi_choice_question_list)
 
-# # verifying the plots
-# strat_response_plots$residency$Q35
-# strat_response_plots$college_school[[1]]
-# strat_response_plots$residency$Q16
+# verifying the plots
+strat_response_plots$residency$Q6
+strat_response_plots$college_school$Q35
+strat_response_plots$residency$Q16
 
 ########## END ##########
 
