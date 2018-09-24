@@ -3,6 +3,11 @@
 # loading tidyverse and dataset
 source("code/calc_response_stats.R")
 
+# packages needed for plot size manipulation
+library(grid)
+library(gridExtra)
+
+
 # built in data sets don't include us territories so made new set
 # reading in list of us states/territories with abbreviations
 us_states_territories <- read_csv("data/us_state_territories.csv")
@@ -170,6 +175,8 @@ detach("package:maps", unload = TRUE)
 
 ########## generating plots for entire dataset ##########
 
+library(ggpubr)
+
 # creating a plotting function that makes new graph for each question for entire dataset
 make_response_plot <- function(df, question_no_chr) {
   response_data <- df %>% 
@@ -208,8 +215,30 @@ make_response_plot <- function(df, question_no_chr) {
           strip.placement = "outside", # moving strip row labels outside y axis labels to make them the new y labels
           # formatting plots to have a consistent size
           aspect.ratio = aspect) # making size of bars compared to plot consistent
-  return(response_plot)
+  grob_table <- ggplotGrob(response_plot)
+  grob_table$widths[4] <- unit(10, "cm")
+  grobbed_plot <- as_ggplot(arrangeGrob(grob_table))
+  return(grobbed_plot)
 }
+
+
+
+# lines up individual graphs but has gaps if one question has more responses
+g1 <- ggplotGrob(response_plots$Q12)
+g2 <- ggplotGrob(response_plots$Q7)
+g3 <- ggplotGrob(response_plots$Q35)
+g4 <- ggplotGrob(response_plots$Q38)
+
+g1$widths[4] <- unit(10, "cm")
+g2$widths[4] <- unit(10, "cm")
+g3$widths[4] <- unit(10, "cm")
+g4$widths[4] <- unit(10, "cm")
+
+grid.arrange(g3, g2)
+grid.arrange(g3, g4)
+testing <- as_ggplot(arrangeGrob(g4, g3))
+
+
 
 # test14 <- response_freq %>% 
 #   filter(question_no == "Q12")
@@ -221,37 +250,30 @@ response_plots <- map(.x = multi_choice_question_list, .f = make_response_plot, 
   set_names(multi_choice_question_list)
 
 # testing the output
+response_plots$Q7
 response_plots$Q35
-test <- response_plots[1:2]
+# test <- response_plots[1:2]
 
-# creating function to save plots
-save_multichoice_plots <- function(plot_name, category, question_no_chr) {
-  ggsave(plot = plot_name, filename = paste0("results/", paste(category, question_no_chr, sep = "_"), ".png"),
-         device = "png", width = 20, dpi = 300)
-}
-
-save_multichoice_plots(response_plots$Q35, "test", "Q35")
-
-# setting up mapping function to loop through all plots and question numbers
-save_all_multichoice_plots <- function(plot_list, category, question_no_chr_list) {
-  arguments <- data_frame(plot_name = plot_list,
-                          question_no_chr = c(question_no_chr_list))
-  pmap(arguments, save_multichoice_plots, category = category)
-}
-
-# saving all of the plots
-save_all_multichoice_plots(response_plots, "all", multi_choice_question_list)
-
-# library(cowplot)
-# # 
-# # #test2 <- 
-# plot_grid(response_plots$Q12, response_plots$Q35, label_size = 20, align = "v", axis = "l", ncol = 1)
-
+# # creating function to save plots
+# save_multichoice_plots <- function(plot_name, category, question_no_chr) {
+#   ggsave(plot = plot_name, filename = paste0("results/", paste(category, question_no_chr, sep = "_"), ".png"),
+#          device = "png", width = 20, dpi = 300)
+# }
+# 
+# save_multichoice_plots(response_plots$Q35, "test", "Q35")
+# 
+# # setting up mapping function to loop through all plots and question numbers
+# save_all_multichoice_plots <- function(plot_list, category, question_no_chr_list) {
+#   arguments <- data_frame(plot_name = plot_list,
+#                           question_no_chr = c(question_no_chr_list))
+#   pmap(arguments, save_multichoice_plots, category = category)
+# }
+# 
+# # saving all of the plots
+# save_all_multichoice_plots(response_plots, "all", multi_choice_question_list)
 
 
 # trying grobbing
-library(grid)
-library(gridExtra)
 
 # lines up individual graphs but has gaps if one question has more responses
 g1 <- ggplotGrob(response_plots$Q12)
