@@ -222,18 +222,18 @@ response_plots <- map(.x = multi_choice_question_list, .f = make_response_plot, 
 # response_plots$Q49
 
 # creating function to save plots using dynamic heights
-save_multichoice_plots <- function(plot_name, category, question_no_chr) {
+save_multichoice_plots <- function(plot_name, category, question_no_chr, save_folder="results/") {
   questions <- response_freq %>% # pulls questions from data used to generate plots
     ungroup %>% # forgot to ungroup before
     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
     pull(question) # returns list of questions to be stored
   subquestion_no <- length(unique(questions)) # calculates the number of questions for use in scaling height
   plot_height <- ((4/7 * subquestion_no) + 2) # scaling factor for plot height based on trial and error
-  ggsave(plot = plot_name, filename = paste0("results/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+  ggsave(plot = plot_name, filename = paste0(save_folder, paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
          device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions of plots
 }
 
-# save_multichoice_plots(response_plots$Q35, "test", "Q35")
+# save_multichoice_plots(response_plots$Q35, "test", "Q35", "results/testing/")
 # save_multichoice_plots(response_plots$Q49, "test", "Q49")
 # save_multichoice_plots(response_plots$Q7, "test", "Q7")
 
@@ -246,55 +246,75 @@ save_all_multichoice_plots <- function(plot_list, category, question_no_chr_list
 }
 
 # saving all of the plots
-save_all_multichoice_plots(response_plots, "test_test", multi_choice_question_list)
+# save_all_multichoice_plots(response_plots, "test_test", multi_choice_question_list)
 
 
 
 ########## END ##########
 
-
+length(unique(strat_response_freq$college_school$strat_id))
 
 ########## generating plots based on stratifications ##########
 
 # creating a plotting function that makes new graph for each question based on strat_id
 make_strat_response_plot <- function(df, question_no_chr) {
-  response_plot <- df %>% 
-    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
+  response_data <- df %>% 
+    ungroup %>% 
+    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
+  
+  geom_text_pt_size <- 8
+  
+  response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
+  
+  strat_no <- length(unique(response_data$strat_id)) # calculating the number of categories/bars per question for scaling
+  
+  aspect <- 0.2*response_no*strat_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
+  
+  response_plot <- response_data %>% 
     ggplot(aes(x = strat_id, y = percent_freq, fill = response)) + # plotting the stratified categories by response
-    geom_bar(stat = "identity", show.legend = F, color = "black", width = 0.075) + # bar plot
+    geom_bar(stat = "identity", show.legend = F, color = "black") + # bar plot
     geom_text(aes(x = strat_id, y = percent_freq, label = paste0(format(round(percent_freq, digits = 1), nsmall = 1), "")), # adding response freq over bars
-              hjust = -0.25, size = 2.82) + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
+              hjust = -0.25, size = 1/72*25.4*geom_text_pt_size) + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
     scale_x_discrete(labels = c(str_replace_all(unique(df$strat_id), "_", " "))) + # reformatting axis labels to look nice
     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
     facet_grid(str_replace_all(question, "_", " ") ~ str_replace_all(response, c("_" = " ", "," = ", ")), # plots each question/group of subquestions
                switch = "y", # moves y axis strip to opposite side of plot
-               labeller = label_wrap_gen(width = 50, multi_line = TRUE)) + # allows text wrapping in strip labels
+               labeller = label_wrap_gen(width = 60, multi_line = TRUE)) + # allows text wrapping in strip labels
     labs(x = "", # removing x label since the facet labels are the new x labels
          y = "Proportion of postdoctoral respondents (%)") +
     coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
     # NOTE: x and y commands are now swapped due to coord_flip rotating the axes
     theme(axis.line = element_line(size = 0.5, colour = "black"), # formatting axis lines as desired
-          axis.title = element_text(size = 11), # making all chart titles a consistent size
+          axis.title = element_text(size = 10), # making all chart titles a consistent size
           axis.title.x = element_text(margin = margin(10,0,0,0)), # adding space between x axis title and axis labels
-          plot.margin = margin(20,30,20,20), # giving plot a bit of padding on edges in case something is plotted out of bounds
+          axis.text = element_text(size = 8),
+          plot.margin = margin(20,20,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
           # formatting elements of the facets/strips (facet labels)
           panel.background = element_rect(fill = "white"), # making panels have white background
           panel.spacing = unit(1, "lines"), # increasing spacing between panels
-          panel.spacing.x = unit(2.5, "lines"), # adding a bit more horizontal space between panels
-          strip.text = element_text(size = 11), # setting strip labels to same size as other plot labels
-          strip.text.y = element_text(angle = 180, margin = margin(0,20,0,-10)), # formatting and positioning new y labels
+          panel.spacing.x = unit(2, "lines"), # adding a bit more horizontal space between panels
+          strip.text = element_text(size = 10), # setting strip labels to same size as other plot labels
+          strip.text.y = element_text(angle = 180, margin = margin(0,10,0,10)), # formatting and positioning new y labels
+          strip.text.x = element_text(margin = margin(15,0,15,0)),
           strip.background.x = element_rect(fill = "white", color = NA), # formatting strip col labels
           strip.background.y = element_rect(fill = "white", color = NA), # removing border from strip row labels (new y labels)
-          strip.placement = "outside")#, # moving strip row labels outside y axis labels to make them the new y labels
+          strip.placement = "outside", # moving strip row labels outside y axis labels to make them the new y labels
           # formatting plots to have a consistent size
-          #aspect.ratio = (0.075*length(unique(df$strat_id)))) # making size of bars compared to plot consistent
-  return(response_plot)
+          aspect.ratio = aspect) # making size of bars compared to plot consistent
+  
+  grob_table <- ggplotGrob(response_plot)
+  
+  grob_table$widths[4] <- unit(12, "cm")
+  
+  grobbed_plot <- as_ggplot(arrangeGrob(grob_table))
+  
+  return(grobbed_plot)
 }
 
-# # testing make_strat_response_plot
-# make_strat_response_plot(strat_response_freq$language, "Q16")
-# make_strat_response_plot(strat_response_freq$language, "Q35")
-# make_strat_response_plot(strat_response_freq$college_school, "Q35")
+# testing make_strat_response_plot
+make_strat_response_plot(strat_response_freq$language, "Q16")
+make_strat_response_plot(strat_response_freq$language, "Q35")
+make_strat_response_plot(strat_response_freq$college_school, "Q35")
 
 # making function to cycle through each question for each data frame
 make_all_strat_response_plots <- function(strat_response_freq_df, question_no_chr_list) {
