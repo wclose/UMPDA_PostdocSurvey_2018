@@ -29,7 +29,8 @@ get_response_freq <- function(question_no_chr) { # question_no_chr = question nu
     filter(question_no == question_no_chr) %>% # selects rows containing responses for specific questions
     group_by(question_no, subquestion_no, question, response) %>% # groups by question and response to provide summary stats
     summarize(n = n()) %>% # creates col for number of a given response (n)
-    mutate(percent_freq = n/sum(n)*100) # creates col for percent of total responses attributed to a given response
+    mutate(percent_freq = n/sum(n)*100) %>% # creates col for percent of total responses attributed to a given response
+    ungroup()
   return(freq) # returns the calculated/modified data frame
 }
 
@@ -50,7 +51,8 @@ get_strat_response_freq <- function(df, question_no_chr) { # question_no_chr = q
     filter(question_no == question_no_chr) %>% # selects rows containing responses for specific questions
     group_by(strat_id, question_no, subquestion_no, question, response) %>% # groups by question and response to provide summary stats
     summarize(n = n()) %>% # creates col for number of a given response (n)
-    mutate(percent_freq = n/sum(n)*100) # creates col for percent of total responses attributed to a given response
+    mutate(percent_freq = n/sum(n)*100) %>% # creates col for percent of total responses attributed to a given response
+    ungroup()
   return(freq) # returns the calculated/modified data frame
 }
 
