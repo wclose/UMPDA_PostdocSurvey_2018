@@ -6,6 +6,7 @@ source("code/calc_response_stats.R")
 # packages needed for plot size manipulation
 library(grid)
 library(gridExtra)
+library(ggpubr)
 
 
 # built in data sets don't include us territories so made new set
@@ -15,16 +16,6 @@ us_states_territories <- read_csv("data/us_state_territories.csv")
 # converting df to be all lower case
 us_states_territories <- us_states_territories %>%
   mutate_all(tolower)
-
-
-# misc functions ----------------------------------------------------------
-
-# creating a function to wrap the text of long titles by setting the max number of chrs per line (width = ##)
-# ex: wrapper("Super long title", width = 50)
-text_wrapper <- function(x, ...) 
-{
-  paste(strwrap(x, ...), collapse = "\n")
-}
 
 
 
@@ -175,19 +166,19 @@ detach("package:maps", unload = TRUE)
 
 ########## generating plots for entire dataset ##########
 
-library(ggpubr)
-
 # creating a plotting function that makes new graph for each question for entire dataset
 make_response_plot <- function(df, question_no_chr) {
   response_data <- df %>% 
+    ungroup %>% 
     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
+  geom_text_pt_size <- 8
   response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
   aspect <- 0.2*response_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
   response_plot <- response_data %>% 
     ggplot(aes(x = question_no, y = percent_freq, fill = response)) + # plotting the stratified categories by response
     geom_bar(stat = "identity", show.legend = F, color = "black") + # bar plot
     geom_text(aes(x = question_no, y = percent_freq, label = paste0(format(round(percent_freq, digits = 1), nsmall = 1), "")), # adding response freq over bars
-              hjust = -0.25, size = 2.82) + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
+              hjust = -0.25, size = 1/72*25.4*geom_text_pt_size) + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
     facet_grid(str_replace_all(question, "_", " ") ~ str_replace_all(response, c("_" = " ", "," = ", ")), # plots each question/group of subquestions
                switch = "y", # moves y axis strip to opposite side of plot
@@ -202,13 +193,13 @@ make_response_plot <- function(df, question_no_chr) {
           axis.text = element_text(size = 8),
           axis.text.y = element_blank(), # removing y axis text since there's only one group
           axis.ticks.y = element_blank(), # removing y axis tick marks since there's only one group
-          plot.margin = margin(20,30,20,20), # giving plot a bit of padding on edges in case something is plotted out of bounds
+          plot.margin = margin(20,20,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
           # formatting elements of the facets/strips (facet labels)
           panel.background = element_rect(fill = "white"), # making panels have white background
           panel.spacing = unit(1, "lines"), # increasing spacing between panels
-          panel.spacing.x = unit(2.5, "lines"), # adding a bit more horizontal space between panels
+          panel.spacing.x = unit(2, "lines"), # adding a bit more horizontal space between panels
           strip.text = element_text(size = 10), # setting strip labels to same size as other plot labels
-          strip.text.y = element_text(angle = 180, margin = margin(0,20,0,-10)), # formatting and positioning new y labels
+          strip.text.y = element_text(angle = 180, margin = margin(0,10,0,10)), # formatting and positioning new y labels
           strip.text.x = element_text(margin = margin(15,0,15,0)),
           strip.background.x = element_rect(fill = "white", color = NA), # formatting strip col labels
           strip.background.y = element_rect(fill = "white", color = NA), # removing border from strip row labels (new y labels)
@@ -221,95 +212,42 @@ make_response_plot <- function(df, question_no_chr) {
   return(grobbed_plot)
 }
 
-
-
-# lines up individual graphs but has gaps if one question has more responses
-g1 <- ggplotGrob(response_plots$Q12)
-g2 <- ggplotGrob(response_plots$Q7)
-g3 <- ggplotGrob(response_plots$Q35)
-g4 <- ggplotGrob(response_plots$Q38)
-
-g1$widths[4] <- unit(10, "cm")
-g2$widths[4] <- unit(10, "cm")
-g3$widths[4] <- unit(10, "cm")
-g4$widths[4] <- unit(10, "cm")
-
-grid.arrange(g3, g2)
-grid.arrange(g3, g4)
-testing <- as_ggplot(arrangeGrob(g4, g3))
-
-
-
-# test14 <- response_freq %>% 
-#   filter(question_no == "Q12")
-# length(unique(test14$response))
-# 0.075*2/7
-
 # iterating through the list of question numbers over the df response_freq which contains all the data
 response_plots <- map(.x = multi_choice_question_list, .f = make_response_plot, df = response_freq) %>% 
   set_names(multi_choice_question_list)
 
-# testing the output
-response_plots$Q7
-response_plots$Q35
-# test <- response_plots[1:2]
+# # testing the output
+# response_plots$Q9
+# response_plots$Q7
+# response_plots$Q49
 
-# # creating function to save plots
-# save_multichoice_plots <- function(plot_name, category, question_no_chr) {
-#   ggsave(plot = plot_name, filename = paste0("results/", paste(category, question_no_chr, sep = "_"), ".png"),
-#          device = "png", width = 20, dpi = 300)
-# }
-# 
+# creating function to save plots using dynamic heights
+save_multichoice_plots <- function(plot_name, category, question_no_chr) {
+  questions <- response_freq %>% # pulls questions from data used to generate plots
+    ungroup %>% # forgot to ungroup before
+    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
+    pull(question) # returns list of questions to be stored
+  subquestion_no <- length(unique(questions)) # calculates the number of questions for use in scaling height
+  plot_height <- ((4/7 * subquestion_no) + 2) # scaling factor for plot height based on trial and error
+  ggsave(plot = plot_name, filename = paste0("results/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+         device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions of plots
+}
+
 # save_multichoice_plots(response_plots$Q35, "test", "Q35")
-# 
-# # setting up mapping function to loop through all plots and question numbers
-# save_all_multichoice_plots <- function(plot_list, category, question_no_chr_list) {
-#   arguments <- data_frame(plot_name = plot_list,
-#                           question_no_chr = c(question_no_chr_list))
-#   pmap(arguments, save_multichoice_plots, category = category)
-# }
-# 
-# # saving all of the plots
-# save_all_multichoice_plots(response_plots, "all", multi_choice_question_list)
+# save_multichoice_plots(response_plots$Q49, "test", "Q49")
+# save_multichoice_plots(response_plots$Q7, "test", "Q7")
 
 
-# trying grobbing
+# setting up mapping function to loop through all plots and question numbers
+save_all_multichoice_plots <- function(plot_list, category, question_no_chr_list) {
+  arguments <- data_frame(plot_name = plot_list,
+                          question_no_chr = c(question_no_chr_list))
+  pmap(arguments, save_multichoice_plots, category = category)
+}
 
-# lines up individual graphs but has gaps if one question has more responses
-g1 <- ggplotGrob(response_plots$Q12)
-g2 <- ggplotGrob(response_plots$Q7)
+# saving all of the plots
+save_all_multichoice_plots(response_plots, "test_test", multi_choice_question_list)
 
-# g1$heights <- g2$heights
-# g1$widths <- g2$widths
-
-g2$widths
-
-g1$widths[4] <- unit(10, "cm")
-g2$widths[4] <- unit(10, "cm")
-
-# g1$heights[grep("1null", g1$heights)] <- unit(0.075, "null")
-# g2$heights
-
-grid.arrange(g3, g2)
-
-# trying to adjust bar height
-
-g3 <- ggplotGrob(response_plots$Q35)
-g4 <- ggplotGrob(response_plots$Q38)
-
-# g3$heights[grep("1null", g3$heights)] <- unit(0.5, "null")
-# g4$heights[grep("1null", g4$heights)] <- unit(0.9, "null")
-
-# g3$widths[4] <- unit(8.52942746844515, "cm")
-g3$widths[4] <- unit(10, "cm")
-g4$widths[4] <- unit(10, "cm")
-
-grid.arrange(g3, g4)
-
-# devtools::install_github("thomasp85/patchwork")
-# library(patchwork)
-# response_plots$Q12 + response_plots$Q35 + response_plots$Q31 + plot_layout(ncol = 1)
-list.files(path = "results/", pattern = "all", full.names = TRUE)
 
 
 ########## END ##########
@@ -566,7 +504,20 @@ strat_response_plots$residency$Q16
 # # verifying indexing ability and plot appearance
 # response_plots$Q12
 
-
+# # testing grobbing to set plot widths to the same value
+# g1 <- ggplotGrob(response_plots$Q12)
+# g2 <- ggplotGrob(response_plots$Q7)
+# g3 <- ggplotGrob(response_plots$Q35)
+# g4 <- ggplotGrob(response_plots$Q38)
+# 
+# g1$widths[4] <- unit(10, "cm")
+# g2$widths[4] <- unit(10, "cm")
+# g3$widths[4] <- unit(10, "cm")
+# g4$widths[4] <- unit(10, "cm")
+# 
+# grid.arrange(g3, g2)
+# grid.arrange(g3, g4)
+# testing <- as_ggplot(arrangeGrob(g4, g3))
 
 # # making function to generate plots for multi choice questions
 # make_stack_response_plot <- function(df) { # df = properly formatted data frame with data
@@ -602,3 +553,38 @@ strat_response_plots$residency$Q16
 #   geom_bar(stat = "identity") +
 #   facet_wrap(~ subquestion_no)
 
+# # retreiving grob sizing
+# g1 <- ggplotGrob(response_plots$Q35)
+# test <- g1$widths[1:4]
+# 
+# g2 <- ggplotGrob(response_plots$Q7)
+# g2$widths[4] <- unit(9, "cm")
+# g1$widths[1:4] <- g2$widths[1:4]
+# grid.arrange(g1)
+
+# grob_plots <- function(resp_plot) {
+#   # choosing which graph will has ideal spacing
+#   ref_grob <- ggplotGrob(response_plots$Q7)
+#   ref_grob$widths[4] <- unit(9, "cm") # modifies spacing between left of chart and y axis
+#   # modifying target plot
+#   grob_table <- ggplotGrob(resp_plot) # generates gtable
+#   grob_table$widths[1:4] <- ref_grob$widths[1:4] # modifies width spacing based on ref_grob
+#   grobbed_plot <- as_ggplot(arrangeGrob(grob_table)) # prints with new dimensions
+#   return(grobbed_plot)
+# }
+
+# grob_plots(response_plots$Q35)
+# test <- map(response_plots, grob_plots)
+# test$
+
+# test <- tidy_survey_data %>% 
+#   filter(question_no == "Q35")
+
+# length(unique(test$question))
+# 8/7*1+2
+
+# test2 <- response_freq %>% 
+#   ungroup %>% 
+#   filter(question_no == "Q35" & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
+#   pull(question)
+# unique(test2)
