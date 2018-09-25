@@ -126,6 +126,10 @@ plot_us_degree_locations <- function(df) {
 # plotting the data
 us_degree_locations <- plot_us_degree_locations(us_location_counts)
 
+
+ggsave(filename = "results/us_degree_locations.png", plot = us_degree_locations, width = 20, dpi = 300)
+
+
 # # playing around with more customized maps
 # library(units)
 # library(tigris)
