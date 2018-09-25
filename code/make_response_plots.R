@@ -169,7 +169,6 @@ detach("package:maps", unload = TRUE)
 # creating a plotting function that makes new graph for each question for entire dataset
 make_response_plot <- function(df, question_no_chr) {
   response_data <- df %>% 
-    ungroup %>% 
     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
   geom_text_pt_size <- 8
   response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
@@ -221,19 +220,18 @@ response_plots <- map(.x = multi_choice_question_list, .f = make_response_plot, 
 # response_plots$Q7
 # response_plots$Q49
 
-# creating function to save plots using dynamic heights
-save_multichoice_plots <- function(plot_name, category, question_no_chr, save_folder="results/") {
+
+save_multichoice_plots <- function(plot_name, category=NULL, question_no_chr) {
   questions <- response_freq %>% # pulls questions from data used to generate plots
-    ungroup %>% # forgot to ungroup before
     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
     pull(question) # returns list of questions to be stored
   subquestion_no <- length(unique(questions)) # calculates the number of questions for use in scaling height
   plot_height <- ((4/7 * subquestion_no) + 2) # scaling factor for plot height based on trial and error
-  ggsave(plot = plot_name, filename = paste0(save_folder, paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+  ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
          device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions of plots
 }
 
-# save_multichoice_plots(response_plots$Q35, "test", "Q35", "results/testing/")
+# save_multichoice_plots(response_plots$Q35, "test", "Q35")
 # save_multichoice_plots(response_plots$Q49, "test", "Q49")
 # save_multichoice_plots(response_plots$Q7, "test", "Q7")
 
@@ -246,20 +244,19 @@ save_all_multichoice_plots <- function(plot_list, category, question_no_chr_list
 }
 
 # saving all of the plots
-# save_all_multichoice_plots(response_plots, "test_test", multi_choice_question_list)
+save_all_multichoice_plots(response_plots, "all", multi_choice_question_list)
 
 
 
 ########## END ##########
 
-length(unique(strat_response_freq$college_school$strat_id))
+
 
 ########## generating plots based on stratifications ##########
 
 # creating a plotting function that makes new graph for each question based on strat_id
 make_strat_response_plot <- function(df, question_no_chr) {
   response_data <- df %>% 
-    ungroup %>% 
     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
   
   geom_text_pt_size <- 8
@@ -311,10 +308,10 @@ make_strat_response_plot <- function(df, question_no_chr) {
   return(grobbed_plot)
 }
 
-# testing make_strat_response_plot
-make_strat_response_plot(strat_response_freq$language, "Q16")
-make_strat_response_plot(strat_response_freq$language, "Q35")
-make_strat_response_plot(strat_response_freq$college_school, "Q35")
+# # testing make_strat_response_plot
+# make_strat_response_plot(strat_response_freq$language, "Q16")
+# make_strat_response_plot(strat_response_freq$language, "Q35")
+# make_strat_response_plot(strat_response_freq$college_school, "Q35")
 
 # making function to cycle through each question for each data frame
 make_all_strat_response_plots <- function(strat_response_freq_df, question_no_chr_list) {
@@ -334,10 +331,48 @@ make_all_strat_response_plots <- function(strat_response_freq_df, question_no_ch
 # NOTE: question_no_chr_list is passed on to make_all_strat_response_plots()
 strat_response_plots <- map(.x = strat_response_freq, .f = make_all_strat_response_plots, question_no_chr_list = multi_choice_question_list)
 
-# verifying the plots
-strat_response_plots$residency$Q6
-strat_response_plots$college_school$Q35
-strat_response_plots$residency$Q16
+# # verifying the plots
+# strat_response_plots$residency$Q6
+# strat_response_plots$college_school$Q35
+# strat_response_plots$residency$Q16
+# strat_response_plots$residency$Q49
+
+# creating function to save plots using dynamic heights
+save_strat_plots <- function(plot_name, category, question_no_chr) {
+  questions <- strat_response_freq[[category]] %>% # pulls questions from data used to generate plots
+    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
+    pull(question) # returns list of questions to be stored
+  strat_ids <- strat_response_freq[[category]] %>% # pulls list of strat_ids for each plot for use in scaling height of output figure
+    pull(strat_id)
+  subquestion_no <- length(unique(questions)) # calculates the number of questions for use in scaling height
+  strat_id_no <- length(unique(strat_ids)) # calculates number of strat ids for use in scaling
+  plot_height <- ((4/7 * subquestion_no * 0.6 * strat_id_no) + 2) # scaling factor for plot height based on (lots of) trial and error
+  ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+         device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions of plots
+}
+
+save_strat_plots(strat_response_plots$residency$Q35, "residency", "Q35")
+save_strat_plots(strat_response_plots$residency$Q49, "residency", "Q49")
+
+# setting up mapping function to loop through all plots and question numbers
+save_all_strat_plots <- function(plot_list, question_no_chr_list, category) {
+  arguments <- data_frame(plot_name = plot_list,
+                          question_no_chr = question_no_chr_list)
+  pmap(arguments, save_strat_plots, category = category)
+}
+
+# save_all_strat_plots(strat_response_plots$college_school, category = "college_school", multi_choice_question_list)
+
+# creating function to feed multiple lists of plots, categories, and save folders
+save_all_strat_plots_set <- function(plot_list_list, category_list, question_no_chr_list) {
+  arguments <- data_frame(plot_list = plot_list_list,
+                          category = category_list)
+  pmap(arguments, save_all_strat_plots, question_no_chr_list = question_no_chr_list)
+}
+
+save_all_strat_plots_set(strat_response_plots, strat_list_names, multi_choice_question_list)
+
+
 
 ########## END ##########
 
