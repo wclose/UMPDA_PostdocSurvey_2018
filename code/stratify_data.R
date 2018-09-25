@@ -69,7 +69,7 @@ make_stratified_data <- function(strat_col_values) {
 }
 
 # creating list of names for naming list of comparison classifications
-list_names <- c("college_school", "postdoc_no", "residency", "language", "gender", "pop_representation",
+strat_list_names <- c("college_school", "postdoc_no", "residency", "language", "gender", "pop_representation",
                 "relationship_status", "dependents", "career_track", "satisfaction")
 
 # creating a named list of all of the desired breakdowns for comparisons then naming the output list
@@ -84,7 +84,7 @@ strat_list <- list(c("UMMS", "ENG", "LSA", "Other"),
                    c("Dependents", "No_dependents"),
                    c("Academic_(research)", "Academic_(teaching)", "Non-academic", "Unsure"),
                    c("Satisfied", "Unsatisfied", "Neutral")) %>% 
-  set_names(list_names)
+  set_names(strat_list_names)
 
 # setting up a function to allow use of map to iterate through each set of stratification classifications
 get_strat_data <- function(x) {
