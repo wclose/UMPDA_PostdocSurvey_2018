@@ -1,0 +1,250 @@
+---
+title: "2018 Postdoc Survey"
+author: "Jay Vornhagen, Francois Beaufay, Ashley Kalinski, William L. Close"
+date: "9/22/2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r libraries, message = FALSE}
+library(tidyverse)
+library(knitr)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = "~/Dropbox/University_of_Michigan/umpda/postdoc_survey/")
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r data, message=FALSE, include=FALSE}
+# reading in data and making plots
+#source("code/make_response_plots.R")
+```
+
+## Section 1. The entire University of Michigan postdoc population
+
+#### Population
+
+#### Strengths
+
+#### Weaknesses
+
+#### Opportunities
+
+#### Threats
+
+## Section 1. Appendix A. UMPDA question results.
+
+```{r us_location, echo=FALSE}
+knitr::include_graphics(paste0("../", "results/us_degree_locations.png"))
+```
+
+```{r survey_all, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+myimages <- paste0("../", list.files("results/all/", pattern = ".png", full.names = TRUE))
+knitr::include_graphics(myimages)
+```
+
+## Section 2. Postdocs broken down by school/college
+
+#### Population
+
+#### Strengths
+
+#### Weaknesses
+
+#### Opportunities
+
+#### Threats
+
+## Section 2. Appendix A. UMPDA question results.
+
+```{r survey_college, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+myimages <- paste0("../", list.files("results/college_school/", pattern = ".png", full.names = TRUE))
+knitr::include_graphics(myimages)
+```
+
+## Section 3. Postdocs broken down by domestic vs. international
+
+#### Population
+
+#### Strengths
+
+#### Weaknesses
+
+#### Opportunities
+
+#### Threats
+
+## Section 3. Appendix A. UMPDA question results.
+
+```{r survey_residency, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+myimages <- paste0("../", list.files("results/residency/", pattern = ".png", full.names = TRUE))
+knitr::include_graphics(myimages)
+```
+
+## Section 4. Postdocs broken down by English as a first language (EFL) vs. English as an acquired language (EAL)
+
+#### Population
+
+#### Strengths
+
+#### Weaknesses
+
+#### Opportunities
+
+#### Threats
+
+## Section 4. Appendix A. UMPDA question results.
+
+```{r survey_language, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+myimages <- paste0("../", list.files("results/language/", pattern = ".png", full.names = TRUE))
+knitr::include_graphics(myimages)
+```
+
+## Section 5. Postdocs broken down by dependents vs. no dependents
+
+#### Population
+
+#### Strengths
+
+#### Weaknesses
+
+#### Opportunities
+
+#### Threats
+
+## Section 5. Appendix A. UMPDA question results.
+
+```{r survey_dependents, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+myimages <- paste0("../", list.files("results/dependents/", pattern = ".png", full.names = TRUE))
+knitr::include_graphics(myimages)
+```
+
+## Section 6. Postdocs broken down by relationship status
+
+#### Population
+
+#### Strengths
+
+#### Weaknesses
+
+#### Opportunities
+
+#### Threats
+
+## Section 6. Appendix A. UMPDA question results.
+
+```{r survey_relationship, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+myimages <- paste0("../", list.files("results/relationship_status/", pattern = ".png", full.names = TRUE))
+knitr::include_graphics(myimages)
+```
+
+## Section 7. Postdocs broken down by gender
+
+#### Population
+
+#### Strengths
+
+#### Weaknesses
+
+#### Opportunities
+
+#### Threats
+
+## Section 7. Appendix A. UMPDA question results.
+
+```{r survey_gender, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+myimages <- paste0("../", list.files("results/gender/", pattern = ".png", full.names = TRUE))
+knitr::include_graphics(myimages)
+```
+
+## Section 8. Postdocs broken down by population representation
+
+#### Population
+
+#### Strengths
+
+#### Weaknesses
+
+#### Opportunities
+
+#### Threats
+
+## Section 8. Appendix A. UMPDA question results.
+
+```{r survey_representation, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+myimages <- paste0("../", list.files("results/pop_representation/", pattern = ".png", full.names = TRUE))
+knitr::include_graphics(myimages)
+```
+
+## Section 9. Postdocs broken down by career track
+
+#### Population
+
+#### Strengths
+
+#### Weaknesses
+
+#### Opportunities
+
+#### Threats
+
+## Section 9. Appendix A. UMPDA question results.
+
+```{r survey_career, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+myimages <- paste0("../", list.files("results/career_track/", pattern = ".png", full.names = TRUE))
+knitr::include_graphics(myimages)
+```
+
+## Section 10. Postdocs broken down by number of postdoc positions
+
+#### Population
+
+#### Strengths
+
+#### Weaknesses
+
+#### Opportunities
+
+#### Threats
+
+## Section 10. Appendix A. UMPDA question results.
+
+```{r survey_postdoc_no, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+myimages <- paste0("../", list.files("results/postdoc_no/", pattern = ".png", full.names = TRUE))
+knitr::include_graphics(myimages)
+```
+
+## Section 11. Postdocs broken down by postdoc satisifaction
+
+#### Population
+
+#### Strengths
+
+#### Weaknesses
+
+#### Opportunities
+
+#### Threats
+
+## Section 11. Appendix A. UMPDA question results.
+
+```{r survey_satisfaction, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+myimages <- paste0("../", list.files("results/satisfaction/", pattern = ".png", full.names = TRUE))
+knitr::include_graphics(myimages)
+```
+
+## Section 12. Summary
