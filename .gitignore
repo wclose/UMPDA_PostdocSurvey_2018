@@ -10,6 +10,7 @@
 data/*
 !README.md
 notes/*
+results/*
 
 # misc
 *temp*
