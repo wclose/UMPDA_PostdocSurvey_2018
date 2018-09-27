@@ -4,179 +4,28 @@
 source("code/calc_response_stats.R")
 
 # packages needed for plot size manipulation
-library(grid)
-library(gridExtra)
-library(ggpubr)
-
-
-# built in data sets don't include us territories so made new set
-# reading in list of us states/territories with abbreviations
-us_states_territories <- read_csv("data/us_state_territories.csv")
-
-# converting df to be all lower case
-us_states_territories <- us_states_territories %>%
-  mutate_all(tolower)
+library(grid) # required for table grobbing of response plots
+library(gridExtra) # used to align response plot coordinates
+library(ggpubr) # required to save gtable plots as ggplot items
 
 
 
-# maps of degree locations ------------------------------------------------
+# plotting functions ------------------------------------------------------
 
-# NOTE: need to adjust question to apply to Ph.D.s, M.D.s, and J.D.s (do J.D.s count as postdocs?)
-# NOTE: some US citizens completed degrees outside the US, need to adjust question if/else flow for citizenship question
-
-
-
-########## generating map of locations within the US ##########
-
-# creating function to extract the us state from the responses and convert all abbreviations to full names for uniformity and plotting
-# added in step to filter data to only relevant question about locations within us
-extract_us_region <- function(df) {
-  us_region <- c(us_states_territories$abb, us_states_territories$name) # creating vector of states and abbreviations
-  us_abb_to_region <- us_states_territories$name %>% # creates a named vector to enable extraction based on full name
-    set_names(us_states_territories$abb)
-  data <- df %>%
-    filter(question_no == "Q10" & !is.na(response)) %>% 
-    mutate(response = str_replace_all(response, "_", " "),
-           location = tolower(case_when(str_detect(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
-                                          str_extract(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)),  # extracting the state information to a new col
-                                        TRUE ~ NA_character_)), 
-           location = ifelse(location %in% names(us_abb_to_region), us_abb_to_region[location], location)) # converts location to state abbreviation based on presence of state name
-  return(data)
-}
-
-# extracting us region data and adding as a new col creating state_data df
-us_data <- extract_us_region(tidy_survey_data)
-
-# # getting counts for each state/territory
-# us_data %>% 
-#   group_by(question_no, subquestion_no, question, location) %>% # groups by question and response to provide summary stats
-#   summarize(n = n()) # creates col for number of a given response (n)
-
-# counting the number of people that responded to the location questions for use in calculating percents later
-location_number <- tidy_survey_data %>% 
-  filter(question_no == "Q10" & !is.na(response) | question_no == "Q11" & !is.na(response)) %>% 
-  select(response_id) %>%
-  unique(.) %>%
-  nrow()
-
-# making function to generate counts of locations/regions
-get_location_counts <- function(df) {
-  df %>% 
-    group_by(question_no, subquestion_no, question, location) %>% # groups by question and response to provide summary stats
-    summarize(n = n()) %>% # creates col for number of a given response (n)
-    mutate(percent_freq = n/location_number*100) %>% 
-    ungroup()
-}
-
-# # testing get_location_counts
-# get_location_counts(us_data)
-
-
-##### turn this into a function ####
-# saving count data for us states and filling in missing states
-us_location_counts <- get_location_counts(us_data) %>% 
-  select(location, percent_freq) %>% # selects only the location and count cols
-  right_join(select(us_states_territories, name), by = c("location" = "name")) #%>% # joining with list of states/territories to add any missing
-  # mutate(n = ifelse(is.na(n), 0, n)) # making any missing counts for a state/territory = 0
-
-
-# # working on plotting location information
-# crimes <- data.frame(state = tolower(rownames(USArrests)), USArrests)
-# crimesm <- reshape2::melt(crimes, id = 1)
-# if (require(maps)) {
-#   states_map <- map_data("state")
-#   ggplot(crimes, aes(map_id = state)) +
-#     geom_map(aes(fill = Murder), map = states_map) +
-#     expand_limits(x = states_map$long, y = states_map$lat)
-#   
-#   last_plot() + coord_map()
-#   ggplot(crimesm, aes(map_id = state)) +
-#     geom_map(aes(fill = value), map = states_map) +
-#     expand_limits(x = states_map$long, y = states_map$lat) +
-#     facet_wrap( ~ variable)
-# }
-
-# packages needed to plot map
-library(mapproj) # needed to maintain dimensions
-library(fiftystater) # needed to plot HI and AK in insets
-library(viridis) # needed for color scaling
-
-# NOTE: only plots us states, still need to work on including us territories
-
-# making function for mapping locations within the us
-plot_us_degree_locations <- function(df) {
-  states_map <- map_data("state")
-  plot <- df %>% 
-    ggplot(aes(map_id = location)) +
-    geom_map(aes(fill = percent_freq), map = fifty_states, color = "black", size = 0.2) + # plots the map
-    expand_limits(x = fifty_states$long, y = fifty_states$lat) +
-    scale_fill_continuous(type = "viridis", na.value = "white") + # making NA values = white and scaling using viridis palette
-    labs(title = "Locations of U.S. Ph.D. Granting Institutions for University of Michigan Postdocs",
-         fill = "Percent of Respondents") +
-    coord_map() + # gives map proper dimensions
-    fifty_states_inset_boxes() + # package function to add boxes around insets for AK and HI
-    theme(axis.title = element_blank(),
-          axis.text = element_blank(),
-          axis.ticks = element_blank(),
-          panel.grid = element_blank(),
-          panel.background = element_rect(fill = "white"))
-  return(plot)
-}
-
-# plotting the data
-us_degree_locations <- plot_us_degree_locations(us_location_counts)
-
-
-ggsave(filename = "results/us_degree_locations.png", plot = us_degree_locations, width = 20, dpi = 300)
-
-
-# # playing around with more customized maps
-# library(units)
-# library(tigris)
-# us.map <- tigris::states(cb = T, year = 2015)
-# test <- us_location_counts
-# test <- fortify(us.map, region = "GEOID")
-
-# Things to work on:
-# Include map of world around it
-# Include us territories
-# Change percent of respondents to be based on total dataset
-
-
-########## END ##########
-
-
-
-########## generating map of locations outside the US ##########
-
-test_int <- tidy_survey_data %>% 
-  filter(question_no == "Q11" & !is.na(response))
-
-
-
-
-
-########## END ##########
-
-detach("package:mapproj", unload = TRUE)
-detach("package:maps", unload = TRUE)
-
-
-# multiple choice plots ---------------------------------------------------
 
 # NOTE: Q22 responses need to be broken up and retabulated before graphing
-
-
-
-########## generating plots for entire dataset ##########
 
 # creating a plotting function that makes new graph for each question for entire dataset
 make_response_plot <- function(df, question_no_chr) {
   response_data <- df %>% 
     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
-  geom_text_pt_size <- 8
+  
+  geom_text_pt_size <- 8 # setting desired size for geom_text plotting
+  
   response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
+  
   aspect <- 0.2*response_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
+  
   response_plot <- response_data %>% 
     ggplot(aes(x = question_no, y = percent_freq, fill = response)) + # plotting the stratified categories by response
     geom_bar(stat = "identity", show.legend = F, color = "black") + # bar plot
@@ -209,56 +58,21 @@ make_response_plot <- function(df, question_no_chr) {
           strip.placement = "outside", # moving strip row labels outside y axis labels to make them the new y labels
           # formatting plots to have a consistent size
           aspect.ratio = aspect) # making size of bars compared to plot consistent
-  grob_table <- ggplotGrob(response_plot)
-  grob_table$widths[4] <- unit(10, "cm")
-  grobbed_plot <- as_ggplot(arrangeGrob(grob_table))
+  
+  grob_table <- ggplotGrob(response_plot) # creates a gtable of plot features
+  
+  grob_table$widths[4] <- unit(12, "cm") # sets alignment of y axis in chart area thereby aligning all plots generated with this script
+  
+  grobbed_plot <- as_ggplot(arrangeGrob(grob_table)) # recreating the plots with updated coordinates and saving as a ggplot item
+  
   return(grobbed_plot)
 }
 
-# iterating through the list of question numbers over the df response_freq which contains all the data
-response_plots <- map(.x = multi_choice_question_list, .f = make_response_plot, df = response_freq) %>% 
-  set_names(multi_choice_question_list)
-
-# # testing the output
-# response_plots$Q9
-# response_plots$Q7
-# response_plots$Q49
 
 
-save_multichoice_plots <- function(plot_name, category=NULL, question_no_chr) {
-  questions <- response_freq %>% # pulls questions from data used to generate plots
-    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
-    pull(question) # returns list of questions to be stored
-  subquestion_no <- length(unique(questions)) # calculates the number of questions for use in scaling height
-  plot_height <- ((4/7 * subquestion_no) + 2) # scaling factor for plot height based on trial and error
-  ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
-         device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions of plots
-}
-
-# save_multichoice_plots(response_plots$Q35, "test", "Q35")
-# save_multichoice_plots(response_plots$Q49, "test", "Q49")
-# save_multichoice_plots(response_plots$Q7, "test", "Q7")
-
-
-# setting up mapping function to loop through all plots and question numbers
-save_all_multichoice_plots <- function(plot_list, category, question_no_chr_list) {
-  arguments <- data_frame(plot_name = plot_list,
-                          question_no_chr = c(question_no_chr_list))
-  pmap(arguments, save_multichoice_plots, category = category)
-}
-
-# saving all of the plots
-save_all_multichoice_plots(response_plots, "all", multi_choice_question_list)
-
-
-
-########## END ##########
-
-
-
-########## generating plots based on stratifications ##########
-
-# creating a plotting function that makes new graph for each question based on strat_id
+# creating a plotting function for the stratified data
+# based on plotting function for unstratified data but builds in scaling for number of strat categories, etc.
+# NOTE: could set up an if/else statement to consolidate plotting functions into a single function
 make_strat_response_plot <- function(df, question_no_chr) {
   response_data <- df %>% 
     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
@@ -303,21 +117,17 @@ make_strat_response_plot <- function(df, question_no_chr) {
           # formatting plots to have a consistent size
           aspect.ratio = aspect) # making size of bars compared to plot consistent
   
-  grob_table <- ggplotGrob(response_plot)
+  grob_table <- ggplotGrob(response_plot) # creates gtable of plot features
   
-  grob_table$widths[4] <- unit(12, "cm")
+  grob_table$widths[4] <- unit(12, "cm") # changes left side of plot to be in consistent place making all the plots align
   
-  grobbed_plot <- as_ggplot(arrangeGrob(grob_table))
+  grobbed_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
   
   return(grobbed_plot)
 }
 
-# # testing make_strat_response_plot
-# make_strat_response_plot(strat_response_freq$language, "Q16")
-# make_strat_response_plot(strat_response_freq$language, "Q35")
-# make_strat_response_plot(strat_response_freq$college_school, "Q35")
-
-# making function to cycle through each question for each data frame
+# making function to cycle through each question for each data frame based on strat category
+# extra function needed because of the nested nature of strat_response_freq_df
 make_all_strat_response_plots <- function(strat_response_freq_df, question_no_chr_list) {
   arguments <- data_frame(df = list(strat_response_freq_df), # 1st col = input df repeated to be same length as number of questions
                           question_no_chr = c(question_no_chr_list)) # 2nd col = list of question numbers in chr format
@@ -326,22 +136,33 @@ make_all_strat_response_plots <- function(strat_response_freq_df, question_no_ch
   return(data)
 }
 
-# # testing make_all_response_plots()
-# test_output <- make_all_response_plots(strat_response_freq$language, multi_choice_question_list)
-# test_output[[1]]
-# test_output$Q27
 
-# making plots for all of the stratified data sets
-# NOTE: question_no_chr_list is passed on to make_all_strat_response_plots()
-strat_response_plots <- map(.x = strat_response_freq, .f = make_all_strat_response_plots, question_no_chr_list = multi_choice_question_list)
 
-# # verifying the plots
-# strat_response_plots$residency$Q6
-# strat_response_plots$college_school$Q35
-# strat_response_plots$residency$Q16
-# strat_response_plots$residency$Q49
+# saving functions --------------------------------------------------------
 
-# creating function to save plots using dynamic heights
+# creating save function for unstratified data
+# dynamically scales height of output, saves in desired dir, and names files dynamically
+save_multichoice_plots <- function(plot_name, category=NULL, question_no_chr) {
+  questions <- response_freq %>% # pulls questions from data used to generate plots
+    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
+    pull(question) # returns list of questions to be stored
+  subquestion_no <- length(unique(questions)) # calculates the number of questions for use in scaling height
+  plot_height <- ((4/7 * subquestion_no) + 2) # scaling factor for plot height based on trial and error
+  ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+         device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions of plots
+}
+
+# setting up mapping function to loop through all plots and question numbers of unstratified data
+save_all_multichoice_plots <- function(plot_list, category, question_no_chr_list) {
+  arguments <- data_frame(plot_name = plot_list,
+                          question_no_chr = c(question_no_chr_list))
+  pmap(arguments, save_multichoice_plots, category = category)
+}
+
+
+
+# creating function to save plots of stratified data
+# based on unstratified function but also adds in scaling factor for number of strat categories (bars) in each
 save_strat_plots <- function(plot_name, category, question_no_chr) {
   questions <- strat_response_freq[[category]] %>% # pulls questions from data used to generate plots
     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
@@ -355,295 +176,85 @@ save_strat_plots <- function(plot_name, category, question_no_chr) {
          device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions of plots
 }
 
-save_strat_plots(strat_response_plots$residency$Q35, "residency", "Q35")
-save_strat_plots(strat_response_plots$residency$Q49, "residency", "Q49")
-
-# setting up mapping function to loop through all plots and question numbers
+# setting up mapping function to loop through all plots and question numbers of stratified data
 save_all_strat_plots <- function(plot_list, question_no_chr_list, category) {
   arguments <- data_frame(plot_name = plot_list,
                           question_no_chr = question_no_chr_list)
   pmap(arguments, save_strat_plots, category = category)
 }
 
-# save_all_strat_plots(strat_response_plots$college_school, category = "college_school", multi_choice_question_list)
-
-# creating function to feed multiple lists of plots, categories, and save folders
+# creating function to feed multiple lists of plots, categories, and save folders for stratified data
+# need this extra function due to the stratified plots being in a list within a list
 save_all_strat_plots_set <- function(plot_list_list, category_list, question_no_chr_list) {
   arguments <- data_frame(plot_list = plot_list_list,
                           category = category_list)
   pmap(arguments, save_all_strat_plots, question_no_chr_list = question_no_chr_list)
 }
 
+
+
+# generating plots for unstratified data ----------------------------------
+
+# iterating through the list of question numbers over the df response_freq which contains all the data
+response_plots <- map(.x = multi_choice_question_list, .f = make_response_plot, df = response_freq) %>% 
+  set_names(multi_choice_question_list)
+
+# # testing map(make_response_plot()) output
+# response_plots$Q9
+# response_plots$Q7
+# response_plots$Q49
+
+
+
+# saving unstratified plots -----------------------------------------------
+
+# # testing save_multichoice_plots()
+# save_multichoice_plots(response_plots$Q35, "test", "Q35")
+# save_multichoice_plots(response_plots$Q49, "test", "Q49")
+# save_multichoice_plots(response_plots$Q7, "test", "Q7")
+
+# saving all of the unstratified plots
+save_all_multichoice_plots(response_plots, "all", multi_choice_question_list)
+
+
+
+# generating plots for stratified data ------------------------------------
+
+# # testing make_strat_response_plot()
+# make_strat_response_plot(strat_response_freq$language, "Q16")
+# make_strat_response_plot(strat_response_freq$language, "Q35")
+# make_strat_response_plot(strat_response_freq$college_school, "Q35")
+
+# # testing make_all_response_plots()
+# test_output <- make_all_response_plots(strat_response_freq$language, multi_choice_question_list)
+# test_output[[1]]
+# test_output$Q27
+
+# making plots for all of the stratified data sets
+# NOTE: question_no_chr_list is passed on to make_all_strat_response_plots()
+strat_response_plots <- map(.x = strat_response_freq, .f = make_all_strat_response_plots, question_no_chr_list = multi_choice_question_list)
+
+# # verifying output of map(make_all_strat_response_plots())
+# strat_response_plots$residency$Q6
+# strat_response_plots$college_school$Q35
+# strat_response_plots$residency$Q16
+# strat_response_plots$residency$Q49
+
+
+
+# saving stratified plots -------------------------------------------------
+
+# # testing save_strat_plots()
+# save_strat_plots(strat_response_plots$residency$Q35, "residency", "Q35")
+# save_strat_plots(strat_response_plots$residency$Q49, "residency", "Q49")
+
+# # testing save_all_strat_plots
+# save_all_strat_plots(strat_response_plots$college_school, category = "college_school", multi_choice_question_list)
+
+# saving all of the stratified plots in the appropriate locations
 save_all_strat_plots_set(strat_response_plots, strat_list_names, multi_choice_question_list)
-
-
-
-########## END ##########
-
-
-
-# typed plots -------------------------------------------------------------
-
-
-
-
-
-
-# look into ideas to plot responses to typed questions
-
-
-
-
-
 
 
 
 # notes -------------------------------------------------------------------
 
-########## generating map of locations within the US ##########
-
-# string_test <- test_us$response
-# test_names <- c("MI", "Michigan")
-# 
-# test_string <- c("this_is,my_test string.ok", "this")
-# 
-# # can use "\\b" as regex to recognize boundaries of words
-# str_replace_all(test_string, "\\b", "-")
-# str_extract(string_test, "\\bMaryland\\b")
-# 
-# # by changing "_" back to " ", it creates word boundaries that can be used for parsing the data
-# test <- test_us %>%
-#   mutate(new = str_replace_all(response, "_", " "),
-#          new2 = case_when(str_detect(new, "\\bMaryland\\b") ~ str_extract(new, "\\bMaryland\\b"),
-#                           str_detect(new, "\\bMI\\b") ~ str_extract(new, "\\bMI\\b")))
-
-# created function to search for states in a specific df
-# need to supply it with a list of state abbreviations and names
-# NOTE: need to convert all names to one type (abbreviation or spelled out)
-# test_function <- function(df, state) {
-#   data <- df %>% 
-#     mutate(response = str_replace_all(response, "_", " "),
-#            location = case_when(str_detect(response, regex(paste0("\\b", state, "\\b"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
-#                                   str_extract(response, regex(paste0("\\b", state, "\\b"), ignore_case = T)))) # extracting the state information to a new col
-#   return(data)
-# }
-# 
-# test_function(test_us, us_states)
-
-
-# # testing out test_function()
-# test_function(test_us, "mi") %>% 
-#   group_by(location) %>% 
-#   summarize(count = n())
-
-# map(.x = us_states, .f = test_function, df = test_us)
-
-# # creating list of states and abbreviations for testing
-# us_states <- c(state.name, state.abb)
-# 
-# # instead of creating a named list, a named vector works better for indexing within a function
-# test_names <- tolower(state.abb) %>% 
-#   set_names(tolower(state.name))
-# 
-# # testing the indexing functionality
-# test_names["alaska"]
-# 
-# # seeing if it works in the dataframe
-# test %>%
-#   mutate(location = ifelse(location %in% names(test_names), test_names[location], location))
-
-# # checking to make sure pasting the list of states and abbreviations works properly
-# paste0("\\b", us_states, "\\b")
-# paste(paste0("\\b", us_states, "\\b"), collapse = "|")
-
-# testing the output
-#test <- test_function2(test_us)
-
-# # a bunch of for loops that kind of worked but not quite what I wanted
-# for (i in unique(test$location)) {
-#   if (i %in% tolower(state.name)) {
-#     print(i)
-#   }
-# }
-# 
-# 
-# change_name_to_abb <- function(df) {
-#   for (i in df$location) {
-#     if (i %in% names(test_names)) {
-#       return(test_names[[i]])
-#     }
-#   }
-# }
-# 
-# 
-# if (test$location %in% names(test_names)) {
-#   print(test_names)
-# }
-
-# ifelse(test$location %in% names(test_names), test_names[[as.character(test$location)]], NA_character_)
-
-# test_names$alabama
-# test_names[["alabama"]]
-# as.character(test$location)
-# 
-# 
-# change_name_to_abb(test)
-# test %>% 
-#   mutate(loc_test = change_name_to_abb(.))
-# 
-# test2 <- for (i in test$location) {
-#   if (i %in% names(test_names)) {
-#     return(test_names[[i]])
-#   }
-# }
-# 
-# for (i in test$location) {
-#   if (i %in% names(test_names)) {
-#     print(i)
-#   }
-# }
-
-# # creating test df of only domestic locations
-# test_us <- tidy_survey_data %>%
-#   filter(question_no == "Q10" & !is.na(response))
-
-# # creating function to extract the us state from the responses and convert all to abbreviations for uniformity and plotting
-# extract_us_state <- function(df) {
-#   us_state <- c(state.abb, state.name) # creating vector of states and abbreviations
-#   us_state_name_to_abb <- tolower(state.abb) %>% # creates a named vector to enable extraction based on full name
-#     set_names(tolower(state.name))
-#   data <- df %>%
-#     mutate(response = str_replace_all(response, "_", " "),
-#            location = tolower(case_when(str_detect(response, regex(paste(paste0("\\b", us_state, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
-#                                   str_extract(response, regex(paste(paste0("\\b", us_state, "\\b"), collapse = "|"), ignore_case = T)),  # extracting the state information to a new col
-#                                 TRUE ~ NA_character_)), 
-#            location = ifelse(location %in% names(us_state_name_to_abb), us_state_name_to_abb[location], location)) # converts location to state abbreviation based on presence of state name
-#   return(data)
-# }
-
-# # testing extract_us_state()
-# extract_us_state(test_us)
-
-########## END ##########
-
-
-
-########## generating map of locations outside the US ##########
-
-
-
-########## END ##########
-
-
-########## generating plots for entire dataset ##########
-
-# # making function to generate plots for multi choice questions
-# make_response_plot <- function(df) { # df = properly formatted data frame with data
-#   freq_plot <- df %>% # assigning the output
-#     ggplot() +
-#     geom_bar(aes(x = response, y = percent_freq, fill = response, group = subquestion_no), # adding bars
-#              color = "black", show.legend = F, stat = "identity", width = 0.75) +
-#     geom_text(aes(x = response, y = percent_freq, label = paste0(round(percent_freq, 1), "%")), vjust = -0.5) + # adding response freq over bars
-#     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
-#     scale_x_discrete(labels = c(str_replace_all(df$response, "_", " "))) + # reformatting axis labels to look nice
-#     labs(title = text_wrapper(str_replace_all(unique(df$question), "_", " "), width = 60), # reformatting remainging labels to look nice
-#          y = "Proportion of Postdoctoral Respondents (%)",
-#          x = "Responses") +
-#     theme_classic() + # changing color scheme, etc.
-#     theme(plot.title = element_text(hjust = 0.5)) # centering the title over the plot
-#   return(freq_plot) # returning the plot to environment
-# }
-# 
-# # testing response plotting function
-# make_response_plot(response_freq$Q6)
-# 
-# # using map() to generate plots for each data frame contained within response_freq list
-# response_plots <- map(response_freq, make_response_plot) # don't need to specify names b/c preserves names from response_freq
-# 
-# # verifying indexing ability and plot appearance
-# response_plots$Q12
-
-# # testing grobbing to set plot widths to the same value
-# g1 <- ggplotGrob(response_plots$Q12)
-# g2 <- ggplotGrob(response_plots$Q7)
-# g3 <- ggplotGrob(response_plots$Q35)
-# g4 <- ggplotGrob(response_plots$Q38)
-# 
-# g1$widths[4] <- unit(10, "cm")
-# g2$widths[4] <- unit(10, "cm")
-# g3$widths[4] <- unit(10, "cm")
-# g4$widths[4] <- unit(10, "cm")
-# 
-# grid.arrange(g3, g2)
-# grid.arrange(g3, g4)
-# testing <- as_ggplot(arrangeGrob(g4, g3))
-
-# # making function to generate plots for multi choice questions
-# make_stack_response_plot <- function(df) { # df = properly formatted data frame with data
-#   freq_plot <- df %>% # assigning the output
-#     ggplot() +
-#     geom_bar(aes(x = question_no, y = percent_freq, fill = response), # adding bars
-#              color = "black", show.legend = T, stat = "identity", width = 0.75, position = "stack") +
-#     #geom_text(aes(x = response, y = percent_freq, label = paste0(round(percent_freq, 1), "%")), vjust = -0.5) + # adding response freq over bars
-#     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
-#     #scale_x_discrete(labels = c(str_replace_all(df$question, "_", " "))) + # reformatting axis labels to look nice
-#     labs(#title = text_wrapper(str_replace_all(unique(df$question), "_", " "), width = 60), # reformatting remainging labels to look nice
-#          y = "Proportion of Postdoctoral Respondents (%)",
-#          x = "Responses") +
-#     #coord_flip() +
-#     theme_classic() + # changing color scheme, etc.
-#     theme(plot.title = element_text(hjust = 0.5)) + # centering the title over the plot
-#     facet_wrap( ~ question)
-#   return(freq_plot) # returning the plot to environment
-# }
-
-# make_stack_response_plot(response_freq$Q35)
-# 
-# # toy data set
-# test <- strat_response_freq$language %>% 
-#   filter(question_no == "Q35" & !is.na(response) & response != "Prefer_not_to_answer")
-# 
-# test_2 <- strat_response_freq$language %>% 
-#   filter(question_no == "Q14" & !is.na(response) & response != "Prefer_not_to_answer")
-# 
-# # basic layout for the plots
-# test %>% 
-#   ggplot(aes(x = strat_id, y = percent_freq, fill = response)) +
-#   geom_bar(stat = "identity") +
-#   facet_wrap(~ subquestion_no)
-
-# # retreiving grob sizing
-# g1 <- ggplotGrob(response_plots$Q35)
-# test <- g1$widths[1:4]
-# 
-# g2 <- ggplotGrob(response_plots$Q7)
-# g2$widths[4] <- unit(9, "cm")
-# g1$widths[1:4] <- g2$widths[1:4]
-# grid.arrange(g1)
-
-# grob_plots <- function(resp_plot) {
-#   # choosing which graph will has ideal spacing
-#   ref_grob <- ggplotGrob(response_plots$Q7)
-#   ref_grob$widths[4] <- unit(9, "cm") # modifies spacing between left of chart and y axis
-#   # modifying target plot
-#   grob_table <- ggplotGrob(resp_plot) # generates gtable
-#   grob_table$widths[1:4] <- ref_grob$widths[1:4] # modifies width spacing based on ref_grob
-#   grobbed_plot <- as_ggplot(arrangeGrob(grob_table)) # prints with new dimensions
-#   return(grobbed_plot)
-# }
-
-# grob_plots(response_plots$Q35)
-# test <- map(response_plots, grob_plots)
-# test$
-
-# test <- tidy_survey_data %>% 
-#   filter(question_no == "Q35")
-
-# length(unique(test$question))
-# 8/7*1+2
-
-# test2 <- response_freq %>% 
-#   ungroup %>% 
-#   filter(question_no == "Q35" & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
-#   pull(question)
-# unique(test2)
