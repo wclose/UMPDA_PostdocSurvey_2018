@@ -11,6 +11,8 @@ data/*
 !README.md
 notes/*
 results/*
+report/*
+!report/*.Rmd
 
 # misc
 *temp*
