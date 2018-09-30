@@ -12,7 +12,7 @@ library(ggpubr) # required to save gtable plots as ggplot items
 
 # plotting functions ------------------------------------------------------
 
-
+# NOTE: Need to design separate plotting functions for Q6 and 22
 # NOTE: Q22 responses need to be broken up and retabulated before graphing
 
 # creating a plotting function that makes new graph for each question for entire dataset
@@ -231,7 +231,7 @@ save_all_multichoice_plots(response_plots, "all", multi_choice_question_list)
 # test_output$Q27
 
 # making plots for all of the stratified data sets
-# NOTE: question_no_chr_list is passed on to make_all_strat_response_plots()
+# question_no_chr_list is passed on to make_all_strat_response_plots()
 strat_response_plots <- map(.x = strat_response_freq, .f = make_all_strat_response_plots, question_no_chr_list = multi_choice_question_list)
 
 # # verifying output of map(make_all_strat_response_plots())
@@ -257,4 +257,10 @@ save_all_strat_plots_set(strat_response_plots, strat_list_names, multi_choice_qu
 
 
 # notes -------------------------------------------------------------------
+
+# NOTE: Q22 responses need to be broken up and retabulated before graphing
+
+# NOTE: could set up an if/else statement to consolidate plotting functions into a single function
+
+# NOTE: Need to design separate plotting functions for Q6 and 22
 
