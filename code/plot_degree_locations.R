@@ -85,39 +85,24 @@ calc_us_degree_freq <- function(df) {
 # extracting us region data and adding as a new col creating state_data df
 us_degree_freq <- calc_us_degree_freq(tidy_survey_data)
 
-test2 <- map_data("state") %>% 
-  full_join(test)
 
-test2 %>% 
-  filter(region == "alaska")
-
-test <- fifty_states %>% 
-  filter(id == "alaska" | id == "hawaii") %>% 
-  select(long, lat, order, region = id)
-
-str(fifty_states$group)
 
 # making function for mapping locations within the us
 plot_us_degree_freq <- function(df) {
   
-  # creating df of all us regions (state) and plotting coordinates
-  states_map <- map_data("state")
-  
-  inset_coord <- tibble(x = c(-123.9834,-112.3072,-112.3072,-123.9834,-123.9834,-112.2745,-102.9840,-102.9840,-112.2745,-112.2745),
-                        y = c(23.01948,23.01948,31.24104,31.24104,23.01948,23.01704,23.01704,28.60362,28.60362,23.01704),
-                        id = rep(c("alaska", "hawaii"), each = 5))
+  # plotting points are contained within the fifty_states df of the fifty_stater pkg
+  # using as alternative to map_data("state") because fifty_states includes hawaii and alaska as an inset
   
   # plotting function for us state data
   plot <- df %>% 
-    ggplot(aes(map_id = region)) +
-    geom_map(aes(fill = percent_freq), map = test2, color = "black", size = 0.2) + # plots the map
-    expand_limits(x = test2$long, y = test2$lat) +
-    annotate(geom = "path", x = inset_coord$x, y = inset_coord$y, group = inset_coord$id) +
+    ggplot(aes(map_id = region)) + # plotting by region using coordinate df and response freq
+    geom_map(aes(fill = percent_freq), map = fifty_states, color = "black", size = 0.2) + # plots the map using fifty_states for coordinates
+    fifty_states_inset_boxes() + # package function to add boxes around insets for AK and HI
+    expand_limits(x = fifty_states$long, y = fifty_states$lat) +
     scale_fill_continuous(type = "viridis", na.value = "white") + # making NA values = white and scaling using viridis palette
     labs(title = "Locations of U.S. Ph.D. Granting Institutions for University of Michigan Postdocs",
          fill = "Percent of Respondents") +
     coord_map() + # gives map proper dimensions
-    #fifty_states_inset_boxes() + # package function to add boxes around insets for AK and HI
     theme(axis.title = element_blank(),
           axis.text = element_blank(),
           axis.ticks = element_blank(),
@@ -130,12 +115,11 @@ plot_us_degree_freq <- function(df) {
 
 
 # plotting the data
-#us_degree_regions <- 
-plot_us_degree_freq(us_degree_freq)
+us_degree_map <- plot_us_degree_freq(us_degree_freq)
 
 
 # saving us degree freq map
-ggsave(filename = "results/us_degree_locations.png", plot = us_degree_regions, width = 20, dpi = 300)
+# ggsave(filename = "results/us_degree_map.png", plot = us_degree_map, width = 20, dpi = 300)
 
 
 
@@ -210,7 +194,10 @@ plot_world_degree_freq <- function(df) {
 # generating world map with postdoc degree freqs
 world_degree_map <- plot_world_degree_freq(world_degree_freq)
 
-world_degree_map
+# saving world degree freq map
+# ggsave(filename = "results/world_degree_map.png", plot = world_degree_map, width = 20, dpi = 300)
+
+
 
 # detaching conflicting packages ------------------------------------------
 
