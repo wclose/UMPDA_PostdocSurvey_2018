@@ -5,6 +5,76 @@ source("code/stratify_data.R")
 
 
 
+# functions ---------------------------------------------------------------
+
+# regional maps -----------------------------------------------------------
+
+# master function for generating response frequencies
+# region should be set to either "state" for USA specific state mapping or "world" for country mapping
+# df is the dataframe containing the survey data
+calc_degree_freq <- function(region, survey_df) {
+  
+  # creating vector of states and abbreviations
+  us_region <- c(us_states_territories$abb, us_states_territories$name) 
+  
+  # creates a named vector to enable extraction based on full name
+  us_abb_to_region <- us_states_territories$name %>% 
+    set_names(us_states_territories$abb)
+  
+  # creating df of us regions (states)
+  us_regions <- survey_df %>%
+    filter(question_no == "Q10" & !is.na(response)) %>% # filters out non-us data
+    mutate(response = str_replace_all(response, "_", " "),
+           region = tolower(case_when(str_detect(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
+                                        str_extract(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)),  # extracting the state information to a new col
+                                      TRUE ~ NA_character_)), 
+           region = ifelse(region %in% names(us_abb_to_region), us_abb_to_region[region], region)) # converts region to state abbreviation based on presence of state name
+  
+  if (region == "state") {
+    
+    us_region_freqs <- get_region_counts(us_regions) %>%
+      select(-question_no) %>% # selects only the region and count cols
+      right_join(select(us_states_territories, name), by = c("region" = "name")) # joining with list of states/territories to add any missing
+    
+    return(us_region_freqs)
+    
+  } else if (region == "world") {
+    
+    # creating a list of all countries with data available for plotting
+    countries <- map_data("world") %>% # making list of countries with available mapping information
+      pull(region) %>% # pulls out list of countries
+      unique(.) # makes list of unique countries
+    
+    # calculating number of respondents with degrees from USA
+    n_usa <- us_regions %>% # using df from earlier in function
+      filter(!is.na(region)) %>% # removing any NA responses
+      nrow(.) # counting rows
+    
+    # extracting region information from responses
+    world_regions <- survey_df %>%
+      filter(question_no == "Q11" & !is.na(response)) %>% # filters down to country info
+      add_row(question_no = "Q11", response = rep("USA", times = n_usa)) %>% # adds rows for respondents that went to school in USA (not counted otherwise)
+      mutate(response = str_replace_all(response, "_", " "), # replaces all "_" with spaces to allow text parsing
+             region = tolower(case_when(str_detect(response, regex(paste(paste0("\\b", countries, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches country names with word boundaries on both ends
+                                          str_extract(response, regex(paste(paste0("\\b", countries, "\\b"), collapse = "|"), ignore_case = T)),  # extracting the country information to a new col
+                                        TRUE ~ NA_character_))) # any country not in the list of available countries is labelled with NA
+    
+    # calculating the frequency of responses for individual regions
+    world_region_freqs <- get_region_counts(world_regions) %>%
+      select(-question_no) %>% # selects only the region and count cols
+      right_join(select(as_data_frame(tolower(countries)), value), by = c("region" = "value")) # joining with list of countries to add missing ones
+    
+    # returning freq df
+    return(world_region_freqs)
+    
+  } else {
+    
+    print("ERROR: Incorrect region assignment")
+    
+  }
+}
+
+
 # creating question lists -------------------------------------------------
 
 # creating list of all the questions
