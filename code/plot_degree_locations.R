@@ -30,60 +30,49 @@ library(viridis) # needed for color scaling
 # NOTE: only plots us states, still need to work on including us territories
 # NOTE: need to move alaska and hawaii to be on plot and draw box around
 
-
-
 # making function to generate counts of regions
-get_region_counts <- function(region_df, parent_df=tidy_survey_data) {
-  
-  # requires parent df
-  region_number <- parent_df %>% 
-    filter(question_no == "Q10" & !is.na(response) | question_no == "Q11" & !is.na(response)) %>% 
-    select(response_id) %>%
-    unique(.) %>%
-    nrow()
+get_region_counts <- function(region_df) {
   
   # requires us only df
   data <- region_df %>% 
-    group_by(question_no, subquestion_no, question, region) %>% # groups by question and response to provide summary stats
+    group_by(question_no, region) %>% # groups by question and response to provide summary stats
     summarize(n = n()) %>% # creates col for number of a given response (n)
-    mutate(percent_freq = n/region_number*100) %>% 
+    mutate(percent_freq = n/sum(n)*100) %>% 
     ungroup()
   
   return(data)
 }
 
-
-
-# creating function to extract the us state from the responses and convert all abbreviations to full names for uniformity and plotting
-calc_us_degree_freq <- function(df) {
-  
-  # creating vector of states and abbreviations
-  us_region <- c(us_states_territories$abb, us_states_territories$name) 
-  
-  # creates a named vector to enable extraction based on full name
-  us_abb_to_region <- us_states_territories$name %>% 
-    set_names(us_states_territories$abb)
-  
-  # creating df of us regions (states)
-  regions <- df %>%
-    filter(question_no == "Q10" & !is.na(response)) %>% # filters out non-us data
-    mutate(response = str_replace_all(response, "_", " "),
-           region = tolower(case_when(str_detect(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
-                                          str_extract(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)),  # extracting the state information to a new col
-                                        TRUE ~ NA_character_)), 
-           region = ifelse(region %in% names(us_abb_to_region), us_abb_to_region[region], region)) # converts region to state abbreviation based on presence of state name
-  
-  region_freqs <- get_region_counts(regions) %>% 
-    select(region, percent_freq) %>% # selects only the region and count cols
-    right_join(select(us_states_territories, name), by = c("region" = "name")) # joining with list of states/territories to add any missing
-  
-  return(region_freqs)
-}
+# # creating function to extract the us state from the responses and convert all abbreviations to full names for uniformity and plotting
+# calc_us_degree_freq <- function(df) {
+#   
+#   # creating vector of states and abbreviations
+#   us_region <- c(us_states_territories$abb, us_states_territories$name) 
+#   
+#   # creates a named vector to enable extraction based on full name
+#   us_abb_to_region <- us_states_territories$name %>% 
+#     set_names(us_states_territories$abb)
+#   
+#   # creating df of us regions (states)
+#   regions <- df %>%
+#     filter(question_no == "Q10" & !is.na(response)) %>% # filters out non-us data
+#     mutate(response = str_replace_all(response, "_", " "),
+#            region = tolower(case_when(str_detect(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
+#                                           str_extract(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)),  # extracting the state information to a new col
+#                                         TRUE ~ NA_character_)), 
+#            region = ifelse(region %in% names(us_abb_to_region), us_abb_to_region[region], region)) # converts region to state abbreviation based on presence of state name
+#   
+#   region_freqs <- get_region_counts(regions) %>% 
+#     select(region, percent_freq) %>% # selects only the region and count cols
+#     right_join(select(us_states_territories, name), by = c("region" = "name")) # joining with list of states/territories to add any missing
+#   
+#   return(region_freqs)
+# }
 
 
 
-# extracting us region data and adding as a new col creating state_data df
-us_degree_freq <- calc_us_degree_freq(tidy_survey_data)
+# # extracting us region data and adding as a new col creating state_data df
+# us_degree_freq <- calc_us_degree_freq(tidy_survey_data)
 
 
 
@@ -129,34 +118,113 @@ us_degree_map <- plot_us_degree_freq(us_degree_freq)
 # Change percent of respondents to be based on total dataset
 
 
+
 # plotting world degree locations -----------------------------------------
 
 library(ggalt) # needed for coord_proj
 
-# creating function to extract country names from responses
-calc_world_degree_freq <- function(df) {
+
+# # need to find way to incorporate "USA" data for world map
+# sum(!is.na(calc_us_resp(tidy_survey_data)$region))
+
+
+
+
+calc_degree_freq <- function(region, df) {
   
-  # creating a list of all countries with data available for plotting
-  countries <- map_data("world") %>% # making list of countries with available mapping information
-    pull(region) %>% # pulls out list of countries
-    unique(.) # makes list of unique countries
+  # creating vector of states and abbreviations
+  us_region <- c(us_states_territories$abb, us_states_territories$name) 
   
-  # extracting region information from responses
-  regions <- df %>%
-    filter(question_no == "Q11" & !is.na(response)) %>% # filters down to country info
-    mutate(response = str_replace_all(response, "_", " "), # replaces all "_" with spaces to allow text parsing
-           region = tolower(case_when(str_detect(response, regex(paste(paste0("\\b", countries, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches country names with word boundaries on both ends
+  # creates a named vector to enable extraction based on full name
+  us_abb_to_region <- us_states_territories$name %>% 
+    set_names(us_states_territories$abb)
+  
+  # creating df of us regions (states)
+  us_regions <- df %>%
+    filter(question_no == "Q10" & !is.na(response)) %>% # filters out non-us data
+    mutate(response = str_replace_all(response, "_", " "),
+           region = tolower(case_when(str_detect(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
+                                        str_extract(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)),  # extracting the state information to a new col
+                                      TRUE ~ NA_character_)), 
+           region = ifelse(region %in% names(us_abb_to_region), us_abb_to_region[region], region)) # converts region to state abbreviation based on presence of state name
+  
+  if (region == "state") {
+
+    us_region_freqs <- get_region_counts(us_regions) %>%
+      select(-question_no) %>% # selects only the region and count cols
+      right_join(select(us_states_territories, name), by = c("region" = "name")) # joining with list of states/territories to add any missing
+
+    return(us_region_freqs)
+
+  } else if (region == "world") {
+
+    # creating a list of all countries with data available for plotting
+    countries <- map_data("world") %>% # making list of countries with available mapping information
+      pull(region) %>% # pulls out list of countries
+      unique(.) # makes list of unique countries
+    
+    # calculating number of respondents with degrees from USA
+    n_usa <- us_regions %>% # using df from earlier in function
+      filter(!is.na(region)) %>% # removing any NA responses
+      nrow(.) # counting rows
+
+    # extracting region information from responses
+    world_regions <- df %>%
+      filter(question_no == "Q11" & !is.na(response)) %>% # filters down to country info
+      add_row(question_no = "Q11", response = rep("USA", times = n_usa)) %>% # adds rows for respondents that went to school in USA (not counted otherwise)
+      mutate(response = str_replace_all(response, "_", " "), # replaces all "_" with spaces to allow text parsing
+             region = tolower(case_when(str_detect(response, regex(paste(paste0("\\b", countries, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches country names with word boundaries on both ends
                                           str_extract(response, regex(paste(paste0("\\b", countries, "\\b"), collapse = "|"), ignore_case = T)),  # extracting the country information to a new col
                                         TRUE ~ NA_character_))) # any country not in the list of available countries is labelled with NA
-  
-  # calculating the frequency of responses for individual regions
-  region_freqs <- get_region_counts(regions) %>% 
-    select(region, percent_freq) %>% # selects only the region and count cols 
-    right_join(select(as_data_frame(tolower(countries)), value), by = c("region" = "value")) # joining with list of countries to add missing ones
-  
-  # returning freq df
-  return(region_freqs)
+      
+    # calculating the frequency of responses for individual regions
+    world_region_freqs <- get_region_counts(world_regions) %>%
+      select(-question_no) %>% # selects only the region and count cols
+      right_join(select(as_data_frame(tolower(countries)), value), by = c("region" = "value")) # joining with list of countries to add missing ones
+
+    # returning freq df
+    # return(world_regions)
+    return(world_region_freqs)
+
+  } else {
+
+    print("ERROR: Incorrect region assignment")
+
+  }
 }
+
+test <- calc_degree_freq("state", tidy_survey_data)
+
+
+
+
+
+
+
+# # creating function to extract country names from responses and calculate frequencies
+# calc_world_degree_freq <- function(df) {
+#   
+#   # creating a list of all countries with data available for plotting
+#   countries <- map_data("world") %>% # making list of countries with available mapping information
+#     pull(region) %>% # pulls out list of countries
+#     unique(.) # makes list of unique countries
+#   
+#   # extracting region information from responses
+#   regions <- df %>%
+#     filter(question_no == "Q11" & !is.na(response)) %>% # filters down to country info
+#     mutate(response = str_replace_all(response, "_", " "), # replaces all "_" with spaces to allow text parsing
+#            region = tolower(case_when(str_detect(response, regex(paste(paste0("\\b", countries, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches country names with word boundaries on both ends
+#                                           str_extract(response, regex(paste(paste0("\\b", countries, "\\b"), collapse = "|"), ignore_case = T)),  # extracting the country information to a new col
+#                                         TRUE ~ NA_character_))) # any country not in the list of available countries is labelled with NA
+#   
+#   # calculating the frequency of responses for individual regions
+#   region_freqs <- get_region_counts(regions) %>% 
+#     select(region, percent_freq) %>% # selects only the region and count cols 
+#     right_join(select(as_data_frame(tolower(countries)), value), by = c("region" = "value")) # joining with list of countries to add missing ones
+#   
+#   # returning freq df
+#   return(region_freqs)
+# }
 
 
 
@@ -191,8 +259,12 @@ plot_world_degree_freq <- function(df) {
   return(plot)
 }
 
+
+
 # generating world map with postdoc degree freqs
 world_degree_map <- plot_world_degree_freq(world_degree_freq)
+
+
 
 # saving world degree freq map
 # ggsave(filename = "results/world_degree_map.png", plot = world_degree_map, width = 20, dpi = 300)
