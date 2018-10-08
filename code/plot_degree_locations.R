@@ -36,6 +36,57 @@ get_region_counts <- function(region_df) {
 }
 
 
+#test <- 
+tidy_survey_data %>%
+  filter(question_no == "Q10" | question_no == "Q11") %>% 
+  mutate(response = str_replace_all(response, "_", " "), # replaces symbols from tidying data
+         region = tolower(case_when(question_no == "Q10" & str_detect(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches string with word boundaries on both ends
+                                      str_extract(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)),  # extracting the state information to a new col
+                                    #question_no == "Q10" & !str_detect(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)) ~
+                                      
+                                    question_no == "Q11" & str_detect(response, regex(paste(paste0("\\b", countries, "\\b"), collapse = "|"), ignore_case = T)) ~ # detecting anything in any case that matches country names with word boundaries on both ends
+                                      str_extract(response, regex(paste(paste0("\\b", countries, "\\b"), collapse = "|"), ignore_case = T)),
+                                    TRUE ~ NA_character_)), # anything not in us_region is labelled with NA
+         region = ifelse(region %in% names(us_abb_to_region), us_abb_to_region[region], region))
+
+# used spread/gather to change responses for domestic location based on world location and vice versa
+# will be used for better calculation of statistics
+test <- tidy_survey_data %>% 
+  filter(question_no == "Q10" | question_no == "Q11") %>% 
+  mutate(response = str_replace_all(response, "_", " "),
+         region = tolower(case_when(question_no == "Q10" & str_detect(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)) ~ 
+                                      str_extract(response, regex(paste(paste0("\\b", us_region, "\\b"), collapse = "|"), ignore_case = T)),
+                                    question_no == "Q11" & str_detect(response, regex(paste(paste0("\\b", countries, "\\b"), collapse = "|"), ignore_case = T)) ~ 
+                                      str_extract(response, regex(paste(paste0("\\b", countries, "\\b"), collapse = "|"), ignore_case = T)),
+                                    TRUE ~ NA_character_)),
+         region = ifelse(region %in% names(us_abb_to_region), us_abb_to_region[region], region)) %>% 
+  select(response_id, question_no, region) %>% 
+  spread(key = question_no, value = region) %>% 
+  mutate(Q10 = case_when(!is.na(Q11) & is.na(Q10) ~ "international",
+                         TRUE ~ Q10),
+         Q11 = case_when(!is.na(Q10) & is.na(Q11) ~ "usa",
+                         TRUE ~ Q11)) %>% 
+  gather(key = "question_no", value = "region", Q10:Q11)
+
+test2 <- test %>% 
+  filter(question_no == "Q10") %>% 
+  get_region_counts()
+
+sum(test2$n)
+
+length(unique(tidy_survey_data$response_id))
+
+
+test4 <- test %>% 
+  spread(key = question_no, value = region) %>% 
+  mutate(Q10 = case_when(!is.na(Q11) & is.na(Q10) ~ "international",
+                         TRUE ~ Q10),
+         Q11 = case_when(!is.na(Q10) & is.na(Q11) ~ "usa",
+                         TRUE ~ Q11)) %>% 
+  gather(key = "question_no", value = "region", Q10:Q11)
+
+
+# NOTE: fix by assigning "USA" or "Other" based on region from world or us, respectively
 
 # master function for generating response frequencies
 # region should be set to either "state" for USA specific state mapping or "world" for country mapping
