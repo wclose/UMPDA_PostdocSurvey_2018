@@ -201,6 +201,7 @@ visualize_sentiments <- function(SCWords) {
 top_30_sentiment <- typed_question_df %>% # calling df of typed question from survey data
   mutate(response = str_replace_all(response, "_", " ")) %>% # removing all "_" left from tidying dataset
   filter(question_no == "Q43") %>% # filtering to a specific questions
+  # filter(question == "What_aspects_of_your_UM_postdoctoral_fellow_have_not_been_positive?") %>% 
   unnest_tokens(word, response) %>% # breaks apart responses into individual words
   filter(!is.na(word)) %>% # removes any blank rows
   inner_join(get_sentiments("afinn"), by = "word") %>% # adds AFINN scores to words from dataset if present in each
@@ -225,7 +226,6 @@ typed_question_df %>%
   unnest_tokens(word, response) %>% 
   filter(!is.na(word)) %>% 
   inner_join(get_sentiments("nrc"), by = "word")
-
 
 
 
