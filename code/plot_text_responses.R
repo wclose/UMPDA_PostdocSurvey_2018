@@ -135,10 +135,13 @@ example_unigrams <- example_data %>%
   count(strat_id, word, sort = TRUE) %>% # group words by strat_id, count instances of each word, then sort output
   ungroup() # ungrouping from count()
 
+# calculating tf-idf of unigrams
 plot_example <- example_unigrams %>% 
   bind_tf_idf(word, strat_id, n) %>% # calculating tf-idf of word while grouping on strat_id and using n as input
   arrange(desc(tf_idf)) # arranging output
 
+# plotting tf-idf
+# NOTE: plotting top 15 but a lot of words have the same score so more than 15 are plotted for some strat_id's
 plot_example %>% 
   group_by(strat_id) %>% # grouping for calculations
   top_n(15, tf_idf) %>% # pulls out top 15 entries for each strat_id based on tf-idf
@@ -152,7 +155,43 @@ plot_example %>%
 
 
 # testing on bigrams
+# NOTE: need to find way to break ties for tf-idf (ideas: n, tf-idf of unigrams that form bigram)
+example_data %>% 
+  unnest_tokens(bigram, response, token = "ngrams", n = 2) %>% # breaking data up into bigrams
+  count(bigram, sort = TRUE) # looking at rough numbers
 
+example_data %>% 
+  unnest_tokens(bigram, response, token = "ngrams", n = 2) %>% # breaking data up into bigrams
+  separate(bigram, c("word1", "word2"), sep = " ") %>% # separating bigrams into individual cols
+  filter(!word1 %in% stop_words$word) %>% # removing stop words from col1
+  filter(!word2 %in% stop_words$word) %>% # removing stop words from col2
+  count(word1, word2, sort = TRUE) # looking at new counts
+
+# making list of bigrams
+example_bigrams <- example_data %>% 
+  unnest_tokens(bigram, response, token = "ngrams", n = 2) %>% # breaking data up into bigrams
+  separate(bigram, c("word1", "word2"), sep = " ") %>% # separating bigrams into individual cols
+  filter(!word1 %in% stop_words$word) %>% # removing stop words from col1
+  filter(!word2 %in% stop_words$word) %>% # removing stop words from col2
+  unite(bigram, word1, word2, sep = " ") # reuniting words to reform bigrams
+
+# calc tf-idf for each bigram
+bigram_tf_idf <- example_bigrams %>%
+  count(strat_id, bigram) %>% # counting individual bigrams
+  bind_tf_idf(bigram, strat_id, n) %>% # calc tf-idf
+  arrange(desc(tf_idf)) # ordering output based on tf-idf value
+
+# plotting the data
+bigram_tf_idf %>% 
+  group_by(strat_id) %>% # grouping for calculations
+  top_n(15, tf_idf) %>% # pulls out top 15 entries for each strat_id based on tf-idf
+  ungroup() %>% 
+  mutate(bigram = reorder(bigram, tf_idf)) %>% # ordering the data for plotting purposes
+  ggplot(aes(bigram, tf_idf, fill = strat_id)) + # setting the plotting conditions
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~strat_id, ncol = 2, scales = "free") + # making individual plots for each strat_id
+  coord_flip() # turns the plot sideways
 
 
 # sentiment analysis ------------------------------------------------------
