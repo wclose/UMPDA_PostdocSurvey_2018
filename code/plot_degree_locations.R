@@ -209,6 +209,7 @@ ggsave(filename = "results/world_degree_map.png", plot = world_degree_map, width
 
 # these pacakges may interfere with other packages, specifically purrr
 # detach("package:mapproj", unload = TRUE)
+# detach("package:ggalt", unload = TRUE)
 # detach("package:maps", unload = TRUE)
 
 
