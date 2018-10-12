@@ -1,3 +1,12 @@
+# https://rpubs.com/joshyazman/sentiment-analysis-lexicon-comparison
+# https://www.tidytextmining.com/
+# https://lizrush.gitbooks.io/algorithms-for-webdevs-ebook/content/
+# https://www.kaggle.com/xvivancos/analyzing-star-wars-movie-scripts
+# https://www.kaggle.com/cosinektheta/mining-the-women-s-clothing-reviews
+# https://www.kaggle.com/ambarish/seinfeld-text-mining-wordembeddings-modelling
+# https://www.kaggle.com/ambarish/fun-in-text-mining-with-simpsons
+
+
 # sentiment scores (several options)
   # do by question and include most pos/neg words
   # look at emotions (fear, joy, etc.)
@@ -41,6 +50,7 @@ source("code/tidy_survey.R")
 library(tidyverse)
 library(tidytext) # text manipulation, used for tokenization and stop words
 library(wordcloud) # word cloud
+library(wordcloud2)
 # library(stringr) #string manipulation
 # library(igraph)
 # library(ggraph)
@@ -61,6 +71,8 @@ library(wordcloud) # word cloud
 
 # text analysis -----------------------------------------------------------
 
+# NOTE: stop_words includes "no", "not", etc. which may be bad for some types of analyses
+
 # creating list of all the questions
 question_list <- unique(tidy_survey_data$question_no)
 
@@ -69,54 +81,30 @@ question_list <- unique(tidy_survey_data$question_no)
 typed_question_list <- question_list[grepl(paste(paste0("Q", c(23,29,42,43,44,45,46,51)), collapse = "|"), question_list)]
 
 typed_question_df <- tidy_survey_data %>% 
-  filter(question_no %in% typed_question_list)
+  filter(question_no %in% typed_question_list) %>% 
+  mutate(response = str_replace_all(response, "_", " ")) %>% 
+  filter(!is.na(response) & !str_detect(response, "\\bn[/]a\\b"))
+
+# creating way to filter out all weird NA responses
+test <- typed_question_df %>% 
+  filter(str_detect(response, regex(paste(paste0("\\b", c("n[/]a", "na"), "\\b"), collapse = "|"), ignore_case = TRUE)))
+
+
+
+#bigrams
+typed_question_df %>% 
+  unnest_tokens(word, response) %>% 
+  #anti_join(stop_words) %>% # removes common words, may be bad for sentiment analysis because removes "no", "not", etc.
+  count(word, sort = TRUE)
+
+
+
+
 
 typed_question_df %>% 
   mutate(response = str_replace_all(response, "_", " ")) %>% # removing all "_" to prevent identification as a single word
   unnest_tokens(word, response) %>% # breaks sentences apart into individual rows
   filter(!word %in% stop_words$word) # filters out stop words which are common words with minimal impact on sentence significance
-
-# top n number of words bar plot
-createBarPlotCommonWords = function(train,title)
-{
-  train %>%
-    mutate(response = str_replace_all(response, "_", " ")) %>% # removing all "_" to prevent identification as a single word
-    unnest_tokens(word, response) %>%
-    filter(!word %in% stop_words$word) %>%
-    count(word,sort = TRUE) %>%
-    ungroup() %>%
-    mutate(word = factor(word, levels = rev(unique(word)))) %>%
-    head(10) %>%
-    
-    ggplot(aes(x = word,y = n)) +
-    geom_bar(stat='identity',colour="white") +
-    geom_text(aes(x = word, y = 1, label = paste0("(",n,")",sep="")),
-              hjust=0, vjust=.5, size = 4, colour = 'black',
-              fontface = 'bold') +
-    labs(x = 'Word', y = 'Word Count', 
-         title = title) +
-    coord_flip() + 
-    theme_bw()
-  
-}
-
-typed_question_df %>% 
-  filter(question_no == "Q51" & !is.na(response)) %>% 
-  createBarPlotCommonWords('Top 10 most Common Words')
-
-# word clouds
-createWordCloud = function(train)
-{
-  train %>%
-    mutate(response = str_replace_all(response, "_", " ")) %>% # removing all "_" to prevent identification as a single word
-    unnest_tokens(word, response) %>%
-    filter(!word %in% stop_words$word) %>%
-    count(word,sort = TRUE) %>%
-    ungroup()  %>%
-    head(50) %>%
-    
-    with(wordcloud(word, n, max.words = 50,colors=brewer.pal(8, "Dark2"))) 
-}
 
 typed_question_df %>% 
   filter(question_no == "Q51" & !is.na(response)) %>%
@@ -125,41 +113,49 @@ typed_question_df %>%
 
 
 
+# tf-idf ------------------------------------------------------------------
+
 # Term Frequency - Inverse Document Frequency (aka most important words)
 # need to compare questions that are inverse of each other
-# works similar to random forest modelling
-trainWords <- typed_question_df %>%
-  mutate(response = str_replace_all(response, "_", " ")) %>% # removing all "_" to prevent identification as a single word
-  unnest_tokens(word, response) %>%
-  filter(!is.na(word)) %>% 
-  count(question_no, word, sort = TRUE) %>%
-  ungroup()
+# works similar to random forest modelling by finding words that are common but to only a subset of the collection of documents
 
-total_words <- trainWords %>% 
-  group_by(question_no) %>% 
-  summarize(total = sum(n))
-
-trainWords <- left_join(trainWords, total_words)
-
-#Now we are ready to use the bind_tf_idf which computes the tf-idf for each term. 
-trainWords <- trainWords %>%
-  filter(!is.na(question_no)) %>%
-  bind_tf_idf(word, question_no, n)
+# creating test dataset
+example_data <- strat_data$college_school %>% 
+  filter(question_no %in% typed_question_list) %>% # filtering to only contain text based responses
+  filter(question_no == "Q44") %>% # only in place for testing purposes
+  mutate(response = str_replace_all(response, "_", " ")) %>% # removing extra symbols from tidying
+  filter(!is.na(response) & !str_detect(response, "\\bn[/]a\\b")) # removing any weird "NA" type responses people input
 
 
-plot_trainWords <- trainWords %>% 
-  arrange(desc(tf_idf)) %>%
-  mutate(word = factor(word, levels = rev(unique(word))))
 
-plot_trainWords
+# looking at unigrams
+example_unigrams <- example_data %>% 
+  unnest_tokens(word, response) %>% # breaking responses up into individual words
+  anti_join(stop_words) %>% # removing any common words
+  count(strat_id, word, sort = TRUE) %>% # group words by strat_id, count instances of each word, then sort output
+  ungroup() # ungrouping from count()
 
-plot_trainWords %>% 
-  top_n(20) %>%
-  ggplot(aes(word, tf_idf)) +
-  geom_col() +
+plot_example <- example_unigrams %>% 
+  bind_tf_idf(word, strat_id, n) %>% # calculating tf-idf of word while grouping on strat_id and using n as input
+  arrange(desc(tf_idf)) # arranging output
+
+plot_example %>% 
+  group_by(strat_id) %>% # grouping for calculations
+  top_n(15, tf_idf) %>% # pulls out top 15 entries for each strat_id based on tf-idf
+  ungroup() %>% 
+  mutate(word = reorder(word, tf_idf)) %>% # ordering the data for plotting purposes
+  ggplot(aes(word, tf_idf, fill = strat_id)) + # setting the plotting conditions
+  geom_col(show.legend = FALSE) +
   labs(x = NULL, y = "tf-idf") +
-  coord_flip() +
-  theme_bw()
+  facet_wrap(~strat_id, ncol = 2, scales = "free") + # making individual plots for each strat_id
+  coord_flip() # turns the plot sideways
+
+
+# testing on bigrams
+
+
+
+# sentiment analysis ------------------------------------------------------
 
 # deciding which classification system to use for sentiment analysis
 # afinn has best score distribution (ex: negative scores align well with negative opinions) and better range (-5 to 5) but fewer words in lexicon (2476 words)
@@ -174,26 +170,6 @@ get_sentiments("afinn") %>%
   sort()
 
 
-calc_sentiment <- function(survey_df) {
-  sentiments <- survey_df %>% 
-    unnest_tokens(word, response)
-}
-
-visualize_sentiments <- function(SCWords) {
-  SCWords_sentiments <- SCWords %>%
-    inner_join(get_sentiments("afinn"), by = "word") %>%
-    group_by(Character) %>%
-    summarize(score = sum(score * n) / sum(n)) %>%
-    arrange(desc(score))
-  
-  SCWords_sentiments %>%
-    top_n(10) %>%
-    mutate(Character = reorder(Character, score)) %>%
-    ggplot(aes(Character, score, fill = score > 0)) +
-    geom_col(show.legend = TRUE) +
-    coord_flip() +
-    ylab("Average sentiment score") + theme_bw()
-}
 
 # testing AFINN based scoring
 # basing code off of example from kaggle on text mining:
@@ -229,5 +205,8 @@ typed_question_df %>%
 
 
 
+# wordclouds --------------------------------------------------------------
 
+top_30_sentiment %>% 
+  wordcloud2(word, size = 0.5)
 
