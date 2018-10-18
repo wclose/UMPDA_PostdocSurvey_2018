@@ -190,7 +190,7 @@ calc_tf_idf <- function(survey_df, n_token, question_no_chr) {
   
 }
 
-calc_tf_idf(example_data, 2, "Q44")
+
 
 # NOTE: need to change color scheme
 # NOTE: combine calc function and plot function then take out question col from calc function and only have in plot
@@ -210,18 +210,17 @@ plot_tf <- function(tf_df) {
   
   tf_plot <- tf_data %>% 
     ggplot(aes(n_gram, tf)) + # setting the plotting conditions
-    geom_col(show.legend = FALSE) + # graph will be a bar chart without a legend
-    labs(title = str_replace_all(unique(tf_data$question), "_", " "),
+    geom_col(show.legend = FALSE, fill = "red", color = "black") + # graph will be a bar chart without a legend
+    labs(title = str_wrap(str_replace_all(unique(tf_data$question), "_", " "), width = 100),
          x = NULL, y = "tf") + # only need the tf value label (n-grams will be other labels)
     coord_flip(expand = FALSE) + # turns the plot sideways
-    theme(axis.line = element_line(size = 0.5, colour = "black"), # formatting axis lines as desired
+    theme(plot.title = element_text(size = 10, hjust = 0.5), # sets size of chart title and centers over plot
+          axis.line = element_line(size = 0.5, color = "black"), # formatting axis lines as desired
           axis.title = element_text(size = 10), # making all chart titles a consistent size
           axis.title.x = element_text(margin = margin(10,0,0,0)), # adding space between x axis title and axis labels
           axis.text = element_text(size = 8),
           plot.margin = margin(20,20,20,20), # giving plot a bit of padding on edges in case something is plotted out of bounds
           panel.background = element_rect(fill = "white"), # making panels have white background
-          strip.background.x = element_rect(fill = "white", color = NA), # formatting strip col labels
-          strip.background.y = element_rect(fill = "white", color = NA), # removing border from strip row labels (new y labels)
           # formatting plots to have a consistent size
           aspect.ratio = aspect) # making size of bars compared to plot consistent
   
@@ -236,33 +235,10 @@ plot_tf <- function(tf_df) {
   
 }
 
-# test5 <- calc_tf(tidy_survey_data, 2, "Q44")
-# pull(test5$question)
-# test5 %>% 
-#   pull(question) %>% 
-#   unique() %>% 
-#   str_replace_all("_", " ")
-# 
-# test5 %>% 
-#   top_n(20, tf) %>% # pulls out top 20 entries based on tf
-#   filter(tf != min(tf)) %>% # removing n-grams that have the smallest tf value for each group (prevents over-plotting)
-#   filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token 
-#   mutate(n_gram = reorder(n_gram, tf)) %>% 
-#   ggplot(aes(n_gram, tf)) + # setting the plotting conditions
-#   geom_col(show.legend = FALSE) + # graph will be a bar chart without a legend
-#   labs(x = NULL, y = "tf", title = str_replace_all(unique(test5$question), "_", " ")) + # only need the tf value label (n-grams will be other labels)
-#   coord_flip(expand = FALSE)
-# 
-# plot_tf(test5)
-# test6$widths
-# 
-# test6$widths[4] <- unit(4, "cm") # sets alignment of y axis in chart area thereby aligning all plots generated with this script
-# test6$widths[6] <- unit(4, "cm")
-# 
-# grobbed_plot <- as_ggplot(arrangeGrob(test6)) # recreating the plots with updated coordinates and saving as a ggplot item
-# grobbed_plot
+# str_wrap("test two", width = 3)
 
-# map(test2, plot_tf)
+# testing
+map(test2, plot_tf)
 
 
 
