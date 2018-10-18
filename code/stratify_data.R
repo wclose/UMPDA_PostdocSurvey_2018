@@ -7,10 +7,6 @@ source("code/tidy_survey.R")
 
 # classifying data based on desired stratifications -----------------------
 
-
-############ is there a cleaner/easier way to classify and design the functions?
-
-
 ### stratification categories ###
 # 1 UMMS, LSA, Eng, other
 # 2 Domestic v. International and/or EFL v. EAL
@@ -22,6 +18,10 @@ source("code/tidy_survey.R")
 # 8 First v. multiple PD position
 # 9 Satisfied v. not satisfied
 
+
+
+# stratifying data based on responses
+# NOTE: need to find way to streamline process instead of hard coding everything (also need to clean up code in places)
 classified_survey_data <- tidy_survey_data %>% 
   mutate(stratifications = case_when(question_no == "Q6" & response == "Medicine" ~ "UMMS", # school of medicine
                                      question_no == "Q6" & response == "Literature,Science,and_the_Arts" ~ "LSA", # lit, science, and arts
@@ -93,6 +93,7 @@ get_strat_data <- function(x) {
 }
 
 # using map to run the functions using the different classifications of data
+# due to removal of "prefer not to answer", output dfs will be slightly smaller than input tidied df
 strat_data <- map(strat_list, get_strat_data) # running a nested map series takes collated data and outputs as one dataframe in the list per stratification category
 
 
