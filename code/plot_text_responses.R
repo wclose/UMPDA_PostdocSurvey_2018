@@ -79,7 +79,9 @@ question_list <- unique(tidy_survey_data$question_no)
 
 # making list of questions to exclude from graph generation because they were typed response
 # to change the questions included in this list, add/subtract/change the numbers in paste0() as desired
-typed_question_list <- question_list[grepl(paste(paste0("Q", c(23,29,42,43,44,45,46,51)), collapse = "|"), question_list)]
+# typed_question_list <- question_list[grepl(paste(paste0("Q", c(23,29,42,43,44,45,46,51)), collapse = "|"), question_list)]
+typed_question_list <- question_list[grepl(paste(paste0("Q", c(29,42,43,44,45,46,51)), collapse = "|"), question_list)]
+
 
 typed_question_df <- tidy_survey_data %>%
   filter(question_no %in% typed_question_list) %>%
@@ -93,6 +95,14 @@ typed_question_df <- tidy_survey_data %>%
 
 # setting the seed for all functions in script (could put in original tidy script to have propagate through all scripts)
 my_seed <- 2018
+
+# creating test dataset
+example_data <- strat_data$college_school %>% 
+  filter(question_no %in% typed_question_list)
+
+
+
+
 
 # tf-idf ------------------------------------------------------------------
 
@@ -195,59 +205,74 @@ calc_tf_idf <- function(survey_df, n_token, question_no_chr) {
 
 
 # creating function for plotting wordclouds of specific questions based on term frequency
-plot_wordcloud_tf <- function(survey_df, n_token, question_no_chr) {
+plot_wordcloud_tf <- function(survey_df, n_token, question_no_chr, n_top) {
   
   # creating df of term frequencies with question text attached
   tf_df <- calc_tf(survey_df, n_token, question_no_chr) %>% # calcs term frequencies for n-grams
     mutate(question = tidy_survey_data %>% filter(question_no == question_no_chr) %>% pull(question) %>% unique()) # adds col with question text back in
   
   # making df of top n-grams for each dataset
-  tf_top <- tf_df %>% 
-    top_n(20, tf) %>% # pulls out top 20 entries based on tf
-    filter(tf != min(tf)) %>% # removing n-grams that have the smallest tf value for each group (prevents over-plotting)
+  tf_top <- tf_df %>%
     filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token/part of an n-gram (focuses data)
-    mutate(n_gram = reorder(n_gram, tf)) # ordering the data to be based on value for nicer looking plots
+    top_n(n_top, tf) # pulls out top n entries based on tf
+
+  # subsetting top n-gram df to be only n-grams with freq != min freq to prevent overplotting
+  tf_top_max <- tf_top %>%
+    filter(tf != min(tf)) # removing n-grams that have the smallest tf value for each group (prevents over-plotting)
   
+  # subsetting top n-gram df to be only n-grams with freq = min freq for subsampling and rejoining with the max df to plot desired number of n-grams
+  tf_top_min <- tf_top %>%
+    filter(tf == min(tf)) # removing n-grams that have the largest tf values for each group
+
+  # subsampling tf_top_min df and adding back to tf_top_max df to give consistent number of n-grams per strat_id for plotting
+  set.seed(my_seed)
+  tf_top_n_grams <- tf_top_max %>%
+    bind_rows(tf_top_min %>% sample_n(size = n_top - nrow(tf_top_max), replace = FALSE)) %>% # subsampling min df and binding to max df
+    mutate(tf_scale = tf*(8/max(tf))) %>% # creating a col for plot scaling by setting max tf value
+    ungroup()
+
   # creating the wordcloud
-  tf_wordcloud <- tf_top %>%
-    ggplot(aes(label = n_gram, size = tf)) + # specifying data to be plotted
+  tf_wordcloud <- tf_top_n_grams %>%
+    ggplot(aes(label = n_gram, size = tf_scale)) + # specifying data to be plotted
     geom_text_wordcloud(color = "black", # changing color of n-grams in plot
-                        eccentricity = 1, # roundness of the wordcloud
-                        grid_size = 4, grid_margin = 4, # spacing between terms in cloud
+                        eccentricity = 2, # roundness of the wordcloud
+                        grid_size = 6, grid_margin = 6, # spacing between terms in cloud
                         fontface = "bold", family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
     scale_size(range = c(4, 10)) + # setting the lower and upper bounds of text point sizes
-    labs(title = str_replace_all(unique(tf_top$question), "_", " ")) + # adding the question text as the plot title
+    labs(title = str_replace_all(unique(tf_top_n_grams$question), "_", " ")) + # adding the question text as the plot title
     theme_minimal() + # getting rid of all theme background
     theme(plot.title = element_text(hjust = 0.5, size = 10)) # centers the plot title and alters font size
-  
+
   # outputting results
   return(tf_wordcloud)
   
 }
 
+# # testing plot_wordcloud_tf()
+# plot_wordcloud_tf(example_data, 2, "Q29", 10)
+
 
 
 # creating function to plot all of the unstratified dataset using pmap
-plot_all_wordcloud_tf <- function(survey_df, n_token, question_no_chr_list) {
+plot_all_wordcloud_tf <- function(survey_df, n_token, question_no_chr_list, n_top) {
   
   # creating df of arguments for use with pmap
   arguments <- data_frame(survey_df = list(survey_df),
                           n_token = n_token,
-                          question_no_chr = question_no_chr_list)
+                          question_no_chr = question_no_chr_list,
+                          n_top = n_top)
   
   # mapping over list of arguments in arguments df
-  plots <- pmap(arguments, plot_wordcloud_tf) %>% 
+  plots <- pmap(arguments, plot_wordcloud_tf) %>%
     set_names(question_no_chr_list)
-  
+
   # outputting results
   return(plots)
   
 }
 
-
-
-# # testing plot_all_wordcloud_tf()
-# plot_all_wordcloud_tf(example_data, 2, typed_question_list)
+# testing plot_all_wordcloud_tf()
+plot_all_wordcloud_tf(example_data, 2, typed_question_list, 10)
 
 
 
@@ -314,7 +339,7 @@ plot_wordcloud_tf_idf <- function(survey_df, n_token, question_no_chr, n_top) {
                         eccentricity = 2, # roundness of the wordcloud
                         grid_size = 6, grid_margin = 6, # spacing between terms in cloud
                         fontface = "bold", family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
-    scale_size(range = c(4, 10)) + # setting the lower and upper bounds of text point sizes
+    scale_size(range = c(5, 10)) + # setting the lower and upper bounds of text point sizes
     labs(title = str_replace_all(unique(tf_idf_top_n_grams$question), "_", " ")) + # adding the question text as the plot title
     facet_wrap(~strat_id, ncol = 2, scales = "free") + # making individual plots for each strat_id
     theme_minimal() + # getting rid of all theme background
@@ -325,77 +350,13 @@ plot_wordcloud_tf_idf <- function(survey_df, n_token, question_no_chr, n_top) {
   
 }
 
-plot_wordcloud_tf_idf(example_data, 3, "Q44", 10)
+plot_wordcloud_tf_idf(example_data, 2, "Q44", 10)
 
-
-# # creating function for plotting wordclouds of specific questions based on term frequency
-# plot_wordcloud_tf_idf <- function(survey_df, n_token, question_no_chr) {
-#   
-#   # creating df of term frequencies with question text attached
-#   tf_idf_df <- calc_tf_idf(survey_df, n_token, question_no_chr) %>% # calcs term frequencies for n-grams
-#     mutate(question = tidy_survey_data %>% filter(question_no == question_no_chr) %>% pull(question) %>% unique()) # adds col with question text back in
-#   
-#   # making df of top n-grams for each dataset
-#   tf_idf_top <- tf_idf_df %>%
-#     group_by(strat_id) %>% # grouping for calculations
-#     top_n(30, tf_idf) %>% # pulls out top 20 entries based on tf-idf
-#     filter(tf_idf != min(tf_idf)) %>% # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
-#     filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token/part of an n-gram (focuses data)
-#     ungroup() %>%
-#     mutate(n_gram = reorder(n_gram, tf_idf)) # ordering the data to be based on value for nicer looking plots
-# 
-#   # creating the wordcloud
-#   tf_idf_wordcloud <- tf_idf_top %>%
-#     ggplot(aes(label = n_gram, size = tf_idf)) + # specifying data to be plotted
-#     geom_text_wordcloud(color = "black", # changing color of n-grams in plot
-#                         eccentricity = 1, # roundness of the wordcloud
-#                         grid_size = 4, grid_margin = 4, # spacing between terms in cloud
-#                         fontface = "bold", family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
-#     scale_size(range = c(4, 10)) + # setting the lower and upper bounds of text point sizes
-#     labs(title = str_replace_all(unique(tf_idf_top$question), "_", " ")) + # adding the question text as the plot title
-#     facet_wrap(~strat_id, ncol = 2, scales = "free") + # making individual plots for each strat_id
-#     theme_minimal() + # getting rid of all theme background
-#     theme(plot.title = element_text(hjust = 0.5, size = 10)) # centers the plot title and alters font size
-#   
-#   # outputting results
-#   return(tf_idf_wordcloud)
-#   
-# }
-
-
-plot_wordcloud_tf_idf(example_data, 2, "Q44")
-
-a
-
-
-#     group_by(strat_id) %>% # grouping for calculations
-#     top_n(20, tf_idf) %>% # pulls out top 20 possible entries for each strat_id based on tf-idf
-#     filter(tf_idf != min(tf_idf)) %>% # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
-#     filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token 
-#     ungroup() %>% # ungroup for plotting
-#     mutate(n_gram = reorder(n_gram, tf_idf)) %>% # ordering the data to be based on value for nicer looking plots
-#     ggplot(aes(n_gram, tf_idf, fill = strat_id)) + # setting the plotting conditions
-#     geom_col(show.legend = FALSE) + # graph will be a bar chart without a legend
-#     labs(x = NULL, y = "tf-idf") + # only need the tf-idf value label (n-grams will be other labels)
-#     facet_wrap(~strat_id, ncol = 2, scales = "free") + # making individual plots for each strat_id
-#     coord_flip(expand = FALSE) # turns the plot sideways
-
-
-# test <- calc_tf_idf(example_data, 2, "Q43") %>%
-#   group_by(strat_id) %>% # grouping for calculations
-#   top_n(50, tf_idf) %>% # pulls out top 20 entries based on tf-idf
-#   filter(tf_idf != min(tf_idf)) %>% # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
-#   filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token/part of an n-gram (focuses data)
-#   ungroup() %>%
-#   mutate(n_gram = reorder(n_gram, tf_idf)) # ordering the data to be based on value for nicer looking plots
 
 
 
 ### testing things ###
 
-# creating test dataset
-example_data <- strat_data$college_school %>% 
-  filter(question_no %in% typed_question_list)
 
 
 
