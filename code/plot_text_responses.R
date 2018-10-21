@@ -253,76 +253,60 @@ plot_all_wordcloud_tf <- function(survey_df, n_token, question_no_chr_list) {
 
 
 
-test_max <- calc_tf_idf(example_data, 2, "Q44") %>%
-  group_by(strat_id) %>% # grouping for calculations
-  top_n(30, tf_idf) %>% # pulls out top 20 entries based on tf-idf
-  filter(tf_idf != min(tf_idf)) %>% # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
-  filter(!str_detect(n_gram, "\\bNA\\b")) #%>% # filtering out lines containing NA as a token/part of an n-gram (focuses data)
-# ungroup() %>%
-# mutate(n_gram = reorder(n_gram, tf_idf)) # ordering the data to be based on value for nicer looking plots
 
 
-test_min <- calc_tf_idf(example_data, 2, "Q44") %>%
-  group_by(strat_id) %>% # grouping for calculations
-  top_n(30, tf_idf) %>% # pulls out top 20 entries based on tf-idf
-  filter(tf_idf == min(tf_idf)) %>% # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
-  filter(!str_detect(n_gram, "\\bNA\\b")) #%>% # filtering out lines containing NA as a token/part of an n-gram (focuses data)
-# ungroup() %>%
-# mutate(n_gram = reorder(n_gram, tf_idf)) # ordering the data to be based on value for nicer looking plots
 
-# test_max %>% 
-#   summarize(n = n())
+
+# tf_idf_top_max <- calc_tf_idf(example_data, 2, "Q44") %>%
+#   filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token/part of an n-gram (focuses data)
+#   group_by(strat_id) %>% # grouping for calculations
+#   top_n(30, tf_idf) %>% # pulls out top 20 entries based on tf-idf
+#   filter(tf_idf != min(tf_idf)) # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
 # 
-# test_min %>% 
-#   summarize(n = n())
+# tf_idf_top_min <- calc_tf_idf(example_data, 2, "Q44") %>%
+#   filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token/part of an n-gram (focuses data)
+#   group_by(strat_id) %>% # grouping for calculations
+#   top_n(30, tf_idf) %>% # pulls out top 20 entries based on tf-idf
+#   filter(tf_idf == min(tf_idf)) # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
 
-# test_max %>% 
-#   mutate(n_strat = n()) %>% 
-#   print(n = 50)
 
-strat_val <- test_max %>% 
+tf_idf_top <- calc_tf_idf(example_data, 2, "Q44") %>%
+  filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token/part of an n-gram (focuses data)
+  group_by(strat_id) %>% # grouping for calculations
+  top_n(30, tf_idf)
+
+tf_idf_top_max <- tf_idf_top %>% 
+  filter(tf_idf != min(tf_idf)) # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
+
+tf_idf_top_min <- tf_idf_top %>% 
+  filter(tf_idf == min(tf_idf)) # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
+
+strat_val <- tf_idf_top_max %>% 
   summarize(n_strat = n()) %>% 
   rename(strat_id_chr = strat_id)
 
-# # finding way to subsample a certain number of rows reproducibly
-# set.seed(2018) # seed needs to be rerun every iteration otherwise it's set to null by sample_n
-# test_min %>% 
-#   filter(strat_id == "ENG") %>% 
-#   sample_n(size = 30-5, replace = FALSE)
+# using pmap to iterate over example output
+pmap_df(df = tf_idf_top_min, strat_val, retrieve_rows) %>% 
+  print(n = 83) # printing all the rows for visualization
+
+tf_idf_top_max %>% 
+  bind_rows(pmap_df(df = tf_idf_top_min, strat_val, retrieve_rows))
+
+
+
+
 
 
 # creating function to randomly subsample n number of rows from each strat_id group
 # used to build top_n df up to a desired row number when overplotting is an issue due to multiple rows having same term freq value
-retrieve_rows  <- function(strat_id_chr, n_strat) {
+retrieve_rows  <- function(df, strat_id_chr, n_strat) {
   set.seed(seed)
-  data <- test_min %>% 
+  data <- df %>% 
     filter(strat_id == strat_id_chr) %>% 
     sample_n(size = 30 - n_strat, replace = FALSE)
   return(data)
 }
 
-# # testing retrieve_rows
-# retrieve_rows("Other", 1)
-
-# using pmap to iterate over example output
-pmap_df(strat_val, retrieve_rows) %>% 
-  print(n = 83) # printing all the rows for visualization
-
-
-
-
-
-plot_wordcloud_tf_idf <- function(tf_idf_df) {
-  
-  tf_idf_data <- tf_idf_df %>% 
-    group_by(strat_id) %>% # grouping for calculations
-    top_n(20, tf_idf) %>% # pulls out top 20 possible entries for each strat_id based on tf-idf
-    filter(tf_idf != min(tf_idf)) %>% # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
-    filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token 
-    ungroup() %>% # ungroup for plotting
-    mutate(n_gram = reorder(n_gram, tf_idf)) 
-  
-}
 
 
 # creating function for plotting wordclouds of specific questions based on term frequency
@@ -590,6 +574,16 @@ top_30_sentiment %>%
 # 
 # map(test2, plot_tf)
 
-
+# plot_wordcloud_tf_idf <- function(tf_idf_df) {
+#   
+#   tf_idf_data <- tf_idf_df %>% 
+#     group_by(strat_id) %>% # grouping for calculations
+#     top_n(20, tf_idf) %>% # pulls out top 20 possible entries for each strat_id based on tf-idf
+#     filter(tf_idf != min(tf_idf)) %>% # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
+#     filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token 
+#     ungroup() %>% # ungroup for plotting
+#     mutate(n_gram = reorder(n_gram, tf_idf)) 
+#   
+# }
 
 
