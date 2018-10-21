@@ -251,61 +251,6 @@ plot_all_wordcloud_tf <- function(survey_df, n_token, question_no_chr_list) {
 
 
 
-
-# tf_idf_top <- calc_tf_idf(example_data, 2, "Q44") %>%
-#   filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token/part of an n-gram (focuses data)
-#   group_by(strat_id) %>% # grouping for calculations
-#   top_n(30, tf_idf)
-# 
-# tf_idf_top_max <- tf_idf_top %>% 
-#   filter(tf_idf != min(tf_idf)) # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
-# 
-# tf_idf_top_min <- tf_idf_top %>% 
-#   filter(tf_idf == min(tf_idf)) # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
-# 
-# strat_val <- tf_idf_top_max %>% 
-#   summarize(n_strat = n()) %>% 
-#   rename(strat_id_chr = strat_id)
-
-# # using pmap to iterate over example output
-# pmap_df(df = tf_idf_top_min, strat_val, retrieve_rows) %>% 
-#   print(n = 83) # printing all the rows for visualization
-
-# tf_idf_top_max %>% 
-#   bind_rows(pmap_df(df = tf_idf_top_min, strat_val, retrieve_rows))
-
-strats <- example_data %>% pull(strat_id) %>% unique
-
-unique(example_data$strat_id)
-
-strats <- "UMMS"
-
-# test %>% 
-#   ifelse(!("ENG" %in% strat_id_chr), add_row(strat_id_chr = "ENG", n_strat = 0), NULL)
-# 
-# !(strats %in% test$strat_id_chr)
-# 
-# test %>% 
-#   add_row(strat_id_chr = strats[!(strats %in% test$strat_id_chr)], n_strat = 0)
-# 
-# test2 <- test %>% 
-#   add_row(strat_id_chr = strats[!(strats %in% test$strat_id_chr)], n_strat = 0)
-# 
-# test2 %>% 
-#   bind_rows(strat_id_chr = strats[!(strats %in% test2$strat_id_chr)], n_strat = 0)
-
-if (length(test$strat_id_chr) < length(unique(example_data$strat_id))) {
-  test %>% 
-    add_row(strat_id_chr = unique(example_data$strat_id)[!(unique(example_data$strat_id) %in% test$strat_id_chr)], n_strat = 0)
-} else {
-  test
-}
-  
-  
-#   ifelse(length(test2$strat_id_chr)  length(strats), data_frame(strat_id_chr = strats[!(strats %in% test2$strat_id_chr)], n_strat = 0), data_frame(test2))
-# 
-# data_frame(strat_id_chr = strats[!(strats %in% test2$strat_id_chr)], n_strat = 0)
-
 # creating function to randomly subsample n number of rows from each strat_id group
 # used to build top_n df up to a desired row number when overplotting is an issue due to multiple rows having same term freq value
 retrieve_rows  <- function(df, strat_id_chr, n_top, n_strat) {
@@ -316,7 +261,9 @@ retrieve_rows  <- function(df, strat_id_chr, n_top, n_strat) {
   return(data)
 }
 
-# creating function for plotting wordclouds of specific questions based on term frequency
+
+
+# creating function for plotting wordclouds of specific questions based on term frequency and number of n-grams desired
 plot_wordcloud_tf_idf <- function(survey_df, n_token, question_no_chr, n_top) {
   
   # creating df of term frequencies with question text attached
@@ -356,15 +303,16 @@ plot_wordcloud_tf_idf <- function(survey_df, n_token, question_no_chr, n_top) {
   
   # subsampling tf_idf_top_min df and adding back to tf_idf_top_max df to give consistent number of n-grams per strat_id for plotting
   tf_idf_top_n_grams <- tf_idf_top_max %>% 
-    bind_rows(pmap_df(df = tf_idf_top_min, n_top = n_top, .l = max_counts, .f = retrieve_rows)) %>% 
+    bind_rows(pmap_df(df = tf_idf_top_min, n_top = n_top, .l = max_counts, .f = retrieve_rows)) %>% # subsampling min df and binding to max df
+    mutate(tf_idf_scale = tf_idf*(8/max(tf_idf))) %>% # creating a col for plot scaling by setting max tf-idf value for each strat_id to 8 so all strat_ids can have the same range
     ungroup()
     
   # creating the wordcloud
   tf_idf_wordcloud <- tf_idf_top_n_grams %>%
-    ggplot(aes(label = n_gram, size = tf_idf)) + # specifying data to be plotted
+    ggplot(aes(label = n_gram, size = tf_idf_scale)) + # specifying data to be plotted
     geom_text_wordcloud(color = "black", # changing color of n-grams in plot
                         eccentricity = 2, # roundness of the wordcloud
-                        grid_size = 5, grid_margin = 4, # spacing between terms in cloud
+                        grid_size = 6, grid_margin = 6, # spacing between terms in cloud
                         fontface = "bold", family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
     scale_size(range = c(4, 10)) + # setting the lower and upper bounds of text point sizes
     labs(title = str_replace_all(unique(tf_idf_top_n_grams$question), "_", " ")) + # adding the question text as the plot title
@@ -378,7 +326,6 @@ plot_wordcloud_tf_idf <- function(survey_df, n_token, question_no_chr, n_top) {
 }
 
 plot_wordcloud_tf_idf(example_data, 3, "Q44", 10)
-
 
 
 # # creating function for plotting wordclouds of specific questions based on term frequency
