@@ -49,8 +49,9 @@ source("code/stratify_data.R")
 
 library(tidyverse)
 library(tidytext) # text manipulation, used for tokenization and stop words
-library(wordcloud) # word cloud
-library(wordcloud2)
+# library(wordcloud) # word cloud
+# library(wordcloud2)
+library(ggwordcloud) # geom_text_wordcloud()
 # library(stringr) #string manipulation
 # library(igraph)
 # library(ggraph)
@@ -153,6 +154,7 @@ get_n_gram <- function(survey_df, n_token) {
 }
 
 
+# NOTE: can combine calc functions
 
 # creating function to calculate term frequency for entire dataset
 calc_tf <- function(survey_df, n_token, question_no_chr) {
@@ -192,111 +194,57 @@ calc_tf_idf <- function(survey_df, n_token, question_no_chr) {
 
 
 
-# NOTE: need to change color scheme
-# NOTE: combine calc function and plot function then take out question col from calc function and only have in plot
-
-# creating plotting function for looking at tf for each question/dataset
-plot_tf <- function(tf_df) {
-  
-  tf_data <- tf_df %>% 
-    top_n(20, tf) %>% # pulls out top 20 entries based on tf
-    filter(tf != min(tf)) %>% # removing n-grams that have the smallest tf value for each group (prevents over-plotting)
-    filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token 
-    mutate(n_gram = reorder(n_gram, tf)) # ordering the data to be based on value for nicer looking plots
-  
-  response_no <- length(unique(tf_data$n_gram)) # calculating the number of unique responses for aspect ratio scaling
-  
-  aspect <- 0.2*response_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
-  
-  tf_plot <- tf_data %>% 
-    ggplot(aes(n_gram, tf)) + # setting the plotting conditions
-    geom_col(show.legend = FALSE, fill = "red", color = "black") + # graph will be a bar chart without a legend
-    labs(title = str_wrap(str_replace_all(unique(tf_data$question), "_", " "), width = 100),
-         x = NULL, y = "tf") + # only need the tf value label (n-grams will be other labels)
-    coord_flip(expand = FALSE) + # turns the plot sideways
-    theme(plot.title = element_text(size = 10, hjust = 0.5), # sets size of chart title and centers over plot
-          axis.line = element_line(size = 0.5, color = "black"), # formatting axis lines as desired
-          axis.title = element_text(size = 10), # making all chart titles a consistent size
-          axis.title.x = element_text(margin = margin(10,0,0,0)), # adding space between x axis title and axis labels
-          axis.text = element_text(size = 8),
-          plot.margin = margin(20,20,20,20), # giving plot a bit of padding on edges in case something is plotted out of bounds
-          panel.background = element_rect(fill = "white"), # making panels have white background
-          # formatting plots to have a consistent size
-          aspect.ratio = aspect) # making size of bars compared to plot consistent
-  
-  grob_table <- ggplotGrob(tf_plot) # creates a gtable of plot features
-  
-  grob_table$widths[4] <- unit(6, "cm") # sets alignment of y axis in chart area thereby aligning all plots generated with this script (moves chart to the right)
-  grob_table$widths[6] <- unit(6, "cm") # used for alignment (moves chart to the left)
-
-  grobbed_plot <- as_ggplot(arrangeGrob(grob_table)) # recreating the plots with updated coordinates and saving as a ggplot item
-  
-  return(grobbed_plot)
-  
-}
-
-# str_wrap("test two", width = 3)
-
-# testing
-map(test2, plot_tf)
-
-
-
-
-
-# creating plotting function for looking at tf-idf of the various strat_id's
-plot_tf_idf <- function(tf_idf_df) {
-  
-  tf_idf_plot <- tf_idf_df %>% 
-    group_by(strat_id) %>% # grouping for calculations
-    top_n(20, tf_idf) %>% # pulls out top 20 possible entries for each strat_id based on tf-idf
-    filter(tf_idf != min(tf_idf)) %>% # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
-    filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token 
-    ungroup() %>% # ungroup for plotting
-    mutate(n_gram = reorder(n_gram, tf_idf)) %>% # ordering the data to be based on value for nicer looking plots
-    ggplot(aes(n_gram, tf_idf, fill = strat_id)) + # setting the plotting conditions
-    geom_col(show.legend = FALSE) + # graph will be a bar chart without a legend
-    labs(x = NULL, y = "tf-idf") + # only need the tf-idf value label (n-grams will be other labels)
-    facet_wrap(~strat_id, ncol = 2, scales = "free") + # making individual plots for each strat_id
-    coord_flip(expand = FALSE) # turns the plot sideways
-  
-  return(tf_idf_plot)
-  
-}
-
-
-
-library(ggwordcloud)
-library(RColorBrewer)
-
 plot_wordcloud_tf <- function(survey_df, n_token, question_no_chr) {
   
-  tf_df <- calc_tf(survey_df, n_token, question_no_chr) %>% 
+  # creating df of term frequencies with question text attached
+  tf_df <- calc_tf(survey_df, n_token, question_no_chr) %>% # calcs term frequencies for n-grams
     mutate(question = tidy_survey_data %>% filter(question_no == question_no_chr) %>% pull(question) %>% unique()) # adds col with question text back in
   
+  # making df of top n-grams for each dataset
   tf_top <- tf_df %>% 
     top_n(20, tf) %>% # pulls out top 20 entries based on tf
     filter(tf != min(tf)) %>% # removing n-grams that have the smallest tf value for each group (prevents over-plotting)
-    filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token 
+    filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token/part of an n-gram (focuses data)
     mutate(n_gram = reorder(n_gram, tf)) # ordering the data to be based on value for nicer looking plots
   
+  # creating the wordcloud
   tf_wordcloud <- tf_top %>%
-    ggplot(aes(label = n_gram, size = tf)) +
-    geom_text_wordcloud(aes(color = colorRampPalette(brewer.pal(11,"Spectral"))(16)),
-                        eccentricity = 1, grid_size = 4, grid_margin = 3,
-                        fontface = "bold", family = "Times New Roman") +
-    scale_size(range = c(5, 15)) +
-    labs(title = str_replace_all(unique(tf_top$question), "_", " ")) +
-    theme_minimal() +
-    theme(plot.title = element_text(hjust = 0.5, size = 10))
+    ggplot(aes(label = n_gram, size = tf)) + # specifying data to be plotted
+    geom_text_wordcloud(color = "black", # changing color of n-grams in plot
+                        eccentricity = 1, # roundness of the wordcloud
+                        grid_size = 4, grid_margin = 4, # spacing between terms in cloud
+                        fontface = "bold", family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
+    scale_size(range = c(4, 10)) + # setting the lower and upper bounds of text point sizes
+    labs(title = str_replace_all(unique(tf_top$question), "_", " ")) + # adding the question text as the plot title
+    theme_minimal() + # getting rid of all theme background
+    theme(plot.title = element_text(hjust = 0.5, size = 10)) # centers the plot title and alters font size
   
+  # outputting results
   return(tf_wordcloud)
   
 }
 
-plot_wordcloud_tf(example_data, 2, "Q42")
 
-map(test2, plot_wordcloud_tf2)
+
+# creating function to plot all of the unstratified dataset using pmap
+plot_all_wordcloud_tf <- function(survey_df, n_token, question_no_chr_list) {
+  
+  # creating df of arguments for use with pmap
+  arguments <- data_frame(survey_df = list(survey_df),
+                          n_token = n_token,
+                          question_no_chr = question_no_chr_list)
+  
+  # mapping over list of arguments in arguments df
+  plots <- pmap(arguments, plot_wordcloud_tf) %>% 
+    set_names(question_no_chr_list)
+  
+  # outputting results
+  return(plots)
+  
+}
+
+# testing plot_all_wordcloud_tf()
+plot_all_wordcloud_tf(example_data, 2, typed_question_list)
 
 
 
@@ -344,39 +292,7 @@ plot_wordcloud_tf_idf <- function(tf_idf_df) {
 
 # creating test dataset
 example_data <- strat_data$language %>% 
-  filter(question_no %in% typed_question_list) #%>% # filtering to only contain text based responses
-  #mutate(response = str_replace_all(response, "_", " ")) #%>% # removing extra symbols from tidying
-# filter(!is.na(response) & !str_detect(response, "\\bn[/]a\\b")) # removing any weird "NA" type responses people input
-
-# example_data2 <- tidy_survey_data %>% 
-#   filter(question_no %in% typed_question_list) %>% 
-#   filter(question_no == "Q44")
-
-# # testing get_n_gram() function to make sure it works
-# get_n_gram(example_data2, 3)
-# get_n_gram(example_data, 1)
-# get_n_gram(example_data, 2)
-# get_n_gram(example_data, 3)
-
-# # testing calc_tf() function
-# calc_tf(example_data, 1)
-
-# # testing calc_tf_idf() function
-# calc_tf_idf(example_data, 2)
-
-# # testing plotting
-# test_question <- "Q44"
-# strat_data$language %>%
-#   filter(question_no == test_question)
-# test <- calc_tf_idf(example_data, 2, test_question)
-# test %>%
-#   group_by(strat_id) %>% # grouping for calculations
-#   top_n(20, tf_idf) %>% # pulls out top 20 possible entries for each strat_id based on tf-idf
-#   filter(tf_idf != min(tf_idf)) %>% # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
-#   filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token
-#   ungroup() %>% # ungroup for plotting
-#   mutate(n_gram = reorder(n_gram, tf_idf))
-# plot_tf_idf(test)
+  filter(question_no %in% typed_question_list)
 
 
 
@@ -390,18 +306,18 @@ example_data <- strat_data$language %>%
 #   pmap(arguments, save_strat_plots, category = category)
 # }
 
-test_function <- function(survey_df, n_token, question_no_chr_list) {
-  arguments <- data_frame(survey_df = list(survey_df),
-                          n_token = n_token,
-                          question_no_chr = question_no_chr_list)
-  data <- pmap(arguments, calc_tf) %>% 
-    set_names(question_no_chr_list)
-  return(data)
-}
-
-test2 <- test_function(example_data, 2, typed_question_list)
-
-map(test2, plot_tf)
+# test_function <- function(survey_df, n_token, question_no_chr_list) {
+#   arguments <- data_frame(survey_df = list(survey_df),
+#                           n_token = n_token,
+#                           question_no_chr = question_no_chr_list)
+#   data <- pmap(arguments, calc_tf) %>% 
+#     set_names(question_no_chr_list)
+#   return(data)
+# }
+# 
+# test2 <- test_function(example_data, 2, typed_question_list)
+# 
+# map(test2, plot_tf)
 
 
 
@@ -474,3 +390,73 @@ top_30_sentiment %>%
 
 # # cmd for removing weird NA responses if desired
 # filter(str_detect(response, regex(paste(paste0("\\b", c("n[/]a", "na"), "\\b"), collapse = "|"), ignore_case = TRUE)))
+
+
+
+# NOTE: need to change color scheme
+# NOTE: combine calc function and plot function then take out question col from calc function and only have in plot
+
+# # creating plotting function for looking at tf for each question/dataset
+# plot_tf <- function(tf_df) {
+#   
+#   tf_data <- tf_df %>% 
+#     top_n(20, tf) %>% # pulls out top 20 entries based on tf
+#     filter(tf != min(tf)) %>% # removing n-grams that have the smallest tf value for each group (prevents over-plotting)
+#     filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token 
+#     mutate(n_gram = reorder(n_gram, tf)) # ordering the data to be based on value for nicer looking plots
+#   
+#   response_no <- length(unique(tf_data$n_gram)) # calculating the number of unique responses for aspect ratio scaling
+#   
+#   aspect <- 0.2*response_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
+#   
+#   tf_plot <- tf_data %>% 
+#     ggplot(aes(n_gram, tf)) + # setting the plotting conditions
+#     geom_col(show.legend = FALSE, fill = "red", color = "black") + # graph will be a bar chart without a legend
+#     labs(title = str_wrap(str_replace_all(unique(tf_data$question), "_", " "), width = 100),
+#          x = NULL, y = "tf") + # only need the tf value label (n-grams will be other labels)
+#     coord_flip(expand = FALSE) + # turns the plot sideways
+#     theme(plot.title = element_text(size = 10, hjust = 0.5), # sets size of chart title and centers over plot
+#           axis.line = element_line(size = 0.5, color = "black"), # formatting axis lines as desired
+#           axis.title = element_text(size = 10), # making all chart titles a consistent size
+#           axis.title.x = element_text(margin = margin(10,0,0,0)), # adding space between x axis title and axis labels
+#           axis.text = element_text(size = 8),
+#           plot.margin = margin(20,20,20,20), # giving plot a bit of padding on edges in case something is plotted out of bounds
+#           panel.background = element_rect(fill = "white"), # making panels have white background
+#           # formatting plots to have a consistent size
+#           aspect.ratio = aspect) # making size of bars compared to plot consistent
+#   
+#   grob_table <- ggplotGrob(tf_plot) # creates a gtable of plot features
+#   
+#   grob_table$widths[4] <- unit(6, "cm") # sets alignment of y axis in chart area thereby aligning all plots generated with this script (moves chart to the right)
+#   grob_table$widths[6] <- unit(6, "cm") # used for alignment (moves chart to the left)
+# 
+#   grobbed_plot <- as_ggplot(arrangeGrob(grob_table)) # recreating the plots with updated coordinates and saving as a ggplot item
+#   
+#   return(grobbed_plot)
+#   
+# }
+# 
+# # testing
+# map(test2, plot_tf)
+
+
+
+# # creating plotting function for looking at tf-idf of the various strat_id's
+# plot_tf_idf <- function(tf_idf_df) {
+#   
+#   tf_idf_plot <- tf_idf_df %>% 
+#     group_by(strat_id) %>% # grouping for calculations
+#     top_n(20, tf_idf) %>% # pulls out top 20 possible entries for each strat_id based on tf-idf
+#     filter(tf_idf != min(tf_idf)) %>% # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
+#     filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token 
+#     ungroup() %>% # ungroup for plotting
+#     mutate(n_gram = reorder(n_gram, tf_idf)) %>% # ordering the data to be based on value for nicer looking plots
+#     ggplot(aes(n_gram, tf_idf, fill = strat_id)) + # setting the plotting conditions
+#     geom_col(show.legend = FALSE) + # graph will be a bar chart without a legend
+#     labs(x = NULL, y = "tf-idf") + # only need the tf-idf value label (n-grams will be other labels)
+#     facet_wrap(~strat_id, ncol = 2, scales = "free") + # making individual plots for each strat_id
+#     coord_flip(expand = FALSE) # turns the plot sideways
+#   
+#   return(tf_idf_plot)
+#   
+# }
