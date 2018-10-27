@@ -47,7 +47,7 @@
 source("code/stratify_data.R")
 
 
-library(tidyverse)
+# library(tidyverse)
 library(tidytext) # text manipulation, used for tokenization and stop words
 # library(wordcloud) # word cloud
 # library(wordcloud2)
@@ -523,11 +523,18 @@ save_tf_idf_plots <- function(category, question_no_chr) {
 
 
 # setting up mapping function to loop through all plots and question numbers of stratified data
-save_all_tf_idf_plots <- function(plot_list, question_no_chr_list, category) {
-  arguments <- data_frame(plot_name = plot_list,
-                          question_no_chr = question_no_chr_list)
-  pmap(arguments, save_strat_plots, category = category)
+save_all_tf_idf_plots <- function(category_list, question_no_chr_list) {
+  
+  arguments <- data_frame(category = rep(category_list, each = length(typed_question_list)),
+                          question_no_chr = rep(question_no_chr_list, times = length(category_list)))
+  
+  pmap(arguments, save_tf_idf_plots)
+  
 }
+
+# saving all of the plots to the appropriate folders
+save_all_tf_idf_plots(names(strat_list), typed_question_list)
+
 
 
 
