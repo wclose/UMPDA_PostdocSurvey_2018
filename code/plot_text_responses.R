@@ -150,6 +150,9 @@ my_stop_words <- stop_words %>%
 # survery_df = df containing survey responses; n_token = size of n-gram to use (ex: 2 = bigram)
 get_n_gram <- function(survey_df, n_token) {
   
+  # message for debugging
+  print("Creating n-gram dfs.")
+  
   # converting data to form for parsing
   data <- survey_df %>%
     mutate(response = str_replace_all(response, "_", " ")) # reformatting responses to remove any "_" from tidying process
@@ -199,46 +202,347 @@ get_n_gram <- function(survey_df, n_token) {
 
 
 
-# NOTE: can combine calc functions
+# # creating function to calculate term frequency for entire dataset
+# calc_tf <- function(survey_df, n_token, question_no_chr) {
+#   
+#   # message for debugging
+#   print("Calculating term frequency (tf).")
+#   
+#   # generating term frequency df
+#   tf_df <- survey_df %>% 
+#     filter(question_no == question_no_chr) %>% # filtering based on desired question
+#     get_n_gram(n_token) %>% # generating list of n-grams
+#     count(n_gram, sort = TRUE) %>% # counting occurrences of each n-gram
+#     mutate(tf = n/sum(n)) %>% # calculating term frequencies based on total number of n-grams in dataset
+#     arrange(desc(tf)) #%>% # ordering output based on tf value
+#     #mutate(question = tidy_survey_data %>% filter(question_no == question_no_chr) %>% pull(question) %>% unique()) # adds col with question text back in
+#   
+#   # returning the output
+#   return(tf_df)
+#   
+# }
 
-# creating function to calculate term frequency for entire dataset
-calc_tf <- function(survey_df, n_token, question_no_chr) {
+
+
+# # creating function to calculate tf-idf for stratified data
+# calc_tf_idf <- function(survey_df, n_token, question_no_chr) {
+#   
+#   # message for debugging
+#   print("Calculating term frequency - inverse document frequency (tf-idf).")
+#   
+#   # creating df of tf-idf values for each n-gram
+#   tf_idf_df <- survey_df %>% 
+#     filter(question_no == question_no_chr) %>% # filtering based on desired question
+#     get_n_gram(n_token) %>% # running user function to generate list of n-grams
+#     count(strat_id, n_gram, sort = TRUE) %>% # counting instances of each n-gram in each strat_id
+#     bind_tf_idf(n_gram, strat_id, n) %>% # calculating tf-idf for each n-gram
+#     arrange(desc(tf_idf)) # ordering output based on tf-idf value
+# 
+#   # returning output tf-idf values
+#   return(tf_idf_df)
+#   
+# }
+
+
+# combining the functions for calculating tf or tf-idf
+# usage: freq_type = "tf" or "tf-idf", survey_df = df of survey data, n_token = words per n-gram (1:3), question_no_chr = as.character(question_no)
+calc_n_gram_freq <- function(freq_type, survey_df, n_token, question_no_chr) {
   
-  # generating term frequency df
-  tf_df <- survey_df %>% 
+  # generating n-gram dfs
+  n_gram_df <- survey_df %>% 
     filter(question_no == question_no_chr) %>% # filtering based on desired question
-    get_n_gram(n_token) %>% # generating list of n-grams
-    count(n_gram, sort = TRUE) %>% # counting occurrences of each n-gram
-    mutate(tf = n/sum(n)) %>% # calculating term frequencies based on total number of n-grams in dataset
-    arrange(desc(tf)) #%>% # ordering output based on tf value
-    #mutate(question = tidy_survey_data %>% filter(question_no == question_no_chr) %>% pull(question) %>% unique()) # adds col with question text back in
+    get_n_gram(n_token) # generating list of n-grams
+ 
+  # message for debugging
+  print("Calculating n-gram frequencies.")
+  
+  if (freq_type == "tf") {
+    
+    # message for debugging
+    print("Calculating term frequency (tf).")
+    
+    # generating term frequency df
+    freq_df <- n_gram_df %>% 
+      count(n_gram, sort = TRUE) %>% # counting occurrences of each n-gram
+      mutate(tf = n/sum(n)) %>% # calculating term frequencies based on total number of n-grams in dataset
+      arrange(desc(tf)) #%>% # ordering output based on tf value
+  
+  } else if (freq_type == "tf-idf") {
+    
+    # message for debugging
+    print("Calculating term frequency - inverse document frequency (tf-idf).")
+    
+    # creating df of tf-idf values for each n-gram
+    freq_df <- n_gram_df %>% 
+      count(strat_id, n_gram, sort = TRUE) %>% # counting instances of each n-gram in each strat_id
+      bind_tf_idf(n_gram, strat_id, n) %>% # calculating tf-idf for each n-gram
+      arrange(desc(tf_idf)) # ordering output based on tf-idf value
+    
+  } else {
+    
+    print("ERROR: Invalid frequency type")
+    
+  }
   
   # returning the output
-  return(tf_df)
+  return(freq_df)
+  
+}
+
+# # testing combined function
+# calc_n_gram_freq(freq_type = "tf-idf", example_data, 2, "Q44")
+
+
+
+
+# creating function to randomly subsample n number of rows from each strat_id group
+# used to build top_n df up to a desired row number when overplotting is an issue due to multiple rows having same term freq value
+retrieve_rows  <- function(df, strat_id_chr, n_top, n_strat) {
+  set.seed(my_seed)
+  data <- df %>% 
+    filter(strat_id == strat_id_chr) %>% 
+    sample_n(size = n_top - n_strat, replace = FALSE)
+  return(data)
+}
+
+
+
+
+# creating function to generate dfs of top n-grams based on question and strat_id
+get_top_tf_idf <- function(freq_type, survey_df, n_token, question_no_chr, n_top) {
+  
+  # generating df of frequencies
+  freq_df <- calc_n_gram_freq(freq_type, survey_df, n_token, question_no_chr) %>% # calcs term frequencies for n-grams
+    mutate(question_no = question_no_chr, # adding col with question number for plotting
+           question = tidy_survey_data %>% filter(question_no == question_no_chr) %>% pull(question) %>% unique()) %>% # adds col with question text back in
+    filter(!str_detect(n_gram, "\\bNA\\b")) # filtering out lines containing NA as a token/part of an n-gram (focuses data)
+    
+  if (freq_type == "tf") {
+    
+    # message for debugging
+    print(paste0("Generating df of top ", paste(n_token), " n-grams based on tf."))
+    
+    # making df of top n-grams for each dataset
+    tf_top <- freq_df %>%
+      top_n(n_top, tf) # pulls out top n entries based on tf
+    
+    # if there are less unique n-grams than the desired number of top n-grams
+    # (i.e. want top 10 n-grams by freq but only have 7), nothing is done and only those are plotted.
+    # if there are exactly the correct number of n-grams as desired, nothing is done and the data is plotted as is
+    if (nrow(tf_top) <= n_top) {
+      
+      top_n_grams <- tf_top %>% 
+        mutate(tf_scale = tf*(8/max(tf))) # creating a col for plot scaling by setting max tf value
+    
+    # if there are too many answers (more than one n-gram with same term freq), n-grams with the smallest freq value in the top n-gram
+    # df are subsampled to give only the desired number of n-grams thus preventing overplotting
+    } else {
+      
+      # subsetting top n-gram df to be only n-grams with freq != min freq to prevent overplotting
+      tf_top_max <- tf_top %>%
+        filter(tf != min(tf)) # removing n-grams that have the smallest tf value for each group (prevents over-plotting)
+      
+      # subsetting top n-gram df to be only n-grams with freq = min freq for subsampling and rejoining with the max df to plot desired number of n-grams
+      tf_top_min <- tf_top %>%
+        filter(tf == min(tf)) # removing n-grams that have the largest tf values for each group
+      
+      # subsampling tf_top_min df and adding back to tf_top_max df to give consistent number of n-grams per strat_id for plotting
+      set.seed(my_seed) # setting the seed for randomization during subsampling
+      top_n_grams <- tf_top_max %>%
+        bind_rows(tf_top_min %>% sample_n(size = n_top - nrow(tf_top_max), replace = FALSE)) %>% # subsampling min df and binding to max df
+        mutate(tf_scale = tf*(8/max(tf))) # creating a col for plot scaling by setting max tf value
+      
+    }
+    
+  } else if (freq_type == "tf-idf") {
+    
+    # message for debugging
+    print(paste0("Generating df of top ", paste(n_token), " n-grams based on tf-idf."))
+    
+    # making df of top n-grams for each dataset
+    tf_idf_top <- freq_df %>%
+      group_by(strat_id) %>% # grouping for calculations
+      top_n(n_top, tf_idf) # pulls out top n number of n-grams based on freq values
+    
+    # making list of strat_ids with less than n_top rows
+    n_gram_under <- tf_idf_top %>% 
+      summarize(n_row = n()) %>% 
+      filter(n_row <= n_top) %>% 
+      pull(strat_id)
+    
+    # creating df of strat_ids with less n-grams than specified by n_top
+    tf_idf_top_under <- tf_idf_top %>%
+      filter(strat_id %in% n_gram_under) # only keeping rows with strat_ids in n_gram_under list
+    
+    # creating df of strat_ids with more n-grams than specified by n_top
+    tf_idf_top_over <- tf_idf_top %>%
+      filter(!(strat_id %in% n_gram_under)) # removing any rows with strat_ids in n_gram_under list
+    
+    # subsetting n-gram df with more than n_top rows to be only n-grams with freq != min freq to prevent overplotting
+    tf_idf_top_max <- tf_idf_top_over %>%
+      filter(tf_idf != min(tf_idf)) # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
+    
+    # subsetting top n-gram df to be only n-grams with freq = min freq for subsampling and rejoining with the max df to plot desired number of n-grams
+    tf_idf_top_min <- tf_idf_top_over %>%
+      filter(tf_idf == min(tf_idf)) # removing n-grams that have the largest tf-idf values for each group
+    
+    # creating count table for n-grams in each strat_id
+    max_counts <- tf_idf_top_max %>%
+      summarize(n_strat = n()) %>% # counting number of n-grams per strat_id
+      rename(strat_id_chr = strat_id) # renaming col for use with retrieve_rows() later
+    
+    # overwriting max_counts to contain any strat_ids that may be missing with values set to 0
+    # if all strat_ids are represented, leave them unchanged
+    max_counts <- if (length(max_counts$strat_id_chr) < length(unique(survey_df$strat_id))) { # if the number of strat_ids is less in the count table than the original df
+      
+      max_counts %>%
+        add_row(strat_id_chr = unique(survey_df$strat_id)[!(unique(survey_df$strat_id) %in% max_counts$strat_id_chr)], n_strat = 0) # add rows for missing strat_ids with n set to 0
+    
+    } 
+    
+    # subsampling tf_idf_top_min df and adding back to tf_idf_top_max df to give consistent number of n-grams per strat_id for plotting
+    top_n_grams <- tf_idf_top_max %>%
+      bind_rows(pmap_df(df = tf_idf_top_min, n_top = n_top, .l = max_counts, .f = retrieve_rows), tf_idf_top_under) %>% # subsampling min df and binding to max df
+      mutate(tf_idf_scale = tf_idf*(8/max(tf_idf))) %>% # creating a col for plot scaling by setting max tf-idf value for each strat_id to 8 so all strat_ids can have the same range
+      ungroup()
+    
+  }
+  
+  return(top_n_grams)
   
 }
 
 
 
-# creating function to calculate tf-idf for stratified data
-calc_tf_idf <- function(survey_df, n_token, question_no_chr) {
+
+freq_df <- calc_n_gram_freq("tf-idf", example_data, 2, "Q44") %>% # calcs term frequencies for n-grams
+  mutate(question_no = "Q44", # adding col with question number for plotting
+         question = tidy_survey_data %>% filter(question_no == "Q44") %>% pull(question) %>% unique()) %>% # adds col with question text back in
+  filter(!str_detect(n_gram, "\\bNA\\b")) # filtering out lines containing NA as a token/part of an n-gram (focuses data)
+
+# making df of top n-grams for each dataset
+tf_idf_top <- freq_df %>%
+  group_by(strat_id) %>% # grouping for calculations
+  top_n(10, tf_idf) # pulls out top n number of n-grams based on freq values
+
+
+
+
+test <- tf_idf_top %>% 
+  mutate(n = n())
+
+
+
+# making list of strat_ids with less than n_top rows
+n_gram_under <- tf_idf_top %>% 
+  summarize(n_row = n()) %>% 
+  filter(n_row <= 10) %>% 
+  pull(strat_id)
+
+# creating df of strat_ids with less n-grams than specified by n_top
+tf_idf_top_under <- tf_idf_top %>%
+  filter(strat_id %in% n_gram_under) # only keeping rows with strat_ids in n_gram_under list
+
+under <- tf_idf_top %>% 
+  mutate(n = n()) %>% 
+  filter(n < 100)
+
+
+
+# creating df of strat_ids with more n-grams than specified by n_top
+tf_idf_top_over <- tf_idf_top %>%
+  filter(!(strat_id %in% n_gram_under)) # removing any rows with strat_ids in n_gram_under list
+
+over <- tf_idf_top %>% 
+  mutate(n = n()) %>% 
+  filter(n > 100)
+
+
+
+
+# subsetting n-gram df with more than n_top rows to be only n-grams with freq != min freq to prevent overplotting
+tf_idf_top_max <- tf_idf_top_over %>%
+  filter(tf_idf != min(tf_idf)) # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
+
+over %>% 
+  filter(tf_idf != min(tf_idf))
+
+
+# subsetting top n-gram df to be only n-grams with freq = min freq for subsampling and rejoining with the max df to plot desired number of n-grams
+tf_idf_top_min <- tf_idf_top_over %>%
+  filter(tf_idf == min(tf_idf)) # removing n-grams that have the largest tf-idf values for each group
+
+over %>% 
+  filter(tf_idf == min(tf_idf))
+
+
+# creating count table for n-grams in each strat_id
+max_counts <- tf_idf_top_max %>%
+  summarize(n_strat = n()) %>% # counting number of n-grams per strat_id
+  rename(strat_id_chr = strat_id) # renaming col for use with retrieve_rows() later
+
+1:10 %>%
+  when(
+    sum(.) <=  50 ~ sum(.),
+    sum(.) <= 100 ~ sum(.)/2,
+    ~ 0
+  )
+
+
+# creating count table for n-grams in each strat_id
+max_counts <- tf_idf_top_max %>%
+  summarize(n_strat = n()) %>% # counting number of n-grams per strat_id
+  rename(strat_id_chr = strat_id) %>% # renaming col for use with retrieve_rows() later
+  when(nrow(.) < nrow(count(tf_idf_top)) ~ add_row(., strat_id_chr = setdiff(count(tf_idf_top)[["strat_id"]], .[["strat_id_chr"]]), n_strat = 0),
+       TRUE ~ .)
+
+# max_counts %>% 
+#   when(nrow(.) < nrow(count(tf_idf_top)) ~ add_row(., strat_id_chr = c("et", "ets"), n_strat = 0),
+#        TRUE ~ .)
+# 
+# max_counts %>% 
+#   when(nrow(.) < nrow(count(tf_idf_top)) ~ add_row(., strat_id_chr = unique(tf_idf_top_max$strat_id)[!(unique(tf_idf_top_max$strat_id) %in% count(tf_idf_top)[["strat_id"]])], n_strat = 0),
+#        TRUE ~ .)
+# 
+# test <- count(tf_idf_top)[["strat_id"]]
+# grep(x = test, "LSA")
+# test %in% "LSA"
+# test2 <- "UMMS"
+# 
+# setdiff(count(tf_idf_top)[["strat_id"]], max_counts$strat_id_chr)
+# nrow(count(tf_idf_top))
+# nrow(tally(tf_idf_top))
+
+# overwriting max_counts to contain any strat_ids that may be missing with values set to 0
+# if all strat_ids are represented, leave them unchanged
+max_counts2 <- if (length(max_counts$strat_id_chr) < length(unique(example_data$strat_id))) { # if the number of strat_ids is less in the count table than the original df
   
-  # creating df of tf-idf values for each n-gram
-  tf_idf_df <- survey_df %>% 
-    filter(question_no == question_no_chr) %>% # filtering based on desired question
-    get_n_gram(n_token) %>% # running user function to generate list of n-grams
-    count(strat_id, n_gram, sort = TRUE) %>% # counting instances of each n-gram in each strat_id
-    bind_tf_idf(n_gram, strat_id, n) %>% # calculating tf-idf for each n-gram
-    arrange(desc(tf_idf)) # ordering output based on tf-idf value
-
-  # returning output tf-idf values
-  return(tf_idf_df)
+  max_counts %>%
+    add_row(strat_id_chr = unique(example_data$strat_id)[!(unique(example_data$strat_id) %in% max_counts$strat_id_chr)], n_strat = 0) # add rows for missing strat_ids with n set to 0
   
-}
+} 
+
+# subsampling tf_idf_top_min df and adding back to tf_idf_top_max df to give consistent number of n-grams per strat_id for plotting
+top_n_grams <- tf_idf_top_max %>%
+  bind_rows(pmap_df(df = tf_idf_top_min, n_top = 10, .l = max_counts, .f = retrieve_rows), tf_idf_top_under) %>% # subsampling min df and binding to max df
+  mutate(tf_idf_scale = tf_idf*(8/max(tf_idf))) %>% # creating a col for plot scaling by setting max tf-idf value for each strat_id to 8 so all strat_ids can have the same range
+  ungroup()
 
 
 
-# NOTE: try and combine with plotting function for 
+
+
+
+
+
+
+
+
+
+
+
+
+# NOTE: try and combine with plotting function for tf-idf
 
 # creating function for plotting wordclouds of specific questions based on term frequency
 plot_wordcloud_tf <- function(survey_df, n_token, question_no_chr, n_top) {
@@ -435,7 +739,7 @@ plot_wordcloud_top_tf_idf <- function(survey_df, n_token, question_no_chr, n_top
     # scale_color_viridis(option = "cividis", discrete = TRUE, begin = 0, end = 0.75) +
     scale_size(range = c(8*text_size_conv, 24*text_size_conv)) + # setting the lower and upper bounds of text point sizes
     labs(title = paste(unique(top_tf_idf_df$question_no), str_replace_all(unique(top_tf_idf_df$question), "_", " "), sep = ". ")) + # adding the question text as the plot title
-    facet_wrap(~strat_id, ncol = 2, scales = "free") + # making individual plots for each strat_id
+    facet_wrap(~str_replace_all(strat_id, "_", " "), ncol = 2, scales = "free") + # making individual plots for each strat_id
     theme_minimal() + # getting rid of all theme background
     theme(plot.title = element_text(hjust = 0.5, size = 10),  # centers the plot title and alters font size
           strip.background = element_rect(fill = NULL, color = "black", size = 1))
@@ -472,7 +776,7 @@ get_all_top_tf_idf <- function(survey_df, n_token, question_no_chr_list, n_top) 
 all_top_tf_idf <- map(strat_data, get_all_top_tf_idf, n_token = 2, question_no_chr_list = typed_question_list, n_top = 15)
 
 # # verifying output
-# all_top_tf_idf$college_school$Q44
+# all_top_tf_idf$career$Q44
 
 
 
@@ -498,7 +802,7 @@ plot_all_wordcloud_tf_idf <- function(survey_df, n_token, question_no_chr_list, 
 all_wordcloud_tf_idf <- map(strat_data, plot_all_wordcloud_tf_idf, n_token = 2, question_no_chr_list = typed_question_list, n_top = 15)
 
 # # verifying output
-# all_wordcloud_tf_idf$college_school$Q44
+# all_wordcloud_tf_idf$career$Q44
 
 
 
