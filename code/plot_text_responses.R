@@ -367,6 +367,74 @@ get_top_n_gram <- function(survey_df, question_no_chr, n_token = 1, freq_type = 
 
 
 
+
+# creating function to plot all of the unstratified dataset using pmap
+get_all_top_n_grams <- function(survey_df, question_no_chr_list, n_token, freq_type, n_top) {
+  
+  # debugging messages
+  if (freq_type == "tf") {
+    
+    print(paste0("Plotting all ", deparse(substitute(survey_df)), " tf wordclouds."))
+    
+  } else if (freq_type == "tf-idf") {
+    
+    print(paste0("Plotting all ", deparse(substitute(survey_df)), " tf-idf wordclouds."))
+    
+  }
+  
+  # creating df of arguments for use with pmap
+  arguments <- data_frame(survey_df = list(survey_df),
+                          question_no_chr = question_no_chr_list)
+  
+  # mapping over list of arguments in arguments df
+  data <- pmap(arguments, get_top_n_gram, n_token = n_token, freq_type = freq_type, n_top = n_top) %>%
+    set_names(question_no_chr_list)
+  
+  # outputting results
+  return(data)
+  
+}
+
+# generating all top n-grams based on tf
+all_top_tf <- get_all_top_n_grams(survey_df = tidy_survey_data, question_no_chr_list = typed_question_list,
+                                   n_token = 2, freq_type = "tf", n_top = 15)
+
+# generating all top n-grams based on tf-idf
+all_top_tf_idf <- map(strat_data, get_all_top_n_grams, question_no_chr_list = typed_question_list,
+                      n_token = 2, freq_type = "tf-idf", n_top = 15)
+
+
+# # verifying output
+# all_top_tf$Q44
+# all_top_tf_idf$gender$Q44
+
+
+# # creating function to plot all of the stratified dataset using pmap
+# get_all_top_tf_idf <- function(survey_df, n_token, question_no_chr_list, n_top) {
+#   
+#   # creating df of arguments for use with pmap
+#   arguments <- data_frame(survey_df = list(survey_df),
+#                           n_token = n_token,
+#                           question_no_chr = question_no_chr_list,
+#                           n_top = n_top)
+#   
+#   # mapping over list of arguments in arguments df
+#   data <- pmap(arguments, get_top_tf_idf) %>%
+#     set_names(question_no_chr_list)
+#   
+#   # outputting results
+#   return(data)
+#   
+# }
+
+# # generating all top_tf_idf dfs for each strat group/question combo
+# all_top_tf_idf <- map(strat_data, get_all_top_tf_idf, n_token = 2, question_no_chr_list = typed_question_list, n_top = 15)
+
+# # verifying output
+# all_top_tf_idf$career$Q44
+
+
+
 # creating function for plotting wordclouds of specific questions based on term frequency and number of n-grams desired
 plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_type = "tf", n_top = 10) {
   
@@ -428,19 +496,17 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
 
 
 
-# Need to create function for saving all plots
-
 # creating function to plot all of the unstratified dataset using pmap
 plot_all_wordclouds <- function(survey_df, question_no_chr_list, n_token, freq_type, n_top) {
   
   # debugging messages
   if (freq_type == "tf") {
     
-    print("Plotting all tf wordclouds.")
+    print(paste0("Plotting all ", deparse(substitute(survey_df)), " tf wordclouds."))
     
-  } else if (freq_type == "tf_idf") {
+  } else if (freq_type == "tf-idf") {
     
-    print("Plotting all tf-idf wordclouds.")
+    print(paste0("Plotting all ", deparse(substitute(survey_df)), " tf-idf wordclouds."))
     
   }
 
@@ -460,82 +526,24 @@ plot_all_wordclouds <- function(survey_df, question_no_chr_list, n_token, freq_t
 # # testing plot_all_wordclouds() function
 # plot_all_wordclouds(example_data, typed_question_list, 2, "tf-idf", 15)
 
+# generating all tf wordclouds
+all_tf_wordclouds <- plot_all_wordclouds(survey_df = tidy_survey_data, question_no_chr_list = typed_question_list,
+                         n_token = 2, freq_type = "tf", n_top = 15)
 
+# generating all tf-idf wordclouds
+all_tf_idf_wordclouds <- map(strat_data, plot_all_wordclouds, question_no_chr_list = typed_question_list,
+                             n_token = 2, freq_type = "tf-idf", n_top = 15)
 
-# # creating function to plot all of the unstratified dataset using pmap
-# plot_all_wordcloud_tf <- function(survey_df, n_token, question_no_chr_list, n_top) {
-#   
-#   # creating df of arguments for use with pmap
-#   arguments <- data_frame(survey_df = list(survey_df),
-#                           n_token = n_token,
-#                           question_no_chr = question_no_chr_list,
-#                           n_top = n_top)
-#   
-#   # mapping over list of arguments in arguments df
-#   plots <- pmap(arguments, plot_wordcloud_tf) %>%
-#     set_names(question_no_chr_list)
-# 
-#   # outputting results
-#   return(plots)
-#   
-# }
-
-# # testing plot_all_wordcloud_tf()
-# plot_all_wordcloud_tf(example_data, 2, typed_question_list, 10)
-
-# generating all of the unstratified word clouds
-all_tf_wordclouds <- plot_all_wordcloud_tf(tidy_survey_data, 2, typed_question_list, 10)
+# # verifying the outputs
+# all_tf_wordclouds$Q44
+# all_tf_idf_wordclouds$college_school$Q29
 
 
 
+# # generating all of the unstratified word clouds
+# all_tf_wordclouds <- plot_all_wordcloud_tf(tidy_survey_data, 2, typed_question_list, 10)
 
 
-
-
-
-# creating function to plot all of the stratified dataset using pmap
-get_all_top_tf_idf <- function(survey_df, n_token, question_no_chr_list, n_top) {
-  
-  # creating df of arguments for use with pmap
-  arguments <- data_frame(survey_df = list(survey_df),
-                          n_token = n_token,
-                          question_no_chr = question_no_chr_list,
-                          n_top = n_top)
-  
-  # mapping over list of arguments in arguments df
-  data <- pmap(arguments, get_top_tf_idf) %>%
-    set_names(question_no_chr_list)
-  
-  # outputting results
-  return(data)
-  
-}
-
-# generating all top_tf_idf dfs for each strat group/question combo
-all_top_tf_idf <- map(strat_data, get_all_top_tf_idf, n_token = 2, question_no_chr_list = typed_question_list, n_top = 15)
-
-# # verifying output
-# all_top_tf_idf$career$Q44
-
-
-
-# # creating function to plot all of the stratified dataset using pmap
-# plot_all_wordcloud_tf_idf <- function(survey_df, n_token, question_no_chr_list, n_top) {
-# 
-#   # creating df of arguments for use with pmap
-#   arguments <- data_frame(survey_df = list(survey_df),
-#                           n_token = n_token,
-#                           question_no_chr = question_no_chr_list,
-#                           n_top = n_top)
-# 
-#   # mapping over list of arguments in arguments df
-#   plots <- pmap(arguments, plot_wordcloud_top_tf_idf) %>%
-#     set_names(question_no_chr_list)
-# 
-#   # outputting results
-#   return(plots)
-# 
-# }
 
 # generating all wordclouds for top_tf_idf dfs
 all_wordcloud_tf_idf <- map(strat_data, plot_all_wordcloud_tf_idf, n_token = 2, question_no_chr_list = typed_question_list, n_top = 15)
