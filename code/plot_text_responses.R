@@ -367,7 +367,6 @@ get_top_n_gram <- function(survey_df, question_no_chr, n_token = 1, freq_type = 
 
 
 
-
 # creating function to plot all of the unstratified dataset using pmap
 get_all_top_n_grams <- function(survey_df, question_no_chr_list, n_token, freq_type, n_top) {
   
@@ -407,31 +406,6 @@ all_top_tf_idf <- map(strat_data, get_all_top_n_grams, question_no_chr_list = ty
 # # verifying output
 # all_top_tf$Q44
 # all_top_tf_idf$gender$Q44
-
-
-# # creating function to plot all of the stratified dataset using pmap
-# get_all_top_tf_idf <- function(survey_df, n_token, question_no_chr_list, n_top) {
-#   
-#   # creating df of arguments for use with pmap
-#   arguments <- data_frame(survey_df = list(survey_df),
-#                           n_token = n_token,
-#                           question_no_chr = question_no_chr_list,
-#                           n_top = n_top)
-#   
-#   # mapping over list of arguments in arguments df
-#   data <- pmap(arguments, get_top_tf_idf) %>%
-#     set_names(question_no_chr_list)
-#   
-#   # outputting results
-#   return(data)
-#   
-# }
-
-# # generating all top_tf_idf dfs for each strat group/question combo
-# all_top_tf_idf <- map(strat_data, get_all_top_tf_idf, n_token = 2, question_no_chr_list = typed_question_list, n_top = 15)
-
-# # verifying output
-# all_top_tf_idf$career$Q44
 
 
 
@@ -536,36 +510,112 @@ all_tf_idf_wordclouds <- map(strat_data, plot_all_wordclouds, question_no_chr_li
 
 # # verifying the outputs
 # all_tf_wordclouds$Q44
-# all_tf_idf_wordclouds$college_school$Q29
-
-
-
-# # generating all of the unstratified word clouds
-# all_tf_wordclouds <- plot_all_wordcloud_tf(tidy_survey_data, 2, typed_question_list, 10)
-
-
-
-# generating all wordclouds for top_tf_idf dfs
-all_wordcloud_tf_idf <- map(strat_data, plot_all_wordcloud_tf_idf, n_token = 2, question_no_chr_list = typed_question_list, n_top = 15)
-
-# # verifying output
-# all_wordcloud_tf_idf$career$Q44
+# all_tf_idf_wordclouds$college_school$Q45
 
 
 
 # creating function to save plots of stratified data using dynamic scaling of heights based on number of unique strat_ids per plot
-save_tf_idf_plots <- function(category, question_no_chr) {
-
-  strat_ids <- all_top_tf_idf[[category]][[question_no_chr]] %>%  # pulling out the list of strat_ids for each plot to properly scale the plot height
-    pull(strat_id) %>% # compiling list of strat_ids
-    unique() # finding only unique ids
+save_wordclouds <- function(freq_type, question_no_chr, category = NULL) {
   
-  strat_id_no <- ceiling(length(strat_ids)) + ceiling(length(strat_ids)) %% 2 # counting the number of unique strat_ids for plot scaling
-  
-  ggsave(plot = all_wordcloud_tf_idf[[category]][[question_no_chr]], filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
-         device = "png", width = 15, height = 0.25+(2*strat_id_no), dpi = 300) # specifying dimensions of plots found by trial and error
-  
+  if (freq_type == "tf") {
+    
+    ggsave(plot = all_tf_wordclouds[[question_no_chr]], filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+           device = "png", width = 15, height = 4.25, dpi = 300) # specifying dimensions of plots found by trial and error
+    
+  } else if (freq_type == "tf-idf") {
+    
+    strat_ids <- all_top_tf_idf[[category]][[question_no_chr]] %>%  # pulling out the list of strat_ids for each plot to properly scale the plot height
+      pull(strat_id) %>% # compiling list of strat_ids
+      unique() # finding only unique ids
+    
+    strat_id_no <- ceiling(length(strat_ids)) + ceiling(length(strat_ids)) %% 2 # counting the number of unique strat_ids for plot scaling
+    
+    ggsave(plot = all_tf_idf_wordclouds[[category]][[question_no_chr]], filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+           device = "png", width = 15, height = 0.25+(2*strat_id_no), dpi = 300) # specifying dimensions of plots found by trial and error
+    
+  }
 }
+
+# # testing save_wordclouds
+# save_wordclouds("tf", "all", "Q44")
+# save_wordclouds("tf-idf", "Q44", category = "gender")
+
+
+
+# setting up mapping function to loop through and save all plots
+save_all_wordclouds <- function(freq_type, question_no_chr_list, category_list) {
+
+    arguments <- data_frame(category = rep(category_list, each = length(typed_question_list)),
+                            question_no_chr = rep(question_no_chr_list, times = length(category_list)))
+
+    pmap(arguments, save_wordclouds, freq_type = freq_type)
+
+}
+
+# save_all_wordclouds("tf-idf", typed_question_list, "gender")
+save_all_wordclouds("tf", typed_question_list, "all")
+save_all_wordclouds("tf-idf", typed_question_list, strat_list_names)
+
+# # creating function to save all top n-gram wordclouds
+# save_all_wordclouds <- function(survey_df, question_no_chr_list, n_token, freq_type, n_top, category_list) {
+#   
+#   if (freq_type == "tf") {
+#     
+#     # generating all top n-grams based on tf
+#     all_top_tf <- get_all_top_n_grams(survey_df, question_no_chr_list = question_no_chr_list, n_token = n_token, 
+#                                       freq_type = freq_type, n_top = n_top)
+#     
+#     # generating all tf wordclouds
+#     all_tf_wordclouds <- plot_all_wordclouds(survey_df, question_no_chr_list = question_no_chr_list, n_token = n_token, 
+#                                              freq_type = freq_type, n_top = n_top)
+#     
+#     arguments <- data_frame(category = rep(category_list, each = length(question_no_chr_list)),
+#                             question_no_chr = rep(question_no_chr_list, times = length(category_list)))
+# 
+#     pmap(arguments, save_wordclouds, freq_type = freq_type)
+#     
+#   # } else if (freq_type == "tf-idf") {
+#   #   
+#   #   # generating all top n-grams based on tf-idf
+#   #   all_top_tf_idf <- map(survey_df, get_all_top_n_grams, question_no_chr_list = question_no_chr_list, n_token = n_token, 
+#   #                         freq_type = freq_type, n_top = n_top)
+#   #   
+#   #   # generating all tf-idf wordclouds
+#   #   all_tf_idf_wordclouds <- map(survey_df, plot_all_wordclouds, question_no_chr_list = question_no_chr_list, n_token = n_token, 
+#   #                                freq_type = freq_type, n_top = n_top)
+#     
+#     # arguments <- data_frame(category = rep(category_list, each = length(question_no_chr_list)),
+#     #                         question_no_chr = rep(question_no_chr_list, times = length(category_list)))
+#     # 
+#     # pmap(arguments, save_wordclouds, freq_type = freq_type)
+#     
+#   }
+#   
+# 
+#   return(arguments)
+# }
+
+
+# # generating and saving all top n-gram wordclouds
+# save_all_wordclouds(tidy_survey_data, typed_question_list, 2, "tf", 15, "all")
+# save_all_wordclouds(strat_data, typed_question_list, 2, "tf-idf", 15, strat_list_names)
+
+
+# # creating function to save plots of stratified data using dynamic scaling of heights based on number of unique strat_ids per plot
+# save_tf_idf_plots <- function(category, question_no_chr) {
+# 
+#   strat_ids <- all_top_tf_idf[[category]][[question_no_chr]] %>%  # pulling out the list of strat_ids for each plot to properly scale the plot height
+#     pull(strat_id) %>% # compiling list of strat_ids
+#     unique() # finding only unique ids
+#   
+#   strat_id_no <- ceiling(length(strat_ids)) + ceiling(length(strat_ids)) %% 2 # counting the number of unique strat_ids for plot scaling
+#   
+#   ggsave(plot = all_wordcloud_tf_idf[[category]][[question_no_chr]], filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+#          device = "png", width = 15, height = 0.25+(2*strat_id_no), dpi = 300) # specifying dimensions of plots found by trial and error
+#   
+# }
+# 
+# save_tf_idf_plots()
 
 # # testing save_tf_idf_plots
 # save_tf_idf_plots("college_school", "Q44")
@@ -573,15 +623,15 @@ save_tf_idf_plots <- function(category, question_no_chr) {
 
 
 
-# setting up mapping function to loop through all plots and question numbers of stratified data
-save_all_tf_idf_plots <- function(category_list, question_no_chr_list) {
-  
-  arguments <- data_frame(category = rep(category_list, each = length(typed_question_list)),
-                          question_no_chr = rep(question_no_chr_list, times = length(category_list)))
-  
-  pmap(arguments, save_tf_idf_plots)
-  
-}
+# # setting up mapping function to loop through all plots and question numbers of stratified data
+# save_all_tf_idf_plots <- function(category_list, question_no_chr_list) {
+#   
+#   arguments <- data_frame(category = rep(category_list, each = length(typed_question_list)),
+#                           question_no_chr = rep(question_no_chr_list, times = length(category_list)))
+#   
+#   pmap(arguments, save_tf_idf_plots)
+#   
+# }
 
 # saving all of the plots to the appropriate folders
 save_all_tf_idf_plots(names(strat_list), typed_question_list)
