@@ -519,10 +519,16 @@ save_wordclouds <- function(freq_type, question_no_chr, category = NULL) {
   
   if (freq_type == "tf") {
     
+    # debugging message
+    print("Saving tf wordclouds.")
+    
     ggsave(plot = all_tf_wordclouds[[question_no_chr]], filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
            device = "png", width = 15, height = 4.25, dpi = 300) # specifying dimensions of plots found by trial and error
     
   } else if (freq_type == "tf-idf") {
+    
+    # debugging message
+    print("Saving tf-idf wordclouds.")
     
     strat_ids <- all_top_tf_idf[[category]][[question_no_chr]] %>%  # pulling out the list of strat_ids for each plot to properly scale the plot height
       pull(strat_id) %>% # compiling list of strat_ids
@@ -534,6 +540,7 @@ save_wordclouds <- function(freq_type, question_no_chr, category = NULL) {
            device = "png", width = 15, height = 0.25+(2*strat_id_no), dpi = 300) # specifying dimensions of plots found by trial and error
     
   }
+  
 }
 
 # # testing save_wordclouds
@@ -544,17 +551,42 @@ save_wordclouds <- function(freq_type, question_no_chr, category = NULL) {
 
 # setting up mapping function to loop through and save all plots
 save_all_wordclouds <- function(freq_type, question_no_chr_list, category_list) {
-
-    arguments <- data_frame(category = rep(category_list, each = length(typed_question_list)),
+  
+  # debugging messages
+  if (freq_type == "tf") {
+    
+    print("Saving all tf wordclouds.")
+    
+  } else if (freq_type == "tf-idf") {
+    
+    print("Saving all tf-idf wordclouds.")
+    
+  }
+  
+  # setting up df of input values for pmap()
+  arguments <- data_frame(category = rep(category_list, each = length(typed_question_list)),
                             question_no_chr = rep(question_no_chr_list, times = length(category_list)))
 
-    pmap(arguments, save_wordclouds, freq_type = freq_type)
+  # iterating over input value df
+  pmap(arguments, save_wordclouds, freq_type = freq_type)
 
 }
 
+# # testing save_all_wordclouds()
 # save_all_wordclouds("tf-idf", typed_question_list, "gender")
+
+# saving all tf wordclouds
 save_all_wordclouds("tf", typed_question_list, "all")
+
+# saving all tf-idf wordclouds
 save_all_wordclouds("tf-idf", typed_question_list, strat_list_names)
+
+
+
+
+
+
+
 
 # # creating function to save all top n-gram wordclouds
 # save_all_wordclouds <- function(survey_df, question_no_chr_list, n_token, freq_type, n_top, category_list) {
@@ -633,8 +665,8 @@ save_all_wordclouds("tf-idf", typed_question_list, strat_list_names)
 #   
 # }
 
-# saving all of the plots to the appropriate folders
-save_all_tf_idf_plots(names(strat_list), typed_question_list)
+# # saving all of the plots to the appropriate folders
+# save_all_tf_idf_plots(names(strat_list), typed_question_list)
 
 
 
