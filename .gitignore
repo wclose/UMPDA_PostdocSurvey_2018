@@ -10,6 +10,7 @@
 data/*
 !README.md
 notes/*
+!notes/*.txt
 results/*
 report/*
 !report/*.Rmd
