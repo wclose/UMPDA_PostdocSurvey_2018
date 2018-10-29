@@ -1,0 +1,11 @@
+2018-10-29
+- Find what happened to non-binary responses in text analysis
+	- Also verify inclusion in other plots
+- Add lines to stratified multichoice question plots representing relative percentages from unstratified data
+- Fix plotting of multichoice questions
+	- Some need to be plotted differently (aka not as bar charts)
+	- Fix text wrapping/cut off in plot titles
+- Add question numbers to all plot titles
+- Play around with wordcloud plot features (font size, bold, etc.)
+
+
