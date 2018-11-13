@@ -73,7 +73,8 @@ make_response_plot <- function(df, question_no_chr) {
 # creating a plotting function for the stratified data
 # based on plotting function for unstratified data but builds in scaling for number of strat categories, etc.
 # NOTE: could set up an if/else statement to consolidate plotting functions into a single function
-make_strat_response_plot <- function(df, ref_df, question_no_chr) {
+
+test_make_strat_response_plot <- function(df, ref_df, question_no_chr) {
   
   response_data <- df %>% 
     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
@@ -83,59 +84,145 @@ make_strat_response_plot <- function(df, ref_df, question_no_chr) {
   
   geom_text_pt_size <- 8
   
-  response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
   
-  strat_no <- length(unique(response_data$strat_id)) # calculating the number of categories/bars per question for scaling
   
-  aspect <- 0.2*response_no*strat_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
   
-  response_plot <- response_data %>% 
-    ggplot(aes(x = strat_id, y = percent_freq, fill = response)) + # plotting the stratified categories by response
-    geom_bar(stat = "identity", show.legend = F, color = "black") + # bar plot
-    geom_hline(data = line_data, aes(yintercept = percent_freq), linetype = "21", color = "red", size = 0.5, alpha = 0.75) + # adding reference line equal to values for unstrat data
-    geom_text(aes(x = strat_id, y = percent_freq, label = paste0(format(round(percent_freq, digits = 1), nsmall = 1), "")), # adding response freq over bars
-              hjust = -0.25, size = 1/72*25.4*geom_text_pt_size) + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
-    scale_x_discrete(labels = c(str_replace_all(unique(df$strat_id), "_", " "))) + # reformatting axis labels to look nice
-    scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
-    scale_fill_viridis(discrete = TRUE, option = "D") +
-    facet_grid(str_replace_all(question, "_", " ") ~ str_replace_all(response, c("_" = " ", "," = ", ")), # plots each question/group of subquestions
-               switch = "y", # moves y axis strip to opposite side of plot
-               labeller = label_wrap_gen(width = 60, multi_line = TRUE)) + # allows text wrapping in strip labels
-    labs(title = paste(question_no_chr), 
-         x = "", # removing x label since the facet labels are the new x labels
-         y = "Proportion of postdoctoral respondents (%)") +
-    coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
-    # NOTE: x and y commands are now swapped due to coord_flip rotating the axes
-    theme(axis.line = element_line(size = 0.5, colour = "black"), # formatting axis lines as desired
-          axis.title = element_text(size = 10), # making all chart titles a consistent size
-          axis.title.x = element_text(margin = margin(10,0,0,0)), # adding space between x axis title and axis labels
-          axis.text = element_text(size = 8),
-          plot.margin = margin(20,20,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
-          # formatting elements of the facets/strips (facet labels)
-          panel.background = element_rect(fill = "white"), # making panels have white background
-          panel.spacing = unit(1, "lines"), # increasing spacing between panels
-          panel.spacing.x = unit(2, "lines"), # adding a bit more horizontal space between panels
-          strip.text = element_text(size = 10), # setting strip labels to same size as other plot labels
-          strip.text.y = element_text(angle = 180, margin = margin(0,10,0,10)), # formatting and positioning new y labels
-          strip.text.x = element_text(margin = margin(15,0,15,0)),
-          strip.background.x = element_rect(fill = "white", color = NA), # formatting strip col labels
-          strip.background.y = element_rect(fill = "white", color = NA), # removing border from strip row labels (new y labels)
-          strip.placement = "outside", # moving strip row labels outside y axis labels to make them the new y labels
-          # formatting plots to have a consistent size
-          aspect.ratio = aspect) # making size of bars compared to plot consistent
-  
-  grob_table <- ggplotGrob(response_plot) # creates gtable of plot features
-  
-  grob_table$widths[4] <- unit(12, "cm") # changes left side of plot to be in consistent place making all the plots align
-  
-  grobbed_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
-  
-  return(response_plot)
+  if (question_no_chr == "Q6") {
+    
+    response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
+    
+    strat_no <- length(unique(response_data$strat_id)) # calculating the number of categories/bars per question for scaling
+    
+    aspect <- 0.2*response_no/4*strat_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
+    
+    response_plot <- response_data %>% 
+      ggplot(aes(x = strat_id, y = percent_freq, fill = response)) + # plotting the stratified categories by response
+      geom_bar(stat = "identity", show.legend = F, color = "black") + # bar plot
+      geom_hline(data = line_data, aes(yintercept = percent_freq), linetype = "21", color = "red", size = 0.5, alpha = 0.75) + # adding reference line equal to values for unstrat data
+      geom_text(aes(x = strat_id, y = percent_freq, label = paste0(format(round(percent_freq, digits = 1), nsmall = 1), "")), # adding response freq over bars
+                hjust = -0.25, size = 1/72*25.4*geom_text_pt_size) + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
+      scale_x_discrete(labels = c(str_replace_all(unique(df$strat_id), "_", " "))) + # reformatting axis labels to look nice
+      scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
+      scale_fill_viridis(discrete = TRUE, option = "D") +
+      facet_wrap(~ str_replace_all(response, c("_" = " ", "," = ", ")), # plots each question/group of subquestions
+                 labeller = label_wrap_gen(width = 40, multi_line = TRUE), ncol = 4) + # allows text wrapping in strip labels)
+      labs(title = paste(question_no_chr), 
+           x = "", # removing x label since the facet labels are the new x labels
+           y = "Proportion of postdoctoral respondents (%)") +
+      coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
+      # NOTE: x and y commands are now swapped due to coord_flip rotating the axes
+      theme(axis.line = element_line(size = 0.5, colour = "black"), # formatting axis lines as desired
+            axis.title = element_text(size = 10), # making all chart titles a consistent size
+            axis.title.x = element_text(margin = margin(10,0,0,0)), # adding space between x axis title and axis labels
+            axis.text = element_text(size = 8),
+            plot.margin = margin(20,40,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
+            # formatting elements of the facets/strips (facet labels)
+            panel.background = element_rect(fill = "white"), # making panels have white background
+            panel.spacing = unit(1, "lines"), # increasing spacing between panels
+            panel.spacing.x = unit(2, "lines"), # adding a bit more horizontal space between panels
+            strip.text = element_text(size = 10), # setting strip labels to same size as other plot labels
+            strip.text.y = element_text(angle = 180, margin = margin(0,10,0,10)), # formatting and positioning new y labels
+            strip.text.x = element_text(margin = margin(15,0,15,0)),
+            strip.background.x = element_rect(fill = "white", color = NA), # formatting strip col labels
+            strip.background.y = element_rect(fill = "white", color = NA), # removing border from strip row labels (new y labels)
+            strip.placement = "outside", # moving strip row labels outside y axis labels to make them the new y labels
+            # formatting plots to have a consistent size
+            aspect.ratio = aspect) # making size of bars compared to plot consistent
+
+    return(response_plot)
+    
+    
+    
+  } else {
+    
+    response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
+    
+    strat_no <- length(unique(response_data$strat_id)) # calculating the number of categories/bars per question for scaling
+    
+    aspect <- 0.2*response_no*strat_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
+    
+    response_plot <- response_data %>% 
+      ggplot(aes(x = strat_id, y = percent_freq, fill = response)) + # plotting the stratified categories by response
+      geom_bar(stat = "identity", show.legend = F, color = "black") + # bar plot
+      geom_hline(data = line_data, aes(yintercept = percent_freq), linetype = "21", color = "red", size = 0.5, alpha = 0.75) + # adding reference line equal to values for unstrat data
+      geom_text(aes(x = strat_id, y = percent_freq, label = paste0(format(round(percent_freq, digits = 1), nsmall = 1), "")), # adding response freq over bars
+                hjust = -0.25, size = 1/72*25.4*geom_text_pt_size) + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
+      scale_x_discrete(labels = c(str_replace_all(unique(df$strat_id), "_", " "))) + # reformatting axis labels to look nice
+      scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
+      scale_fill_viridis(discrete = TRUE, option = "D") +
+      facet_grid(str_replace_all(question, "_", " ") ~ str_replace_all(response, c("_" = " ", "," = ", ")), # plots each question/group of subquestions
+                 switch = "y", # moves y axis strip to opposite side of plot
+                 labeller = label_wrap_gen(width = 60, multi_line = TRUE)) + # allows text wrapping in strip labels
+      labs(title = paste(question_no_chr), 
+           x = "", # removing x label since the facet labels are the new x labels
+           y = "Proportion of postdoctoral respondents (%)") +
+      coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
+      # NOTE: x and y commands are now swapped due to coord_flip rotating the axes
+      theme(axis.line = element_line(size = 0.5, colour = "black"), # formatting axis lines as desired
+            axis.title = element_text(size = 10), # making all chart titles a consistent size
+            axis.title.x = element_text(margin = margin(10,0,0,0)), # adding space between x axis title and axis labels
+            axis.text = element_text(size = 8),
+            plot.margin = margin(20,20,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
+            # formatting elements of the facets/strips (facet labels)
+            panel.background = element_rect(fill = "white"), # making panels have white background
+            panel.spacing = unit(1, "lines"), # increasing spacing between panels
+            panel.spacing.x = unit(2, "lines"), # adding a bit more horizontal space between panels
+            strip.text = element_text(size = 10), # setting strip labels to same size as other plot labels
+            strip.text.y = element_text(angle = 180, margin = margin(0,10,0,10)), # formatting and positioning new y labels
+            strip.text.x = element_text(margin = margin(15,0,15,0)),
+            strip.background.x = element_rect(fill = "white", color = NA), # formatting strip col labels
+            strip.background.y = element_rect(fill = "white", color = NA), # removing border from strip row labels (new y labels)
+            strip.placement = "outside", # moving strip row labels outside y axis labels to make them the new y labels
+            # formatting plots to have a consistent size
+            aspect.ratio = aspect) # making size of bars compared to plot consistent
+    
+    grob_table <- ggplotGrob(response_plot) # creates gtable of plot features
+    
+    grob_table$widths[4] <- unit(12, "cm") # changes left side of plot to be in consistent place making all the plots align
+    
+    grobbed_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
+    
+    return(grobbed_plot)
+    
+  }
   
 }
 
-# make_strat_response_plot <- function(df, question_no_chr) {
+test_q6 <- test_make_strat_response_plot(strat_response_freq$college_school, response_freq, "Q6")
+
+test_q6
+
+
+test_save_strat_plots <- function(plot_name, category, question_no_chr) {
+  questions <- strat_response_freq[[category]] %>% # pulls questions from data used to generate plots
+    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
+    pull(question) # returns list of questions to be stored
+  strat_ids <- strat_response_freq[[category]] %>% # pulls list of strat_ids for each plot for use in scaling height of output figure
+    pull(strat_id)
+  subquestion_no <- length(unique(questions)) # calculates the number of questions for use in scaling height
+  strat_id_no <- length(unique(strat_ids)) # calculates number of strat ids for use in scaling
+  if (question_no_chr == "Q6") {
+    
+    plot_height <- 4 * ((4/7 * subquestion_no * 0.6 * strat_id_no) + 2) # scaling factor for plot height based on (lots of) trial and error
+    
+  } else {
+    
+    plot_height <- ((4/7 * subquestion_no * 0.6 * strat_id_no) + 2) # scaling factor for plot height based on (lots of) trial and error
+    
+  }
+  ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+         device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions of plots
+}
+
+test_save_strat_plots(test_q6, "college_school", "Q6")
+
+
+# make_strat_response_plot <- function(df, ref_df, question_no_chr) {
+#   
 #   response_data <- df %>% 
+#     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
+#   
+#   line_data <- ref_df %>% 
 #     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
 #   
 #   geom_text_pt_size <- 8
@@ -149,14 +236,17 @@ make_strat_response_plot <- function(df, ref_df, question_no_chr) {
 #   response_plot <- response_data %>% 
 #     ggplot(aes(x = strat_id, y = percent_freq, fill = response)) + # plotting the stratified categories by response
 #     geom_bar(stat = "identity", show.legend = F, color = "black") + # bar plot
+#     geom_hline(data = line_data, aes(yintercept = percent_freq), linetype = "21", color = "red", size = 0.5, alpha = 0.75) + # adding reference line equal to values for unstrat data
 #     geom_text(aes(x = strat_id, y = percent_freq, label = paste0(format(round(percent_freq, digits = 1), nsmall = 1), "")), # adding response freq over bars
 #               hjust = -0.25, size = 1/72*25.4*geom_text_pt_size) + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
 #     scale_x_discrete(labels = c(str_replace_all(unique(df$strat_id), "_", " "))) + # reformatting axis labels to look nice
 #     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
+#     scale_fill_viridis(discrete = TRUE, option = "D") +
 #     facet_grid(str_replace_all(question, "_", " ") ~ str_replace_all(response, c("_" = " ", "," = ", ")), # plots each question/group of subquestions
 #                switch = "y", # moves y axis strip to opposite side of plot
 #                labeller = label_wrap_gen(width = 60, multi_line = TRUE)) + # allows text wrapping in strip labels
-#     labs(x = "", # removing x label since the facet labels are the new x labels
+#     labs(title = paste(question_no_chr), 
+#          x = "", # removing x label since the facet labels are the new x labels
 #          y = "Proportion of postdoctoral respondents (%)") +
 #     coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
 #     # NOTE: x and y commands are now swapped due to coord_flip rotating the axes
@@ -184,7 +274,8 @@ make_strat_response_plot <- function(df, ref_df, question_no_chr) {
 #   
 #   grobbed_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
 #   
-#   return(grobbed_plot)
+#   return(response_plot)
+#   
 # }
 
 
@@ -317,82 +408,6 @@ strat_response_plots <- map(.x = strat_response_freq, .f = make_all_strat_respon
 
 # saving all of the stratified plots in the appropriate locations
 save_all_strat_plots_set(strat_response_plots, strat_list_names, multi_choice_question_list)
-
-
-
-
-
-
-
-
-
-
-# adding lines to stratified plots ----------------------------------------
-
-# # updating plotting function for stratified data
-# # new function adds reference lines representing values from unstratified data
-# test_make_strat_response_plot <- function(df, ref_df, question_no_chr) {
-#   
-#   response_data <- df %>% 
-#     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
-#   
-#   line_data <- ref_df %>% 
-#     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
-#   
-#   geom_text_pt_size <- 8
-#   
-#   response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
-#   
-#   strat_no <- length(unique(response_data$strat_id)) # calculating the number of categories/bars per question for scaling
-#   
-#   aspect <- 0.2*response_no*strat_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
-#   
-#   response_plot <- response_data %>% 
-#     ggplot(aes(x = strat_id, y = percent_freq, fill = response)) + # plotting the stratified categories by response
-#     geom_bar(stat = "identity", show.legend = F, color = "black") + # bar plot
-#     geom_hline(data = line_data, aes(yintercept = percent_freq), linetype = "21", color = "red", size = 0.5, alpha = 0.75) + # adding reference line equal to values for unstrat data
-#     geom_text(aes(x = strat_id, y = percent_freq, label = paste0(format(round(percent_freq, digits = 1), nsmall = 1), "")), # adding response freq over bars
-#               hjust = -0.25, size = 1/72*25.4*geom_text_pt_size) + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
-#     scale_x_discrete(labels = c(str_replace_all(unique(df$strat_id), "_", " "))) + # reformatting axis labels to look nice
-#     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
-#     scale_fill_viridis(discrete = TRUE, option = "D") +
-#     facet_grid(str_replace_all(question, "_", " ") ~ str_replace_all(response, c("_" = " ", "," = ", ")), # plots each question/group of subquestions
-#                switch = "y", # moves y axis strip to opposite side of plot
-#                labeller = label_wrap_gen(width = 60, multi_line = TRUE)) + # allows text wrapping in strip labels
-#     labs(title = paste(question_no_chr), 
-#          x = "", # removing x label since the facet labels are the new x labels
-#          y = "Proportion of postdoctoral respondents (%)") +
-#     coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
-#     # NOTE: x and y commands are now swapped due to coord_flip rotating the axes
-#     theme(axis.line = element_line(size = 0.5, colour = "black"), # formatting axis lines as desired
-#           axis.title = element_text(size = 10), # making all chart titles a consistent size
-#           axis.title.x = element_text(margin = margin(10,0,0,0)), # adding space between x axis title and axis labels
-#           axis.text = element_text(size = 8),
-#           plot.margin = margin(20,20,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
-#           # formatting elements of the facets/strips (facet labels)
-#           panel.background = element_rect(fill = "white"), # making panels have white background
-#           panel.spacing = unit(1, "lines"), # increasing spacing between panels
-#           panel.spacing.x = unit(2, "lines"), # adding a bit more horizontal space between panels
-#           strip.text = element_text(size = 10), # setting strip labels to same size as other plot labels
-#           strip.text.y = element_text(angle = 180, margin = margin(0,10,0,10)), # formatting and positioning new y labels
-#           strip.text.x = element_text(margin = margin(15,0,15,0)),
-#           strip.background.x = element_rect(fill = "white", color = NA), # formatting strip col labels
-#           strip.background.y = element_rect(fill = "white", color = NA), # removing border from strip row labels (new y labels)
-#           strip.placement = "outside", # moving strip row labels outside y axis labels to make them the new y labels
-#           # formatting plots to have a consistent size
-#           aspect.ratio = aspect) # making size of bars compared to plot consistent
-#   
-#   grob_table <- ggplotGrob(response_plot) # creates gtable of plot features
-#   
-#   grob_table$widths[4] <- unit(12, "cm") # changes left side of plot to be in consistent place making all the plots align
-#   
-#   grobbed_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
-#   
-#   return(response_plot)
-#   
-# }
-
-# test_make_strat_response_plot(strat_response_freq$college_school, response_freq, "Q35")
 
 
 
