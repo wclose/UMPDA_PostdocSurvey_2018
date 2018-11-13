@@ -9,3 +9,9 @@
 - Play around with wordcloud plot features (font size, bold, etc.)
 
 
+- 6, 26, 24
+- academic - teaching, academic - research to academic (teaching), academic (research)
+- in question text, replace "," with ", "
+- wrap response text
+- reorganize so it's "agree", "neutral", "disagree" and "yes", "no"
+- split q22 responses then retally
