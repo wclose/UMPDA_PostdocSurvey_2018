@@ -31,38 +31,8 @@ tidy_survey_data <- survey_data %>%
   mutate(response = ifelse(question_no == "Q22", str_split(response, ","), response)) %>% # splits concatenated answers for Q22 into a list of strings
   unnest(response) # breaks col of lists into separate rows (does not affect other answers)
 
-tidy_survey_data %>% 
-  filter(question_no == "Q22")
+
 
 # notes -------------------------------------------------------------------
 
 
-# tidy_survey_data %>% 
-#   filter(question_no == "Q22") %>% 
-#   filter(response_id == "R_0SAU591QCrEeuMp") %>% 
-#   pull(response)
-# 
-# tidy_survey_data %>% 
-#   filter(question_no == "Q22") %>% 
-#   separate(response, sep = ",", c("a", "b"))
-# 
-# tidy_survey_data %>% 
-#   filter(question_no == "Q22") %>% 
-#   mutate(response = str_split(response, ",")) %>% 
-#   unnest(response) %>% 
-#   filter(response_id == "R_0SAU591QCrEeuMp") %>% 
-#   pull(response)
-# 
-# tidy_survey_data %>% 
-#   filter(question_no == "Q22") %>% 
-#   mutate(response = str_split(response, ",")) %>% 
-#   unnest(response)
-# 
-# tidy_survey_data %>% 
-#   mutate(response = case_when(question_no == "Q22" ~ str_split(response, ","),
-#                               TRUE ~ response))
-
-tidy_survey_data %>% 
-  mutate(response = ifelse(question_no == "Q22", str_split(response, ","), response)) %>% # splits concatenated answers for Q22 into a list of strings
-  unnest(response) %>% # breaks col of lists into separate rows (does not affect other answers)
-  filter(question_no == "Q22")
