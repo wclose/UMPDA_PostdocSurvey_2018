@@ -73,16 +73,16 @@ make_response_plot <- function(df, question_no_chr) {
 # creating a plotting function for the stratified data
 # based on plotting function for unstratified data but builds in scaling for number of strat categories, etc.
 # NOTE: could set up an if/else statement to consolidate plotting functions into a single function
-test_make_strat_response_plot <- function(df, ref_df, question_no_chr) {
+make_strat_response_plot <- function(df, ref_df, question_no_chr) {
   
   # modifying dfs in preparation for plotting
   response_data <- df %>% 
-    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>%  # removing ambiguous answers from plots
+    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>%  # removing ambiguous answers from plots
     mutate(question = str_replace_all(question, c("_" = " ", "," = ", ")), # making text look nice
            response = str_replace_all(response, c("_" = " ", "," = ", "))) # making text look nice
   
   line_data <- ref_df %>% 
-    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>%  # removing ambiguous answers from plots
+    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>%  # removing ambiguous answers from plots
     mutate(question = str_replace_all(question, c("_" = " ", "," = ", ")), # making text look nice
            response = str_replace_all(response, c("_" = " ", "," = ", "))) # making text look nice
   
@@ -113,8 +113,8 @@ test_make_strat_response_plot <- function(df, ref_df, question_no_chr) {
     # NOTE: x and y commands are now swapped due to coord_flip rotating the axes
     theme(axis.line = element_line(size = 0.5, colour = "black"), # formatting axis lines as desired
           axis.title = element_text(size = 10), # making all chart titles a consistent size
-          axis.title.x = element_text(margin = margin(10,0,0,0)), # adding space between x axis title and axis labels
-          axis.text = element_text(size = 8))
+          axis.title.x = element_text(margin = margin(10,0,0,0), size = 9, face = "bold"), # adding space between x axis title and axis labels
+          axis.text = element_text(size = 9))
   
   # creating separate plotting function for Q6 data specifically (desired data viz requires different facetting scheme)
   if (question_no_chr == "Q6") {
@@ -124,13 +124,13 @@ test_make_strat_response_plot <- function(df, ref_df, question_no_chr) {
     # adding Q6 format specific attributes to shared plot format from above
     response_plot <- shared_plot + 
       facet_wrap(~ response, nrow = 4, # plots each question/group of subquestions
-                 labeller = label_wrap_gen(width = 40, multi_line = TRUE)) + # allows text wrapping in strip labels
+                 labeller = label_wrap_gen(width = 30, multi_line = TRUE)) + # allows text wrapping in strip labels
       theme(plot.margin = margin(20,40,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
             # formatting elements of the facets/strips (facet labels)
             panel.background = element_rect(fill = "white"), # making panels have white background
             panel.spacing = unit(1, "lines"), # increasing spacing between panels
-            panel.spacing.x = unit(2, "lines"), # adding a bit more horizontal space between panels
-            strip.text = element_text(size = 10), # setting strip labels to same size as other plot labels
+            panel.spacing.x = unit(2.5, "lines"), # adding a bit more horizontal space between panels
+            strip.text = element_text(size = 9, face = "bold"), # setting strip labels to same size as other plot labels
             strip.text.y = element_text(angle = 180, margin = margin(0,10,0,10)), # formatting and positioning new y labels
             strip.text.x = element_text(margin = margin(15,0,15,0)),
             strip.background = element_rect(fill = "white", color = NA), # formatting strip col labels
@@ -144,18 +144,24 @@ test_make_strat_response_plot <- function(df, ref_df, question_no_chr) {
   # creating/formatting plots from all other multichoice questions
   } else {
     
+    # setting scaling factor for text wrapping of facet titles (more facets = less space for facet titles)
+    label_width <- case_when(response_no <= 4 ~ 30,
+                             response_no <= 6 ~ 20,
+                             TRUE ~ 14)
+    
     # adding format specific attributes to shared plot format from above (different from Q6 style)
     response_plot <- shared_plot + 
       facet_grid(question ~ response, # plots each question/group of subquestions
                  switch = "y", # moves y axis strip to opposite side of plot
                  labeller = labeller(question = label_wrap_gen(width = 60, multi_line = TRUE), # allows long text wrapping in strip labels
-                                     response = label_wrap_gen(width = 20, multi_line = TRUE))) + # allows shorter text wrapping in strip labels
+                                     # response = label_wrap_gen(width = 15, multi_line = TRUE))) + # allows shorter text wrapping in strip labels
+                                     response = label_wrap_gen(width = label_width, multi_line = TRUE))) + # allows shorter text wrapping in strip labels
       theme(plot.margin = margin(20,20,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
             # formatting elements of the facets/strips (facet labels)
             panel.background = element_rect(fill = "white"), # making panels have white background
             panel.spacing = unit(1, "lines"), # increasing spacing between panels
-            panel.spacing.x = unit(2, "lines"), # adding a bit more horizontal space between panels
-            strip.text = element_text(size = 10), # setting strip labels to same size as other plot labels
+            panel.spacing.x = unit(2.5, "lines"), # adding a bit more horizontal space between panels
+            strip.text = element_text(size = 9, face = "bold"), # setting strip labels to same size as other plot labels
             strip.text.y = element_text(angle = 180, margin = margin(0,10,0,10)), # formatting and positioning new y labels
             strip.text.x = element_text(margin = margin(15,0,15,0)),
             strip.background = element_rect(fill = "white", color = NA), # formatting strip col labels
@@ -177,114 +183,70 @@ test_make_strat_response_plot <- function(df, ref_df, question_no_chr) {
   
 }
 
-test_make_strat_response_plot(strat_response_freq$pop_representation, response_freq, "Q6")
-test_make_strat_response_plot(strat_response_freq$gender, response_freq, "Q28")
+# make_strat_response_plot(strat_response_freq$pop_representation, response_freq, "Q35")
+# make_strat_response_plot(strat_response_freq$gender, response_freq, "Q6")
+# 
+# test_gen <- make_strat_response_plot(strat_response_freq$gender, response_freq, "Q24")
+# 
+# strat_response_freq$gender %>% 
+#   filter(response == "Not_applicable")
+
+# gender_q6 <- make_strat_response_plot(strat_response_freq$gender, response_freq, "Q6")
+# rep_q6 <- make_strat_response_plot(strat_response_freq$pop_representation, response_freq, "Q6")
+# sat_q6 <- make_strat_response_plot(strat_response_freq$satisfaction, response_freq, "Q6")
 
 
-# gender_q6 <- test_make_strat_response_plot(strat_response_freq$gender, response_freq, "Q6")
-# rep_q6 <- test_make_strat_response_plot(strat_response_freq$pop_representation, response_freq, "Q6")
-# sat_q6 <- test_make_strat_response_plot(strat_response_freq$satisfaction, response_freq, "Q6")
 
-
-
-test_save_strat_plots <- function(plot_name, category, question_no_chr) {
+save_strat_plots <- function(plot_name, category, question_no_chr) {
+  
+  # defining global final attributes for saved plots
   questions <- strat_response_freq[[category]] %>% # pulls questions from data used to generate plots
-    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
+    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>% # removing ambiguous answers from plots
     pull(question) # returns list of questions to be stored
+  
   strat_ids <- strat_response_freq[[category]] %>% # pulls list of strat_ids for each plot for use in scaling height of output figure
     pull(strat_id)
+  
   subquestion_no <- length(unique(questions)) # calculates the number of questions for use in scaling height
+  
   strat_id_no <- length(unique(strat_ids)) # calculates number of strat ids for use in scaling
+  
+  # setting different plot height scale for Q6 data because facet_wrap is set to nrow = 4 in plotting function
   if (question_no_chr == "Q6") {
     
-    plot_height <- 4 * ((4/7 * subquestion_no * 0.6 * strat_id_no) + 2) # scaling factor for plot height based on (lots of) trial and error
-    
+    plot_height <- 4 * ((4/7 * subquestion_no * 0.6 * strat_id_no) + 3) # scaling factor for plot height based on (lots of) trial and error
+  
+  # setting plot height scale for all other plots
   } else {
     
-    plot_height <- ((4/7 * subquestion_no * 0.6 * strat_id_no) + 2) # scaling factor for plot height based on (lots of) trial and error
+    plot_height <- ((4/7 * subquestion_no * 0.6 * strat_id_no) + 3) # scaling factor for plot height based on (lots of) trial and error
     
   }
+  
+  # saving the plots using the parameters defined above
   ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
-         device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions of plots
+         device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions/resolution of plots
+  
 }
 
-# test_save_strat_plots(gender_q6, "gender", "Q6")
+# save_strat_plots(test_gen, "gender", "Q24")
 # test_save_strat_plots(rep_q6, "pop_representation", "Q6")
 # test_save_strat_plots(sat_q6, "satisfaction", "Q6")
-
-
-
-# make_strat_response_plot <- function(df, ref_df, question_no_chr) {
-#   
-#   response_data <- df %>% 
-#     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
-#   
-#   line_data <- ref_df %>% 
-#     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") # removing ambiguous answers from plots
-#   
-#   geom_text_pt_size <- 8
-#   
-#   response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
-#   
-#   strat_no <- length(unique(response_data$strat_id)) # calculating the number of categories/bars per question for scaling
-#   
-#   aspect <- 0.2*response_no*strat_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
-#   
-#   response_plot <- response_data %>% 
-#     ggplot(aes(x = strat_id, y = percent_freq, fill = response)) + # plotting the stratified categories by response
-#     geom_bar(stat = "identity", show.legend = F, color = "black") + # bar plot
-#     geom_hline(data = line_data, aes(yintercept = percent_freq), linetype = "21", color = "red", size = 0.5, alpha = 0.75) + # adding reference line equal to values for unstrat data
-#     geom_text(aes(x = strat_id, y = percent_freq, label = paste0(format(round(percent_freq, digits = 1), nsmall = 1), "")), # adding response freq over bars
-#               hjust = -0.25, size = 1/72*25.4*geom_text_pt_size) + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
-#     scale_x_discrete(labels = c(str_replace_all(unique(df$strat_id), "_", " "))) + # reformatting axis labels to look nice
-#     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
-#     scale_fill_viridis(discrete = TRUE, option = "D") +
-#     facet_grid(str_replace_all(question, "_", " ") ~ str_replace_all(response, c("_" = " ", "," = ", ")), # plots each question/group of subquestions
-#                switch = "y", # moves y axis strip to opposite side of plot
-#                labeller = label_wrap_gen(width = 60, multi_line = TRUE)) + # allows text wrapping in strip labels
-#     labs(title = paste(question_no_chr), 
-#          x = "", # removing x label since the facet labels are the new x labels
-#          y = "Proportion of postdoctoral respondents (%)") +
-#     coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
-#     # NOTE: x and y commands are now swapped due to coord_flip rotating the axes
-#     theme(axis.line = element_line(size = 0.5, colour = "black"), # formatting axis lines as desired
-#           axis.title = element_text(size = 10), # making all chart titles a consistent size
-#           axis.title.x = element_text(margin = margin(10,0,0,0)), # adding space between x axis title and axis labels
-#           axis.text = element_text(size = 8),
-#           plot.margin = margin(20,20,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
-#           # formatting elements of the facets/strips (facet labels)
-#           panel.background = element_rect(fill = "white"), # making panels have white background
-#           panel.spacing = unit(1, "lines"), # increasing spacing between panels
-#           panel.spacing.x = unit(2, "lines"), # adding a bit more horizontal space between panels
-#           strip.text = element_text(size = 10), # setting strip labels to same size as other plot labels
-#           strip.text.y = element_text(angle = 180, margin = margin(0,10,0,10)), # formatting and positioning new y labels
-#           strip.text.x = element_text(margin = margin(15,0,15,0)),
-#           strip.background.x = element_rect(fill = "white", color = NA), # formatting strip col labels
-#           strip.background.y = element_rect(fill = "white", color = NA), # removing border from strip row labels (new y labels)
-#           strip.placement = "outside", # moving strip row labels outside y axis labels to make them the new y labels
-#           # formatting plots to have a consistent size
-#           aspect.ratio = aspect) # making size of bars compared to plot consistent
-#   
-#   grob_table <- ggplotGrob(response_plot) # creates gtable of plot features
-#   
-#   grob_table$widths[4] <- unit(12, "cm") # changes left side of plot to be in consistent place making all the plots align
-#   
-#   grobbed_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
-#   
-#   return(response_plot)
-#   
-# }
 
 
 
 # making function to cycle through each question for each data frame based on strat category
 # extra function needed because of the nested nature of strat_response_freq_df
 make_all_strat_response_plots <- function(strat_response_freq_df, question_no_chr_list, ref_df) {
+  
   arguments <- data_frame(df = list(strat_response_freq_df), # 1st col = input df repeated to be same length as number of questions
                           question_no_chr = c(question_no_chr_list)) # 2nd col = list of question numbers in chr format
+  
   data <- pmap(arguments, make_strat_response_plot, ref_df = ref_df) %>% # collating data during map and assigning output
     set_names(question_no_chr_list) # naming the output for easier indexing
+  
   return(data)
+  
 }
 
 
@@ -312,20 +274,20 @@ save_all_multichoice_plots <- function(plot_list, category, question_no_chr_list
 
 
 
-# creating function to save plots of stratified data
-# based on unstratified function but also adds in scaling factor for number of strat categories (bars) in each
-save_strat_plots <- function(plot_name, category, question_no_chr) {
-  questions <- strat_response_freq[[category]] %>% # pulls questions from data used to generate plots
-    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
-    pull(question) # returns list of questions to be stored
-  strat_ids <- strat_response_freq[[category]] %>% # pulls list of strat_ids for each plot for use in scaling height of output figure
-    pull(strat_id)
-  subquestion_no <- length(unique(questions)) # calculates the number of questions for use in scaling height
-  strat_id_no <- length(unique(strat_ids)) # calculates number of strat ids for use in scaling
-  plot_height <- ((4/7 * subquestion_no * 0.6 * strat_id_no) + 2) # scaling factor for plot height based on (lots of) trial and error
-  ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
-         device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions of plots
-}
+# # creating function to save plots of stratified data
+# # based on unstratified function but also adds in scaling factor for number of strat categories (bars) in each
+# save_strat_plots <- function(plot_name, category, question_no_chr) {
+#   questions <- strat_response_freq[[category]] %>% # pulls questions from data used to generate plots
+#     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
+#     pull(question) # returns list of questions to be stored
+#   strat_ids <- strat_response_freq[[category]] %>% # pulls list of strat_ids for each plot for use in scaling height of output figure
+#     pull(strat_id)
+#   subquestion_no <- length(unique(questions)) # calculates the number of questions for use in scaling height
+#   strat_id_no <- length(unique(strat_ids)) # calculates number of strat ids for use in scaling
+#   plot_height <- ((4/7 * subquestion_no * 0.6 * strat_id_no) + 2) # scaling factor for plot height based on (lots of) trial and error
+#   ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+#          device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions of plots
+# }
 
 # setting up mapping function to loop through all plots and question numbers of stratified data
 save_all_strat_plots <- function(plot_list, question_no_chr_list, category) {
@@ -385,12 +347,12 @@ save_all_multichoice_plots(response_plots, "all", multi_choice_question_list)
 # question_no_chr_list is passed on to make_all_strat_response_plots()
 strat_response_plots <- map(.x = strat_response_freq, .f = make_all_strat_response_plots, question_no_chr_list = multi_choice_question_list, ref_df = response_freq)
 
-# # verifying output of map(make_all_strat_response_plots())
-# strat_response_plots$residency$Q6
-# strat_response_plots$college_school$Q35
-# strat_response_plots$residency$Q16
-# strat_response_plots$college_school$Q16
-# strat_response_plots$residency$Q49
+# verifying output of map(make_all_strat_response_plots())
+strat_response_plots$residency$Q6
+strat_response_plots$college_school$Q35
+strat_response_plots$residency$Q16
+strat_response_plots$college_school$Q16
+strat_response_plots$residency$Q49
 
 
 
