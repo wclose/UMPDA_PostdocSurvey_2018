@@ -27,9 +27,12 @@ tidy_survey_data <- survey_data %>%
   mutate_all(funs(str_replace_all(., "The_.*_-_|Please_.*_-_", ""))) %>% # getting rid of repeated phrasing for multi-part questions
   mutate_all(funs(str_replace(., "\\t", ""))) %>% # runs str_replace on each variable to remove aberrant "\t" at beginning of each line
   mutate_all(funs(str_replace_all(., "\\t", ","))) %>% # replaces any internal "\t" with "," to make it easier to separate lists
-  mutate_all(funs(str_replace_all(., "\\,\\,", ","))) # replaces any double commas with a single comma (tried finding reason for ",," in code but couldn't, probably something to do with "\t")
+  mutate_all(funs(str_replace_all(., "\\,\\,", ","))) %>%  # replaces any double commas with a single comma (tried finding reason for ",," in code but couldn't, probably something to do with "\t")
+  mutate(response = ifelse(question_no == "Q22", str_split(response, ","), response)) %>% # splits concatenated answers for Q22 into a list of strings
+  unnest(response) # breaks col of lists into separate rows (does not affect other answers)
 
-
+tidy_survey_data %>% 
+  filter(question_no == "Q22")
 
 # notes -------------------------------------------------------------------
 
