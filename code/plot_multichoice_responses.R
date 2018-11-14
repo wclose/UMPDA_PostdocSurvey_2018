@@ -20,7 +20,8 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
   
   ### modifying dfs in preparation for plotting ###
   response_data <- df %>% 
-    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>%  # removing ambiguous answers from plots
+    filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer"
+           & response != "Not_applicable" & response != "None_of_the_above") %>%  # removing ambiguous answers from plots
     mutate(question = str_replace_all(question, c("_" = " ", "," = ", ")), # making text look nice
            response = str_replace_all(response, c("_" = " ", "," = ", "))) # making text look nice
   
@@ -86,7 +87,8 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     
     # creating/reformatting df of reference data for drawing reference lines
     line_data <- unstrat_ref_df %>%
-      filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>%  # removing ambiguous answers from plots
+      filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer"
+             & response != "Not_applicable" & response != "None_of_the_above") %>%  # removing ambiguous answers from plots
       mutate(question = str_replace_all(question, c("_" = " ", "," = ", ")), # making text look nice
              response = str_replace_all(response, c("_" = " ", "," = ", "))) # making text look nice
     
@@ -117,9 +119,9 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     aspect <- aspect/4 # need to alter the aspect ratio slightly to conform with other plots due to number of rows/responses being plotted
 
     # adding Q6 format specific attributes to shared plot format from above
-    response_plot <- shared_plot +
+    unformatted_response_plot <- shared_plot +
       facet_wrap(~ response, nrow = 4, # plots each question/group of subquestions
-                 labeller = label_wrap_gen(width = 30, multi_line = TRUE)) + # allows text wrapping in strip labels
+                 labeller = label_wrap_gen(width = 40, multi_line = TRUE)) + # allows text wrapping in strip labels
       theme(plot.margin = margin(20,40,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
             aspect.ratio = aspect) + # formatting bars to have a consistent size
       shared_theme # adding in the shared theme elements   
@@ -127,21 +129,31 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     # if the data is unstratified, removes y axis labels/tick marks to make it look nicer
     if (!any(names(df) == "strat_id")) {
       
-      response_plot <- response_plot +
+      unformatted_response_plot <- unformatted_response_plot +
         theme(axis.text.y = element_blank(), # removing y axis text since there's only one group
               axis.ticks.y = element_blank()) # removing y axis tick marks since there's only one group
       
     }
 
+    # altering the grob tables of generated plots to line up margins, axes, etc.
+    grob_table <- ggplotGrob(unformatted_response_plot) # creates gtable of plot features
+    
+    # turning clipping off for strip chart labels (allows strip titles to go outside of plot dimensions for a little extra room)
+    for(i in which(grepl("strip-t", grob_table$layout$name))){ # finds location of top strips ("strip-t") in the plot grob table
+      grob_table$grobs[[i]]$layout$clip <- "off" # turns text clipping off
+    }
+    
+    response_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
+    
     
     
   ### creating/formatting plots from all other multichoice questions ###
   } else {
 
     # setting scaling factor for text wrapping of facet titles (more facets = less space for facet titles)
-    label_width <- case_when(response_no <= 4 ~ 30,
-                             response_no <= 6 ~ 20,
-                             TRUE ~ 14)
+    label_width <- case_when(response_no <= 4 ~ 40,
+                             response_no <= 6 ~ 25,
+                             TRUE ~ 18)
 
     # adding format specific attributes to shared plot format from above (different from Q6 style)
     unformatted_response_plot <- shared_plot +
@@ -165,28 +177,50 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
 
     # altering the grob tables of generated plots to line up margins, axes, etc.
     grob_table <- ggplotGrob(unformatted_response_plot) # creates gtable of plot features
+    
+    # turning clipping off for strip chart labels (allows strip titles to go outside of plot dimensions for a little extra room)
+    for(i in which(grepl("strip-t", grob_table$layout$name))){ # finds location of top strips ("strip-t") in the plot grob table
+      grob_table$grobs[[i]]$layout$clip <- "off" # turns text clipping off
+    }
 
     grob_table$widths[4] <- unit(12, "cm") # changes left side of plot to be in consistent place making all the plots align (unit value set by trial and error)
 
     response_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
 
   }
-  
+
   
   
   ### returning the finished plots ###
   return(response_plot)
   
-  
-  
 }
 
+
+make_response_plot(strat_response_freq$college_school, "Q22", response_freq)
 # # testing make_response_plot() function
 # test_plot <- make_response_plot(response_freq, "Q35")
 # make_response_plot(response_freq, "Q35")
-# make_response_plot(strat_response_freq$college_school, "Q6")
+make_response_plot(strat_response_freq$college_school, "Q6")
 # make_response_plot(response_freq, "Q35")
-# make_response_plot(strat_response_freq$college_school, "Q22", response_freq)
+college_test <- make_response_plot(strat_response_freq$college_school, "Q6", response_freq)
+
+# # trying to turn clipping off for strip.text labels after faceting
+# for(i in which(grepl("strip-t", college_test$layout$name))){
+#   college_test$grobs[[i]]$layout$clip <- "off"
+# }
+# 
+# as_ggplot(arrangeGrob(college_test))
+# 
+# college_test$grobs[[31]]$layout$clip
+# gt <- ggplot_gtable(ggplot_build(p))
+# gt$layout$clip = "off"
+
+
+
+
+
+
 
 
 
@@ -229,6 +263,15 @@ save_all_multichoice_plots <- function(plot_list, category, question_no_chr_list
 
 
 
+
+
+
+
+
+
+
+
+
 # creating function to save plots of stratified data
 # based on unstratified function but also adds in scaling factor for number of strat categories (bars) in each
 save_strat_plots <- function(plot_name, category, question_no_chr) {
@@ -262,6 +305,15 @@ save_strat_plots <- function(plot_name, category, question_no_chr) {
          device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions/resolution of plots
   
 }
+
+save_strat_plots(college_test, "college_school", "Q22")
+
+
+
+
+
+
+
 
 
 
