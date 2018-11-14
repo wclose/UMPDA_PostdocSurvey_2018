@@ -12,9 +12,6 @@ library(ggpubr) # required to save gtable plots as ggplot items
 
 # plotting functions ------------------------------------------------------
 
-# NOTE: Need to design separate plotting functions for Q6 and 22
-# NOTE: Q22 responses need to be broken up and retabulated before graphing
-
 # creating a plotting function that makes new graph for each question for entire dataset
 make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
   
@@ -25,15 +22,11 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     mutate(question = str_replace_all(question, c("_" = " ", "," = ", ")), # making text look nice
            response = str_replace_all(response, c("_" = " ", "," = ", "))) # making text look nice
   
-  
-  
   ### setting global function variables for standardizing plot aesthetics ###
   geom_text_pt_size <- 8 # setting desired text point size (geom_text uses different default scale than pt)
   
   # setting variables for scaling purposes
   response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
-  
-  
   
   ### changing which bars are plotted depending on the contents of the supplied df ###
   # if the input df does not have a col called "strat_id" (aka input df is NOT stratified)
@@ -58,8 +51,6 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     
   }
   
-  
-  
   ### generating premliminary plots using code common to all plot varieties ###
   shared_plot <- response_data %>%
     ggplot(aes(x = eval(as.name(x_var)), y = percent_freq, fill = response)) + # plotting the stratified categories by response
@@ -79,8 +70,6 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
           axis.title.x = element_text(margin = margin(10,0,0,0), size = 9, face = "bold"), # adding space between x axis title and axis labels
           axis.text = element_text(size = 9))
   
-  
-  
   ### adding in reference lines if desired ###
   # if the data is stratified and a reference df has been included
   if (any(names(df) == "strat_id") & !is.null(unstrat_ref_df)) {
@@ -98,8 +87,6 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     
   }
   
-  
-  
   ### shared formatting elements of the facets/strips (facet labels) ###
   # needs be added after faceting and different questions require different faceting strategies
   shared_theme <- theme(panel.background = element_rect(fill = "white"), # making panels have white background
@@ -110,8 +97,6 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
                         strip.text.x = element_text(margin = margin(15,0,15,0)),
                         strip.background = element_rect(fill = "white", color = NA), # formatting strip col labels
                         strip.placement = "outside") # moving strip row labels outside y axis labels to make them the new y labels
-  
-  
   
   ### creating separate plotting function for ***Q6*** data specifically (desired data viz requires different facetting scheme) ###
   if (question_no_chr == "Q6") {
@@ -145,8 +130,6 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     
     response_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
     
-    
-    
   ### creating/formatting plots from all other multichoice questions ###
   } else {
 
@@ -178,47 +161,30 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     # altering the grob tables of generated plots to line up margins, axes, etc.
     grob_table <- ggplotGrob(unformatted_response_plot) # creates gtable of plot features
     
+    grob_table$widths[4] <- unit(12, "cm") # changes left side of plot to be in consistent place making all the plots align (unit value set by trial and error)
+
     # turning clipping off for strip chart labels (allows strip titles to go outside of plot dimensions for a little extra room)
     for(i in which(grepl("strip-t", grob_table$layout$name))){ # finds location of top strips ("strip-t") in the plot grob table
       grob_table$grobs[[i]]$layout$clip <- "off" # turns text clipping off
     }
-
-    grob_table$widths[4] <- unit(12, "cm") # changes left side of plot to be in consistent place making all the plots align (unit value set by trial and error)
-
+    
     response_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
 
   }
 
-  
-  
   ### returning the finished plots ###
   return(response_plot)
   
 }
 
 
-make_response_plot(strat_response_freq$college_school, "Q22", response_freq)
 # # testing make_response_plot() function
+# make_response_plot(strat_response_freq$college_school, "Q22", response_freq)
 # test_plot <- make_response_plot(response_freq, "Q35")
 # make_response_plot(response_freq, "Q35")
-make_response_plot(strat_response_freq$college_school, "Q6")
+# make_response_plot(strat_response_freq$college_school, "Q6")
 # make_response_plot(response_freq, "Q35")
-college_test <- make_response_plot(strat_response_freq$college_school, "Q6", response_freq)
-
-# # trying to turn clipping off for strip.text labels after faceting
-# for(i in which(grepl("strip-t", college_test$layout$name))){
-#   college_test$grobs[[i]]$layout$clip <- "off"
-# }
-# 
-# as_ggplot(arrangeGrob(college_test))
-# 
-# college_test$grobs[[31]]$layout$clip
-# gt <- ggplot_gtable(ggplot_build(p))
-# gt$layout$clip = "off"
-
-
-
-
+# college_test <- make_response_plot(strat_response_freq$college_school, "Q6", response_freq)
 
 
 
@@ -226,17 +192,49 @@ college_test <- make_response_plot(strat_response_freq$college_school, "Q6", res
 
 # making function to cycle through each question for each data frame based on strat category
 # extra function needed because of the nested nature of strat_response_freq_df
-make_all_strat_response_plots <- function(strat_response_freq_df, question_no_chr_list, ref_df) {
+make_all_response_plots <- function(response_freq_df, question_no_chr_list, unstrat_ref_df = NULL) {
   
-  arguments <- data_frame(df = list(strat_response_freq_df), # 1st col = input df repeated to be same length as number of questions
+  arguments <- data_frame(df = list(response_freq_df), # 1st col = input df repeated to be same length as number of questions
                           question_no_chr = c(question_no_chr_list)) # 2nd col = list of question numbers in chr format
   
-  data <- pmap(arguments, make_strat_response_plot, ref_df = ref_df) %>% # collating data during map and assigning output
+  data <- pmap(arguments, make_response_plot, unstrat_ref_df = unstrat_ref_df) %>% # collating data during map and assigning output
     set_names(question_no_chr_list) # naming the output for easier indexing
   
   return(data)
   
 }
+
+# test_plot_set1 <- make_all_response_plots(response_freq, multi_choice_question_list)
+# test_plot_set1$Q6
+# 
+# test_plot_set2 <- make_all_response_plots(strat_response_freq$college_school, multi_choice_question_list, response_freq)
+# test_plot_set2$Q6
+
+
+
+
+unstrat_response_plots <- make_all_response_plots(response_freq, multi_choice_question_list)
+unstrat_response_plots$Q6
+
+
+strat_response_plots <- map(.x = strat_response_freq, .f = make_all_response_plots,
+                            question_no_chr_list = multi_choice_question_list, unstrat_ref_df = response_freq)
+strat_response_plots$residency$Q6
+
+
+# # making function to cycle through each question for each data frame based on strat category
+# # extra function needed because of the nested nature of strat_response_freq_df
+# make_all_strat_response_plots <- function(strat_response_freq_df, question_no_chr_list, unstrat_ref_df) {
+#   
+#   arguments <- data_frame(df = list(strat_response_freq_df), # 1st col = input df repeated to be same length as number of questions
+#                           question_no_chr = c(question_no_chr_list)) # 2nd col = list of question numbers in chr format
+#   
+#   data <- pmap(arguments, make_strat_response_plot, unstrat_ref_df = unstrat_ref_df) %>% # collating data during map and assigning output
+#     set_names(question_no_chr_list) # naming the output for easier indexing
+#   
+#   return(data)
+#   
+# }
 
 
 
@@ -260,15 +258,6 @@ save_all_multichoice_plots <- function(plot_list, category, question_no_chr_list
                           question_no_chr = c(question_no_chr_list))
   pmap(arguments, save_multichoice_plots, category = category)
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -306,7 +295,8 @@ save_strat_plots <- function(plot_name, category, question_no_chr) {
   
 }
 
-save_strat_plots(college_test, "college_school", "Q22")
+# # testing save_strat_plots() function
+# save_strat_plots(college_test, "college_school", "Q6")
 
 
 
@@ -337,13 +327,10 @@ save_all_strat_plots_set <- function(plot_list_list, category_list, question_no_
 # generating plots for unstratified data ----------------------------------
 
 # iterating through the list of question numbers over the df response_freq which contains all the data
-response_plots <- map(.x = multi_choice_question_list, .f = make_response_plot, df = response_freq) %>% 
-  set_names(multi_choice_question_list)
+unstrat_response_plots <- make_all_response_plots(response_freq, multi_choice_question_list)
 
 # # testing map(make_response_plot()) output
-# response_plots$Q9
-# response_plots$Q7
-# response_plots$Q49
+# unstrat_response_plots$Q6
 
 
 
@@ -373,7 +360,8 @@ save_all_multichoice_plots(response_plots, "all", multi_choice_question_list)
 
 # making plots for all of the stratified data sets
 # question_no_chr_list is passed on to make_all_strat_response_plots()
-strat_response_plots <- map(.x = strat_response_freq, .f = make_all_strat_response_plots, question_no_chr_list = multi_choice_question_list, ref_df = response_freq)
+strat_response_plots <- map(.x = strat_response_freq, .f = make_all_response_plots,
+                            question_no_chr_list = multi_choice_question_list, unstrat_ref_df = response_freq)
 
 # verifying output of map(make_all_strat_response_plots())
 strat_response_plots$residency$Q6
