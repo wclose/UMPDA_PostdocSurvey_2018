@@ -76,29 +76,10 @@ make_response_plot <- function(df, question_no_chr) {
 
 
 
-# if strat_id present change x, if ref_df is not null add geom_hline/vline
-str_detect(strat_response_freq$college_school)
-
-str_detect(names(strat_response_freq$college_school), "strat_id")
-
-any(names(strat_response_freq$college_school) == "strat_id")
-any(names(response_freq) != "strat_id")
-
-
-strat_response_freq$college_school %>% 
-  filter(question_no == "Q16") %>% 
-  ggplot(aes(x = eval(as.name("strat_id")), y = percent_freq, fill = response)) + # plotting the stratified categories by response
-  geom_bar(stat = "identity", color = "black")
-
-eval(as.name("x"))
-
-response_freq[["response"]]
-
-any(names(strat_response_freq$college_school) != "strat_id")
 
 
 # creating a plotting function for the stratified data
-test_make_response_plot <- function(df, question_no_chr, ref_df = NULL) {
+test_make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
   
   # modifying dfs in preparation for plotting
   response_data <- df %>% 
@@ -106,46 +87,43 @@ test_make_response_plot <- function(df, question_no_chr, ref_df = NULL) {
     mutate(question = str_replace_all(question, c("_" = " ", "," = ", ")), # making text look nice
            response = str_replace_all(response, c("_" = " ", "," = ", "))) # making text look nice
   
-  # line_data <- ref_df %>% 
-  #   filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>%  # removing ambiguous answers from plots
-  #   mutate(question = str_replace_all(question, c("_" = " ", "," = ", ")), # making text look nice
-  #          response = str_replace_all(response, c("_" = " ", "," = ", "))) # making text look nice
-  
-  # setting global function variables for standardizing plot aesthetics
+    # setting global function variables for standardizing plot aesthetics
   geom_text_pt_size <- 8 # setting desired text point size (geom_text uses different default scale than pt)
+  
+  # setting variables for scaling purposes
+  response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
+  
   
   
   # changing which bars are plotted depending on the contents of the supplied df
-  # if the input df has a col called "strat_id" (aka input df is stratified)
-  if (any(names(df) == "strat_id")) {
+  # if the input df does not have a col called "strat_id" (aka input df is NOT stratified)
+  if (!any(names(df) == "strat_id")) {
     
+    # setting variable for x axis
+    x_var <- "question_no" # set the x variable to be question_no (plots a single bar)
+    
+    # setting variables for scaling purposes
+    aspect <- 0.2*response_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
+    
+  # otherwise plot this
+  } else {
+    
+  # setting variable for x axis
     x_var <- "strat_id" # set the x variable to be strat_id (one bar per strat_id = multiple bars)
     
     # setting variables for scaling purposes
-    response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
-    
     strat_no <- length(unique(response_data$strat_id)) # calculating the number of categories/bars per question for scaling
     
     aspect <- 0.2*response_no*strat_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
     
-   
-  # otherwise plot this
-  } else {
-    
-    x_var <- "question_no" # set the x variable to be question_no (plots a single bar)
-    
-    # setting variables for scaling purposes
-    response_no <- length(unique(response_data$response)) # calculating the number of unique responses for aspect ratio scaling
-    
-    aspect <- 0.2*response_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
-    
   }
+  
+  
   
   # generating premliminary plots using code common to all plot varieties
   shared_plot <- response_data %>%
     ggplot(aes(x = eval(as.name(x_var)), y = percent_freq, fill = response)) + # plotting the stratified categories by response
     geom_bar(stat = "identity", show.legend = F, color = "black") + # bar plot
-    # geom_hline(data = line_data, aes(yintercept = percent_freq), linetype = "21", color = "red", size = 0.5, alpha = 0.75) + # adding reference line equal to values for unstrat data
     geom_text(aes(x = eval(as.name(x_var)), y = percent_freq, label = paste0(format(round(percent_freq, digits = 1), nsmall = 1), "")), # adding response freq over bars
               hjust = -0.25, size = 1/72*25.4*geom_text_pt_size) + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
     scale_x_discrete(labels = c(str_replace_all(unique(response_data[[x_var]]), "_", " "))) + # reformatting axis labels to look nice
@@ -160,7 +138,22 @@ test_make_response_plot <- function(df, question_no_chr, ref_df = NULL) {
           axis.title = element_text(size = 10), # making all chart titles a consistent size
           axis.title.x = element_text(margin = margin(10,0,0,0), size = 9, face = "bold"), # adding space between x axis title and axis labels
           axis.text = element_text(size = 9))
-
+  
+  # if the data is stratified and a reference df has been included
+  if (any(names(df) == "strat_id") & !is.null(unstrat_ref_df)) {
+    
+    # creating df of reference data for drawing reference lines
+    line_data <- unstrat_ref_df %>%
+      filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>%  # removing ambiguous answers from plots
+      mutate(question = str_replace_all(question, c("_" = " ", "," = ", ")), # making text look nice
+             response = str_replace_all(response, c("_" = " ", "," = ", "))) # making text look nice
+    
+    # draws a reference line showing the values from unstratified data
+    shared_plot <- shared_plot +
+      geom_hline(data = line_data, aes(yintercept = percent_freq), linetype = "21", color = "red", size = 0.5, alpha = 0.75) # adding reference line equal to values for unstrat data
+    
+  }
+  
   # creating separate plotting function for Q6 data specifically (desired data viz requires different facetting scheme)
   if (question_no_chr == "Q6") {
 
@@ -182,11 +175,16 @@ test_make_response_plot <- function(df, question_no_chr, ref_df = NULL) {
             strip.placement = "outside", # moving strip row labels outside y axis labels to make them the new y labels
             # formatting plots to have a consistent size
             aspect.ratio = aspect) # making size of bars compared to plot consistent
+    
+    if (!any(names(df) == "strat_id")) {
+      
+      response_plot <- response_plot +
+        theme(axis.text.y = element_blank(), # removing y axis text since there's only one group
+              axis.ticks.y = element_blank()) # removing y axis tick marks since there's only one group
+      
+    }
 
-    # returning finished plot
-    return(response_plot)
-
-    # creating/formatting plots from all other multichoice questions
+  # creating/formatting plots from all other multichoice questions
   } else {
 
     # setting scaling factor for text wrapping of facet titles (more facets = less space for facet titles)
@@ -195,7 +193,7 @@ test_make_response_plot <- function(df, question_no_chr, ref_df = NULL) {
                              TRUE ~ 14)
 
     # adding format specific attributes to shared plot format from above (different from Q6 style)
-    response_plot <- shared_plot +
+    unformatted_response_plot <- shared_plot +
       facet_grid(question ~ response, # plots each question/group of subquestions
                  switch = "y", # moves y axis strip to opposite side of plot
                  labeller = labeller(question = label_wrap_gen(width = 60, multi_line = TRUE), # allows long text wrapping in strip labels
@@ -213,23 +211,50 @@ test_make_response_plot <- function(df, question_no_chr, ref_df = NULL) {
             strip.placement = "outside", # moving strip row labels outside y axis labels to make them the new y labels
             # formatting plots to have a consistent size
             aspect.ratio = aspect) # making size of bars compared to plot consistent
+    
+    if (!any(names(df) == "strat_id")) {
+      
+      unformatted_response_plot <- unformatted_response_plot +
+        theme(axis.text.y = element_blank(), # removing y axis text since there's only one group
+              axis.ticks.y = element_blank()) # removing y axis tick marks since there's only one group
+      
+    }
 
     # altering the grob tables of generated plots to line up margins, axes, etc.
-    grob_table <- ggplotGrob(response_plot) # creates gtable of plot features
+    grob_table <- ggplotGrob(unformatted_response_plot) # creates gtable of plot features
 
     grob_table$widths[4] <- unit(12, "cm") # changes left side of plot to be in consistent place making all the plots align (unit value set by trial and error)
 
-    grobbed_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
-
-    # returning finished plot
-    return(grobbed_plot)
+    response_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
 
   }
   
+  
+  
+  # # if there is not a col for strat_ids (aka the data is NOT stratified)
+  # if (!any(names(df) == "strat_id")) {
+  #   
+    # finished_plot <- response_plot +
+    #   theme(axis.text.y = element_blank(), # removing y axis text since there's only one group
+    #         axis.ticks.y = element_blank()) # removing y axis tick marks since there's only one group
+  #   
+  # # otherwise plot this
+  # } else {
+  #   
+  #   finished_plot <- response_plot
+  #   
+  # }
+  
+  # returning finished plot
+  return(response_plot)
+  
 }
 
+test_plot <- test_make_response_plot(response_freq, "Q35")
 test_make_response_plot(response_freq, "Q35")
-test_make_response_plot(strat_response_freq$college_school, "Q35")
+test_make_response_plot(strat_response_freq$college_school, "Q16")
+test_make_response_plot(response_freq, "Q35")
+test_make_response_plot(strat_response_freq$college_school, "Q35", response_freq)
 
 
 
