@@ -204,38 +204,6 @@ make_all_response_plots <- function(response_freq_df, question_no_chr_list, unst
   
 }
 
-# test_plot_set1 <- make_all_response_plots(response_freq, multi_choice_question_list)
-# test_plot_set1$Q6
-# 
-# test_plot_set2 <- make_all_response_plots(strat_response_freq$college_school, multi_choice_question_list, response_freq)
-# test_plot_set2$Q6
-
-
-
-
-unstrat_response_plots <- make_all_response_plots(response_freq, multi_choice_question_list)
-unstrat_response_plots$Q6
-
-
-strat_response_plots <- map(.x = strat_response_freq, .f = make_all_response_plots,
-                            question_no_chr_list = multi_choice_question_list, unstrat_ref_df = response_freq)
-strat_response_plots$residency$Q6
-
-
-# # making function to cycle through each question for each data frame based on strat category
-# # extra function needed because of the nested nature of strat_response_freq_df
-# make_all_strat_response_plots <- function(strat_response_freq_df, question_no_chr_list, unstrat_ref_df) {
-#   
-#   arguments <- data_frame(df = list(strat_response_freq_df), # 1st col = input df repeated to be same length as number of questions
-#                           question_no_chr = c(question_no_chr_list)) # 2nd col = list of question numbers in chr format
-#   
-#   data <- pmap(arguments, make_strat_response_plot, unstrat_ref_df = unstrat_ref_df) %>% # collating data during map and assigning output
-#     set_names(question_no_chr_list) # naming the output for easier indexing
-#   
-#   return(data)
-#   
-# }
-
 
 
 # saving functions --------------------------------------------------------
