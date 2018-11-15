@@ -36,7 +36,8 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     x_var <- "question_no" # set the x variable to be question_no (plots a single bar)
     
     # setting variables for scaling purposes
-    aspect <- 0.2*response_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
+    # found equations based on changes in pixel dimensions when using different numbers of response_no
+    aspect <- (66+6)/(3281.6*response_no^-1.248) # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
     
   # otherwise plot this
   } else {
@@ -47,7 +48,9 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     # setting variables for scaling purposes
     strat_no <- length(unique(response_data$strat_id)) # calculating the number of categories/bars per question for scaling
     
-    aspect <- 0.2*response_no*strat_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
+    # found equations based on changes in pixel dimensions when using different numbers of strat_no and response_no
+    aspect <- (66*strat_no+6)/(3281.6*response_no^-1.248) # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
+    
     
   }
   
@@ -60,7 +63,7 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     scale_x_discrete(labels = c(str_replace_all(unique(response_data[[x_var]]), "_", " "))) + # reformatting axis labels to look nice
     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
     scale_fill_viridis(discrete = TRUE, option = "D") +
-    labs(title = paste(question_no_chr),
+    labs(#tag = paste(question_no_chr), # puts question label in upper left of panel for each plot
          x = "", # removing x label since the facet labels are the new x labels
          y = "Proportion of postdoctoral respondents (%)") +
     coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
@@ -105,12 +108,18 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
 
     # adding Q6 format specific attributes to shared plot format from above
     unformatted_response_plot <- shared_plot +
+      
+      # paste(strwrap(unique(response_data$question), width = 60), collapse = "\n")
+      
+      labs(x = paste(strwrap(unique(response_data$question), width = 60), collapse = "\n")) +
       facet_wrap(~ response, nrow = 4, # plots each question/group of subquestions
                  labeller = label_wrap_gen(width = 40, multi_line = TRUE)) + # allows text wrapping in strip labels
-      theme(plot.margin = margin(20,40,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
+      # theme(plot.margin = margin(20,40,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
+      theme(plot.margin = margin(20,20,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
+            axis.title.y = element_text(angle = 0, size = 9, face = "bold", vjust = 0.5, hjust = 0.5, margin = margin(0,10,0,10)),
             aspect.ratio = aspect) + # formatting bars to have a consistent size
-      shared_theme # adding in the shared theme elements   
-    
+      shared_theme # adding in the shared theme elements
+
     # if the data is unstratified, removes y axis labels/tick marks to make it look nicer
     if (!any(names(df) == "strat_id")) {
       
@@ -119,9 +128,18 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
               axis.ticks.y = element_blank()) # removing y axis tick marks since there's only one group
       
     }
-
+    
     # altering the grob tables of generated plots to line up margins, axes, etc.
     grob_table <- ggplotGrob(unformatted_response_plot) # creates gtable of plot features
+    
+    grob_table$layout[which(grepl("ylab-l", grob_table$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
+    
+    # grob_table$layout[62:65, c(2,4)] <- 6
+    
+    grob_table$widths[3] <- gt5$widths[3]
+    # grob_table$grobs[[which(grepl("ylab-l", grob_table$layout$name))]]$widths <- gt5$widths[3]
+    
+    grob_table$widths[4] <- unit(12.193302891933029, "cm") # changes left side of plot to be in consistent place making all the plots align (unit value set by trial and error)
     
     # turning clipping off for strip chart labels (allows strip titles to go outside of plot dimensions for a little extra room)
     for(i in which(grepl("strip-t", grob_table$layout$name))){ # finds location of top strips ("strip-t") in the plot grob table
@@ -157,12 +175,12 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
               axis.ticks.y = element_blank()) # removing y axis tick marks since there's only one group
       
     }
-
+    
     # altering the grob tables of generated plots to line up margins, axes, etc.
     grob_table <- ggplotGrob(unformatted_response_plot) # creates gtable of plot features
     
     grob_table$widths[4] <- unit(12, "cm") # changes left side of plot to be in consistent place making all the plots align (unit value set by trial and error)
-
+    
     # turning clipping off for strip chart labels (allows strip titles to go outside of plot dimensions for a little extra room)
     for(i in which(grepl("strip-t", grob_table$layout$name))){ # finds location of top strips ("strip-t") in the plot grob table
       grob_table$grobs[[i]]$layout$clip <- "off" # turns text clipping off
@@ -172,23 +190,117 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
 
   }
 
+  # # altering the grob tables of generated plots to line up margins, axes, etc.
+  # grob_table <- ggplotGrob(unformatted_response_plot) # creates gtable of plot features
+  # 
+  # grob_table$widths[4] <- unit(12, "cm") # changes left side of plot to be in consistent place making all the plots align (unit value set by trial and error)
+  # 
+  # # turning clipping off for strip chart labels (allows strip titles to go outside of plot dimensions for a little extra room)
+  # for(i in which(grepl("strip-t", grob_table$layout$name))){ # finds location of top strips ("strip-t") in the plot grob table
+  #   grob_table$grobs[[i]]$layout$clip <- "off" # turns text clipping off
+  # }
+  # 
+  # response_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
+  
   ### returning the finished plots ###
   return(response_plot)
   
 }
 
 
-# # testing make_response_plot() function
-# make_response_plot(strat_response_freq$college_school, "Q22", response_freq)
-# test_plot <- make_response_plot(response_freq, "Q35")
-# make_response_plot(response_freq, "Q35")
-# make_response_plot(strat_response_freq$college_school, "Q6")
-# make_response_plot(response_freq, "Q35")
-# college_test <- make_response_plot(strat_response_freq$college_school, "Q6", response_freq)
+
+
+# testing make_response_plot() function
+make_response_plot(response_freq, "Q6")
+
+gt1 <- make_response_plot(response_freq, "Q6") # no grob, no angle
+gt2 <- make_response_plot(response_freq, "Q6") # no grob, has angle
+gt3 <- make_response_plot(response_freq, "Q6") # has grob and angle
+gt4 <- make_response_plot(response_freq, "Q6") # has grob, no angle
+
+setdiff(gt1$layout$name, gt2$layout$name)
+
+gt1$widths
+gt2$widths
+gt3$widths
+gt4$widths
+
+gt1$heights
+gt2$heights
+gt3$heights
+gt4$heights
+
+gt3
+gt4
 
 
 
+gt1$layout
+gt5$layout
 
+gt1$widths
+gt5$widths
+
+gt5 <- make_response_plot(response_freq, "Q35") # no grob, no angle
+gt5$widths
+gt5$layout$name
+gt5$grobs[[20]]$widths
+as_ggplot(arrangeGrob(gt5))
+
+
+
+gt3$widths[3] <- gt5$widths[3]
+as_ggplot(arrangeGrob(gt3))
+gt3$widths[4] <- unit(12.193302891933029, "cm")
+gt3$layout$name
+gt3$layout[62:65, c(2,4)] <- 6
+
+
+which(grepl("ylab-l", gt3$layout$name))
+
+gt3$layout[which(grepl("ylab-l", gt3$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
+gt3$grobs[[which(grepl("ylab-l", gt3$layout$name))]]$widths
+
+gt3$grobs[[100]]$widths <- unit(5, "cm")
+4.25183349609375 + 0.70555555555556
+
+14 x 17
+t  l  b  r  z clip        name
+9  4  9  4  2   on  strip-l-1
+
+32 x 21
+t  l  b  r  z clip        name
+9  3 27  3  6  off      ylab-l
+
+
+gt1$widths
+
+make_response_plot(response_freq, "Q6")
+make_response_plot(response_freq, "Q35")
+make_response_plot(response_freq, "Q16")
+make_response_plot(strat_response_freq$college_school, "Q6", response_freq)
+make_response_plot(strat_response_freq$college_school, "Q16", response_freq)
+make_response_plot(strat_response_freq$college_school, "Q13", response_freq)
+make_response_plot(strat_response_freq$gender, "Q16", response_freq)
+make_response_plot(strat_response_freq$residency, "Q35", response_freq)
+
+
+y <- 4
+66*y+6
+
+x <- 7
+3281.6*x^-1.248
+
+(66*strat+6)/(3281.6*resp^-1.248)
+
+which(grepl("ylab", gt3$layout$name))
+
+gt$grobs[[100]]$heights
+gt3$layout
+
+gt2$widths
+
+gt
 
 # making function to cycle through each question for each data frame based on strat category
 # extra function needed because of the nested nature of strat_response_freq_df
@@ -301,7 +413,8 @@ test_save_plots <- function(plot_name) {
   
 }
 
-test_save_plots(strat_response_plots$college_school$Q22)
+# testing test_save_plots() function
+test_save_plots(strat_response_plots$language$Q22)
 
 
 
