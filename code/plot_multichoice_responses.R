@@ -223,6 +223,8 @@ test_name <- str_split(deparse(substitute(unstrat_response_plots$Q12)), "\\$")[[
 
 test_name
 
+last(str_split(deparse(substitute(unstrat_response_plots$Q16)), "\\$") %>% unlist()) # pulling question_no from name of plot
+
 str_detect(test_name, "Q\\d+")
 
 response_freq %>% # pulls questions from data used to generate plots
@@ -238,9 +240,11 @@ response_freq %>% # pulls questions from data used to generate plots
 
 # creating save function for unstratified data
 # dynamically scales height of output, saves in desired dir, and names files dynamically
-test_save_plots <- function(plot_name, question_no_chr) {
+test_save_plots <- function(plot_name) {
   
   category <- str_split(deparse(substitute(plot_name)), "\\$")[[1]][2] # pulling category from name of plot
+  
+  question_no_chr <- last(str_split(deparse(substitute(plot_name)), "\\$") %>% unlist()) # pulling question_no from name of plot by extracting last string after splitting at '$'
   
   if (str_detect(category, "Q\\d+")) {
     
@@ -297,7 +301,7 @@ test_save_plots <- function(plot_name, question_no_chr) {
   
 }
 
-
+test_save_plots(strat_response_plots$college_school$Q22)
 
 
 
