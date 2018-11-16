@@ -63,7 +63,7 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     scale_x_discrete(labels = c(str_replace_all(unique(response_data[[x_var]]), "_", " "))) + # reformatting axis labels to look nice
     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
     scale_fill_viridis(discrete = TRUE, option = "D") +
-    labs(#tag = paste(question_no_chr), # puts question label in upper left of panel for each plot
+    labs(tag = paste(question_no_chr), # puts question label in upper left of panel for each plot
          x = "", # removing x label since the facet labels are the new x labels
          y = "Proportion of postdoctoral respondents (%)") +
     coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
@@ -105,7 +105,7 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
   ### creating separate plotting function for ***Q6*** data specifically (desired data viz requires different facetting scheme) ###
   if (question_no_chr == "Q6") {
 
-    aspect <- aspect/4 # need to alter the aspect ratio slightly to conform with other plots due to number of rows/responses being plotted
+    aspect <- aspect/5.89 # need to alter the aspect ratio slightly to conform with other plots due to number of rows/responses being plotted
 
     # adding Q6 format specific attributes to shared plot format from above
     unformatted_response_plot <- shared_plot +
@@ -186,21 +186,13 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
   
 }
 
-# # testing make_response_plot()
+# # # testing make_response_plot()
 # make_response_plot(response_freq, "Q6")
 # make_response_plot(strat_response_freq$college_school, "Q6")
 # make_response_plot(strat_response_freq$college_school, "Q6", response_freq)
 # make_response_plot(response_freq, "Q22")
 # make_response_plot(strat_response_freq$college_school, "Q22")
 # make_response_plot(strat_response_freq$residency, "Q49", response_freq)
-
-
-# ### IMPORTANT ###
-# # use this function to convert from "1grobwidth" to a physical unit (in this case cm)
-# convertX(gt5$widths[3], "cm")
-
-
-
 
 
 
@@ -222,30 +214,30 @@ make_all_response_plots <- function(response_freq_df, question_no_chr_list, unst
 
 # saving functions --------------------------------------------------------
 
-# how to tell difference between unstrat vs strat plot nested lists
-class(unstrat_response_plots)
-any(class(unstrat_response_plots[[1]]) == "list")
-any(class(strat_response_plots[[1]]) == "list") # strat_plot list 
-
-grepl("unstrat", deparse(substitute(strat_response_plots$college_school$Q12))) # looking for 'unstrat' in the name of the plot being supplied
-
-unstrat_response_plots
-
-deparse(substitute(strat_response_plots$college_school$Q12))
-
-test_name <- str_split(deparse(substitute(unstrat_response_plots$Q12)), "\\$")[[1]][2] # pulling category from name of plot
-
-test_name
-
-last(str_split(deparse(substitute(unstrat_response_plots$Q16)), "\\$") %>% unlist()) # pulling question_no from name of plot
-
-str_detect(test_name, "Q\\d+")
-
-response_freq %>% # pulls questions from data used to generate plots
-  filter(question_no == "Q35" & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
-  pull(question) %>% 
-  unique() %>% 
-  length()
+# # how to tell difference between unstrat vs strat plot nested lists
+# class(unstrat_response_plots)
+# any(class(unstrat_response_plots[[1]]) == "list")
+# any(class(strat_response_plots[[1]]) == "list") # strat_plot list 
+# 
+# grepl("unstrat", deparse(substitute(strat_response_plots$college_school$Q12))) # looking for 'unstrat' in the name of the plot being supplied
+# 
+# unstrat_response_plots
+# 
+# deparse(substitute(strat_response_plots$college_school$Q12))
+# 
+# test_name <- str_split(deparse(substitute(unstrat_response_plots$Q12)), "\\$")[[1]][2] # pulling category from name of plot
+# 
+# test_name
+# 
+# last(str_split(deparse(substitute(unstrat_response_plots$Q16)), "\\$") %>% unlist()) # pulling question_no from name of plot
+# 
+# str_detect(test_name, "Q\\d+")
+# 
+# response_freq %>% # pulls questions from data used to generate plots
+#   filter(question_no == "Q35" & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
+#   pull(question) %>% 
+#   unique() %>% 
+#   length()
 
 
 
