@@ -243,7 +243,8 @@ test_save_plots <- function(plot_name) {
     # setting plot height scale for all other plots
     } else {
       
-      plot_height <- 0.003 * (361 + 57.7 + (59.6 + 62.5) * (question_tally - 1)) + 2
+      plot_height <- 0.005 * (620 + (39.7 * 1 + 8) + ((41.5 * 1 + 62.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1))))
+      # plot_height <- 0.003 * (361 + 57.7 + (59.6 + 62.5) * (question_tally - 1)) + 2
       # plot_height <- (0.003443280977312 * ((0 + 178 * question_tally) + (0 + 397.85)))
       # plot_height <- (0.002443280977312 * ((182+184*question_tally) + (7 + 50))) + 2
       # plot_height <- ((4/7 * question_tally) + 2) # scaling factor for plot height based on (lots of) trial and error
@@ -267,14 +268,14 @@ test_save_plots <- function(plot_name) {
     # setting different plot height scale for Q6 data because facet_wrap is set to nrow = 4 in plotting function
     if (question_no_chr == "Q6") {
       
-      plot_height <- 3 * (0.003 * (361 + 57.7 * strat_tally + (59.6 * strat_tally + 62.5) * (question_tally - 1))) + 2
+      plot_height <- 0.014 * (620 + (39.7 * strat_tally + 8) + ((41.5 * strat_tally + 62.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1))))
       # plot_height <- 1.358 * (0.003443280977312 * ((0 + 178 * question_tally) + (0 + 397.85 * strat_tally)))
       # plot_height <- 4 * ((4/7 * question_tally * 0.6 * strat_tally) + 2) # scaling factor for plot height based on (lots of) trial and error
       
       # setting plot height scale for all other plots
     } else {
       
-      plot_height <- 0.003 * (361 + 57.7 * strat_tally + (59.6 * strat_tally + 62.5) * (question_tally - 1)) + 2
+      plot_height <- 0.005 * (620 + (39.7 * strat_tally + 8) + ((41.5 * strat_tally + 62.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1))))
       # plot_height <- (0.003443280977312 * ((0 + 178 * question_tally) + (0 + 397.85 * strat_tally)))
       # plot_height <- ((4/7 * question_tally * 0.6 * strat_tally) + 2) # scaling factor for plot height based on (lots of) trial and error
       
@@ -289,16 +290,19 @@ test_save_plots <- function(plot_name) {
 
 }
 
-2 * 4 + 4 -  8
-
 # testing test_save_plots() function
-test_save_plots(strat_response_plots$satisfaction$Q6)
-test_save_plots(strat_response_plots$college_school$Q12)
-test_save_plots(unstrat_response_plots$Q6)
 test_save_plots(unstrat_response_plots$Q35)
+test_save_plots(strat_response_plots$language$Q6)
+test_save_plots(strat_response_plots$satisfaction$Q6)
+test_save_plots(strat_response_plots$college_school$Q6)
 
 
+245 7
+140 3
+26.25 * quest
+- (61.25 + 20.25 * quest)
 
+-4.5x2 + 23.5x + 2
 
 1.4 = 1 q + 4 s
 0.002443280977312 * ((182+184*quest) + (7 + 50*strat))
