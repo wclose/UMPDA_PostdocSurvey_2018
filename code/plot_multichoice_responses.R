@@ -236,14 +236,14 @@ test_save_plots <- function(plot_name) {
     # setting different plot height scale for Q6 data because facet_wrap is set to nrow = 4 in plotting function
     if (question_no_chr == "Q6") {
       
-      plot_height <- 3 * (0.003 * (361 + 57.7 + (59.6 + 62.5) * (question_tally - 1))) + 2
+      plot_height <- 0.010 * (440 + (75.7 * 1 + 8))
       # plot_height <- 1.358 * (0.003443280977312 * ((0 + 178 * question_tally) + (0 + 397.85)))
       # plot_height <- 4 * ((4/7 * question_tally) + 2) # scaling factor for plot height based on (lots of) trial and error
       
     # setting plot height scale for all other plots
     } else {
       
-      plot_height <- 0.005 * (620 + (39.7 * 1 + 8) + ((41.5 * 1 + 62.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1))))
+      plot_height <- 0.005 * (620 + (39.7 * 1 + 8) + ((37.5 * 1 + 68.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1))))
       # plot_height <- 0.003 * (361 + 57.7 + (59.6 + 62.5) * (question_tally - 1)) + 2
       # plot_height <- (0.003443280977312 * ((0 + 178 * question_tally) + (0 + 397.85)))
       # plot_height <- (0.002443280977312 * ((182+184*question_tally) + (7 + 50))) + 2
@@ -268,14 +268,14 @@ test_save_plots <- function(plot_name) {
     # setting different plot height scale for Q6 data because facet_wrap is set to nrow = 4 in plotting function
     if (question_no_chr == "Q6") {
       
-      plot_height <- 0.014 * (620 + (39.7 * strat_tally + 8) + ((41.5 * strat_tally + 62.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1))))
+      plot_height <- 0.010 * (440 + (75.7 * strat_tally + 8))
       # plot_height <- 1.358 * (0.003443280977312 * ((0 + 178 * question_tally) + (0 + 397.85 * strat_tally)))
       # plot_height <- 4 * ((4/7 * question_tally * 0.6 * strat_tally) + 2) # scaling factor for plot height based on (lots of) trial and error
       
       # setting plot height scale for all other plots
     } else {
       
-      plot_height <- 0.005 * (620 + (39.7 * strat_tally + 8) + ((41.5 * strat_tally + 62.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1))))
+      plot_height <- 0.005 * (620 + (39.7 * strat_tally + 8) + ((37.5 * strat_tally + 68.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1))))
       # plot_height <- (0.003443280977312 * ((0 + 178 * question_tally) + (0 + 397.85 * strat_tally)))
       # plot_height <- ((4/7 * question_tally * 0.6 * strat_tally) + 2) # scaling factor for plot height based on (lots of) trial and error
       
@@ -290,30 +290,30 @@ test_save_plots <- function(plot_name) {
 
 }
 
-# testing test_save_plots() function
-test_save_plots(unstrat_response_plots$Q35)
-test_save_plots(strat_response_plots$language$Q6)
-test_save_plots(strat_response_plots$satisfaction$Q6)
-test_save_plots(strat_response_plots$college_school$Q6)
+# # testing test_save_plots() function
+# test_save_plots(unstrat_response_plots$Q12)
+# test_save_plots(strat_response_plots$language$Q12)
+# test_save_plots(strat_response_plots$satisfaction$Q12)
+# test_save_plots(strat_response_plots$college_school$Q12)
 
 
-245 7
-140 3
-26.25 * quest
-- (61.25 + 20.25 * quest)
-
--4.5x2 + 23.5x + 2
-
-1.4 = 1 q + 4 s
-0.002443280977312 * ((182+184*quest) + (7 + 50*strat))
-0.002443280977312 * ((182+184*1) + (7 + 50*4))
-
-1 s 7 q 409
-2 s 7 q 470
-3 s 7 q 531
-4 s 7 q 592
-
-348 + 61 * strat
+# 245 7
+# 140 3
+# 26.25 * quest
+# - (61.25 + 20.25 * quest)
+# 
+# -4.5x2 + 23.5x + 2
+# 
+# 1.4 = 1 q + 4 s
+# 0.002443280977312 * ((182+184*quest) + (7 + 50*strat))
+# 0.002443280977312 * ((182+184*1) + (7 + 50*4))
+# 
+# 1 s 7 q 409
+# 2 s 7 q 470
+# 3 s 7 q 531
+# 4 s 7 q 592
+# 
+# 348 + 61 * strat
 
 # # creating save function for unstratified data
 # # dynamically scales height of output, saves in desired dir, and names files dynamically
