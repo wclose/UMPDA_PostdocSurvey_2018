@@ -92,7 +92,8 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
   
   ### shared formatting elements of the facets/strips (facet labels) ###
   # needs be added after faceting and different questions require different faceting strategies
-  shared_theme <- theme(panel.background = element_rect(fill = "white"), # making panels have white background
+  shared_theme <- theme(plot.margin = margin(20,40,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
+                        panel.background = element_rect(fill = "white"), # making panels have white background
                         panel.spacing = unit(1, "lines"), # increasing spacing between panels
                         panel.spacing.x = unit(2.5, "lines"), # adding a bit more horizontal space between panels
                         strip.text = element_text(size = 9, face = "bold"), # setting strip labels to same size as other plot labels
@@ -115,9 +116,8 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
       facet_wrap(~ response, nrow = 4, # plots each question/group of subquestions
                  labeller = label_wrap_gen(width = 40, multi_line = TRUE)) + # allows text wrapping in strip labels
       # theme(plot.margin = margin(20,40,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
-      theme(plot.margin = margin(20,20,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
-            axis.title.y = element_text(angle = 0, size = 9, face = "bold", vjust = 0.5, hjust = 0.5, margin = margin(0,10,0,10)),
-            aspect.ratio = aspect) + # formatting bars to have a consistent size
+      theme(axis.title.y = element_text(angle = 0, size = 9, face = "bold", vjust = 0.5, hjust = 0.5, margin = margin(0,10,0,10)),
+            aspect.ratio = aspect) + # formatting bars to have a consistent size (can't be in shared_theme; needs to be set after redefining of aspect ratio for Q6)
       shared_theme # adding in the shared theme elements
 
     # if the data is unstratified, removes y axis labels/tick marks to make it look nicer
@@ -132,16 +132,11 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     # altering the grob tables of generated plots to line up margins, axes, etc.
     grob_table <- ggplotGrob(unformatted_response_plot) # creates gtable of plot features
     
-    grob_table$layout[which(grepl("ylab-l", grob_table$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
-    grob_table$widths[3] <- unit(0.438267114369292, "cm")
-    grob_table$widths[4] <- unit(12.0966514459665145, "cm")
+    grob_table$layout[which(grepl("ylab-l", grob_table$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l") # moves title over one region to the right and centers vertically
     
-    # turning clipping off for strip chart labels (allows strip titles to go outside of plot dimensions for a little extra room)
-    for(i in which(grepl("strip-t", grob_table$layout$name))){ # finds location of top strips ("strip-t") in the plot grob table
-      grob_table$grobs[[i]]$layout$clip <- "off" # turns text clipping off
-    }
+    grob_table$widths[3] <- unit(0.438267114369292, "cm") # changes the spacing between the left border and title text (found by using convertX on representative 1grobwidth)
     
-    response_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
+    grob_table$widths[4] <- unit(14.0966514459665145, "cm") # moves entire plot, etc. to desired position in plotting window
     
   ### creating/formatting plots from all other multichoice questions ###
   } else {
@@ -158,8 +153,7 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
                  labeller = labeller(question = label_wrap_gen(width = 60, multi_line = TRUE), # allows long text wrapping in strip labels
                                      # response = label_wrap_gen(width = 15, multi_line = TRUE))) + # allows shorter text wrapping in strip labels
                                      response = label_wrap_gen(width = label_width, multi_line = TRUE))) + # allows shorter text wrapping in strip labels
-      theme(plot.margin = margin(20,20,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
-            aspect.ratio = aspect) + # formatting bars to have a consistent size
+      theme(aspect.ratio = aspect) + # formatting bars to have a consistent size
       shared_theme # adding in the shared theme elements    
     
     # if the data is unstratified, removes y axis labels/tick marks to make it look nicer
@@ -174,108 +168,36 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     # altering the grob tables of generated plots to line up margins, axes, etc.
     grob_table <- ggplotGrob(unformatted_response_plot) # creates gtable of plot features
     
-    grob_table$widths[4] <- unit(12, "cm") # changes left side of plot to be in consistent place making all the plots align (unit value set by trial and error)
+    grob_table$widths[4] <- unit(14, "cm") # changes left side of plot to be in consistent place making all the plots align (unit value set by trial and error)
     
-    grob_table$widths[6] <- unit(0, "cm") # lines all of the left-most axes up for all of the plots (negates grob used for offsetting size of label)
-    
-    # turning clipping off for strip chart labels (allows strip titles to go outside of plot dimensions for a little extra room)
-    for(i in which(grepl("strip-t", grob_table$layout$name))){ # finds location of top strips ("strip-t") in the plot grob table
-      grob_table$grobs[[i]]$layout$clip <- "off" # turns text clipping off
-    }
-    
-    response_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
+    grob_table$widths[6] <- unit(0, "cm") # lines all of the left-most axes up for all of the plots (negates spacing used for offsetting length of text label)
 
   }
-
-  # # altering the grob tables of generated plots to line up margins, axes, etc.
-  # grob_table <- ggplotGrob(unformatted_response_plot) # creates gtable of plot features
-  # 
-  # grob_table$widths[4] <- unit(12, "cm") # changes left side of plot to be in consistent place making all the plots align (unit value set by trial and error)
-  # 
-  # # turning clipping off for strip chart labels (allows strip titles to go outside of plot dimensions for a little extra room)
-  # for(i in which(grepl("strip-t", grob_table$layout$name))){ # finds location of top strips ("strip-t") in the plot grob table
-  #   grob_table$grobs[[i]]$layout$clip <- "off" # turns text clipping off
-  # }
-  # 
-  # response_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
+  
+  # turning clipping off for strip chart labels (allows strip titles to go outside of plot dimensions for a little extra room)
+  for(i in which(grepl("strip-t", grob_table$layout$name))){ # finds location of top strips ("strip-t") in the plot grob table
+    grob_table$grobs[[i]]$layout$clip <- "off" # turns text clipping off
+  }
+  
+  response_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
   
   ### returning the finished plots ###
   return(response_plot)
   
 }
 
-# paste0(rep("s", times = 60), collapse = "")
-# 
-# filler <- grid.text(paste0(rep("s", times = 60), collapse = ""))
-# unit(1, "grobwidth", filler)
-# 
-# # testing make_response_plot() function
+# # testing make_response_plot()
 # make_response_plot(response_freq, "Q6")
-# make_response_plot(response_freq, "Q35")
-# make_response_plot(response_freq, "Q16")
-# make_response_plot(strat_response_freq$college_school, "Q13", response_freq)
-# make_response_plot(strat_response_freq$gender, "Q16", response_freq)
-# 
-# 
-# gt1 <- make_response_plot(response_freq, "Q6", response_freq)
-# gt2 <- make_response_plot(strat_response_freq$college_school, "Q6", response_freq)
-# gt3 <- make_response_plot(strat_response_freq$residency, "Q6", response_freq)
-# gt4 <- make_response_plot(strat_response_freq$language, "Q6", response_freq)
-# gt5 <- make_response_plot(strat_response_freq$college_school, "Q16", response_freq)
-# 
-# 
-# gt1$layout[which(grepl("ylab-l", gt1$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
-# gt1$widths[3] <- unit(0.438267114369292, "cm")
-# # gt1$widths[3] <- unit(4.25183349609375, "cm") + sum(unit(10, "pt"), unit(10, "pt"))
-# # gt1$widths[3] <- gt5$widths[3]
-# gt1$widths[4] <- unit(12.0966514459665145, "cm")
-# as_ggplot(arrangeGrob(gt1))
-# 
-# gt2$layout[which(grepl("ylab-l", gt2$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
-# gt2$widths[3] <- unit(0.438267114369292, "cm")
-# gt2$widths[4] <- unit(12.0966514459665145, "cm")
-# # gt2$widths[5] <- unit(0, "cm")
-# # gt2$widths[6] <- unit(0, "cm")
-# as_ggplot(arrangeGrob(gt2))
-# 
-# gt3$layout[which(grepl("ylab-l", gt3$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
-# gt3$widths[3] <- gt5$widths[3]
-# gt3$widths[4] <- unit(12.0966514459665145, "cm")
-# gt3$widths[5] <- unit(0, "cm")
-# gt3$widths[6] <- unit(0, "cm")
-# as_ggplot(arrangeGrob(gt3))
-# 
-# gt4$layout[which(grepl("ylab-l", gt4$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
-# gt4$widths[3] <- gt5$widths[3]
-# gt4$widths[4] <- unit(12.0966514459665145, "cm")
-# gt4$widths[5] <- unit(0, "cm")
-# gt4$widths[6] <- unit(0, "cm")
-# as_ggplot(arrangeGrob(gt4))
-# 
-# gt5$widths[4] <- unit(12.0966514459665145, "cm")
-# gt5$widths[5] <- unit(0, "cm")
-# gt5$widths[6] <- unit(0, "cm")
-# as_ggplot(arrangeGrob(gt5))
+# make_response_plot(strat_response_freq$college_school, "Q6")
+# make_response_plot(strat_response_freq$college_school, "Q6", response_freq)
+# make_response_plot(response_freq, "Q22")
+# make_response_plot(strat_response_freq$college_school, "Q22")
+# make_response_plot(strat_response_freq$residency, "Q49", response_freq)
+
 
 # ### IMPORTANT ###
 # # use this function to convert from "1grobwidth" to a physical unit (in this case cm)
 # convertX(gt5$widths[3], "cm")
-
-
-# gt5
-# gt5$grobs[[28]]$width
-# gt5$layout
-# strip-l-1
-# x <- gt5$grobs[[which(grepl("strip-l-1", gt5$layout$name))]]$width
-# 
-# q <- gt5$grobs[[23]]$width[2]
-# q
-# 
-# z <- unit(4.25183349609375, "cm") + sum(unit(10, "pt"), unit(10, "pt"))
-# z
-# 
-# p <- unit(1, "grobwidth", filler) + 1 * unit(0.0350748697916667, "inches")
-# p
 
 
 
