@@ -132,12 +132,9 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     # altering the grob tables of generated plots to line up margins, axes, etc.
     grob_table <- ggplotGrob(unformatted_response_plot) # creates gtable of plot features
     
-    # grob_table$layout[which(grepl("ylab-l", grob_table$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
-    
-    # grob_table$widths[3] <- gt5$widths[3]
-    # grob_table$grobs[[which(grepl("ylab-l", grob_table$layout$name))]]$widths <- gt5$widths[3]
-    
-    grob_table$widths[4] <- unit(12.0966514459665145, "cm") # changes left side of plot to be in consistent place making all the plots align (unit value set by trial and error)
+    grob_table$layout[which(grepl("ylab-l", grob_table$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
+    grob_table$widths[3] <- unit(0.438267114369292, "cm")
+    grob_table$widths[4] <- unit(12.0966514459665145, "cm")
     
     # turning clipping off for strip chart labels (allows strip titles to go outside of plot dimensions for a little extra room)
     for(i in which(grepl("strip-t", grob_table$layout$name))){ # finds location of top strips ("strip-t") in the plot grob table
@@ -203,188 +200,87 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
   # response_plot <- as_ggplot(arrangeGrob(grob_table)) # saving the resulting plot as a ggplot item
   
   ### returning the finished plots ###
-  return(grob_table)
+  return(response_plot)
   
 }
 
-
-
-
-
-# testing make_response_plot() function
-make_response_plot(response_freq, "Q6")
-
-make_response_plot(response_freq, "Q6")
-make_response_plot(response_freq, "Q35")
-make_response_plot(response_freq, "Q16")
-
-gt2 <- make_response_plot(strat_response_freq$college_school, "Q6", response_freq)
-gt1 <- make_response_plot(response_freq, "Q6", response_freq)
-
-make_response_plot(strat_response_freq$college_school, "Q13", response_freq)
-make_response_plot(strat_response_freq$gender, "Q16", response_freq)
-
-gt3 <- make_response_plot(strat_response_freq$residency, "Q16", response_freq)
-gt4 <- make_response_plot(strat_response_freq$language, "Q16", response_freq)
-gt5 <- make_response_plot(strat_response_freq$college_school, "Q16", response_freq)
-
-
-as_ggplot(arrangeGrob(gt5))
-gt$widths
-
-gt2$widths
-
-# gt3$widths[5] <- -1*gt3$widths[5]
-gt3$layout
-gt3$grobs[[1]]
-downViewport("panel-2-1")
-grid.rect(gp=gpar(col=NA, fill=rgb(0,0,1,0.5)))
-current.vpTree()
-grid.ls()
-grid.force()
-formatVPTree(current.vpTree())
-
-make_response_plot(strat_response_freq$gender, "Q16", response_freq)
-grid.ls()
-grid.force()
-grid.ls()
-
-downViewport("strip-l-1.9-4-9-4")
-grid.rect(gp=gpar(col=NA, fill=rgb(0,0,1,0.5)))
-downViewport("panel-4-1.9-13-9-13")
-grid.rect(gp=gpar(col=NA, fill=rgb(0,0,1,0.5)))
-downViewport("axis-l-1.9-6-9-6")
-grid.rect(gp=gpar(col=NA, fill=rgb(0,0,1,0.5)))
-downViewport("axis-l-1.9-6-9-6")
-grid.rect(gp=gpar(col=NA, fill=rgb(0,0,1,0.5)))
-
-gt3$widths[4] <- unit(15, "cm")
-gt3$widths[5] <- unit(0, "cm")
-gt5$widths[6] <- unit(0, "cm")
-# gt3$widths[6] <- -1*gt3$widths[6]
-arrangeGrob(gt3)
-grid.draw(gt3)
-
-gt5$widths[4] <- unit(15, "cm")
-gt5$widths[5] <- unit(0, "cm")
-gt5$widths[6] <- unit(0, "cm")
-# gt5$widths[6] <- -1*gt5$widths[6]
-as_ggplot(arrangeGrob(gt5))
-
-
-
-
-
-
-
-
-
-# Paul Murrell's function to display the vp tree 
-formatVPTree <- function(x, indent=0) {
-  end <- regexpr("[)]+,?", x)
-  sibling <- regexpr(", ", x)
-  child <- regexpr("[(]", x)
-  if ((end < child || child < 0) && (end < sibling || sibling < 0)) {
-    lastchar <- end + attr(end, "match.length")
-    cat(paste0(paste(rep("  ", indent), collapse=""), 
-               substr(x, 1, end - 1), "\n"))
-    if (lastchar < nchar(x)) {
-      formatVPTree(substring(x, lastchar + 1), 
-                   indent - attr(end, "match.length") + 1)
-    }
-  }
-  if (child > 0 && (sibling < 0 || child < sibling)) {
-    cat(paste0(paste(rep("  ", indent), collapse=""), 
-               substr(x, 1, child - 3), "\n"))
-    formatVPTree(substring(x, child + 1), indent + 1)
-  }
-  if (sibling > 0 && sibling < end && (child < 0 || sibling < child)) {
-    cat(paste0(paste(rep("  ", indent), collapse=""), 
-               substr(x, 1, sibling - 1), "\n"))
-    formatVPTree(substring(x, sibling + 2), indent)
-  }
-}
-# gt1 <- make_response_plot(response_freq, "Q6") # no grob, no angle
-# gt2 <- make_response_plot(response_freq, "Q6") # no grob, has angle
-# gt3 <- make_response_plot(response_freq, "Q6") # has grob and angle
-# gt4 <- make_response_plot(response_freq, "Q6") # has grob, no angle
+# paste0(rep("s", times = 60), collapse = "")
 # 
-# setdiff(gt1$layout$name, gt2$layout$name)
+# filler <- grid.text(paste0(rep("s", times = 60), collapse = ""))
+# unit(1, "grobwidth", filler)
 # 
-# gt1$widths
-# gt2$widths
-# gt3$widths
-# gt4$widths
-# 
-# gt1$heights
-# gt2$heights
-# gt3$heights
-# gt4$heights
-# 
-# gt3
-# gt4
+# # testing make_response_plot() function
+# make_response_plot(response_freq, "Q6")
+# make_response_plot(response_freq, "Q35")
+# make_response_plot(response_freq, "Q16")
+# make_response_plot(strat_response_freq$college_school, "Q13", response_freq)
+# make_response_plot(strat_response_freq$gender, "Q16", response_freq)
 # 
 # 
-# 
-# gt1$layout
-# gt5$layout
-# 
-# gt1$widths
-# gt5$widths
-# 
-# gt5 <- make_response_plot(response_freq, "Q35") # no grob, no angle
-# gt5$widths
-# gt5$layout$name
-# gt5$grobs[[20]]$widths
-# as_ggplot(arrangeGrob(gt5))
+# gt1 <- make_response_plot(response_freq, "Q6", response_freq)
+# gt2 <- make_response_plot(strat_response_freq$college_school, "Q6", response_freq)
+# gt3 <- make_response_plot(strat_response_freq$residency, "Q6", response_freq)
+# gt4 <- make_response_plot(strat_response_freq$language, "Q6", response_freq)
+# gt5 <- make_response_plot(strat_response_freq$college_school, "Q16", response_freq)
 # 
 # 
+# gt1$layout[which(grepl("ylab-l", gt1$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
+# gt1$widths[3] <- unit(0.438267114369292, "cm")
+# # gt1$widths[3] <- unit(4.25183349609375, "cm") + sum(unit(10, "pt"), unit(10, "pt"))
+# # gt1$widths[3] <- gt5$widths[3]
+# gt1$widths[4] <- unit(12.0966514459665145, "cm")
+# as_ggplot(arrangeGrob(gt1))
 # 
-# gt3$widths[3] <- gt5$widths[3]
-# as_ggplot(arrangeGrob(gt3))
-# gt3$widths[4] <- unit(12.193302891933029, "cm")
-# gt3$layout$name
-# gt3$layout[62:65, c(2,4)] <- 6
-# 
-# 
-# which(grepl("ylab-l", gt3$layout$name))
+# gt2$layout[which(grepl("ylab-l", gt2$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
+# gt2$widths[3] <- unit(0.438267114369292, "cm")
+# gt2$widths[4] <- unit(12.0966514459665145, "cm")
+# # gt2$widths[5] <- unit(0, "cm")
+# # gt2$widths[6] <- unit(0, "cm")
+# as_ggplot(arrangeGrob(gt2))
 # 
 # gt3$layout[which(grepl("ylab-l", gt3$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
-# gt3$grobs[[which(grepl("ylab-l", gt3$layout$name))]]$widths
+# gt3$widths[3] <- gt5$widths[3]
+# gt3$widths[4] <- unit(12.0966514459665145, "cm")
+# gt3$widths[5] <- unit(0, "cm")
+# gt3$widths[6] <- unit(0, "cm")
+# as_ggplot(arrangeGrob(gt3))
 # 
-# gt3$grobs[[100]]$widths <- unit(5, "cm")
-# 4.25183349609375 + 0.70555555555556
+# gt4$layout[which(grepl("ylab-l", gt4$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
+# gt4$widths[3] <- gt5$widths[3]
+# gt4$widths[4] <- unit(12.0966514459665145, "cm")
+# gt4$widths[5] <- unit(0, "cm")
+# gt4$widths[6] <- unit(0, "cm")
+# as_ggplot(arrangeGrob(gt4))
 # 
-# 14 x 17
-# t  l  b  r  z clip        name
-# 9  4  9  4  2   on  strip-l-1
+# gt5$widths[4] <- unit(12.0966514459665145, "cm")
+# gt5$widths[5] <- unit(0, "cm")
+# gt5$widths[6] <- unit(0, "cm")
+# as_ggplot(arrangeGrob(gt5))
+
+# ### IMPORTANT ###
+# # use this function to convert from "1grobwidth" to a physical unit (in this case cm)
+# convertX(gt5$widths[3], "cm")
+
+
+# gt5
+# gt5$grobs[[28]]$width
+# gt5$layout
+# strip-l-1
+# x <- gt5$grobs[[which(grepl("strip-l-1", gt5$layout$name))]]$width
 # 
-# 32 x 21
-# t  l  b  r  z clip        name
-# 9  3 27  3  6  off      ylab-l
+# q <- gt5$grobs[[23]]$width[2]
+# q
 # 
+# z <- unit(4.25183349609375, "cm") + sum(unit(10, "pt"), unit(10, "pt"))
+# z
 # 
-# gt1$widths
+# p <- unit(1, "grobwidth", filler) + 1 * unit(0.0350748697916667, "inches")
+# p
 
 
 
 
-# y <- 4
-# 66*y+6
-# 
-# x <- 7
-# 3281.6*x^-1.248
-# 
-# (66*strat+6)/(3281.6*resp^-1.248)
-# 
-# which(grepl("ylab", gt3$layout$name))
-# 
-# gt$grobs[[100]]$heights
-# gt3$layout
-# 
-# gt2$widths
-# 
-# gt
+
 
 # making function to cycle through each question for each data frame based on strat category
 # extra function needed because of the nested nature of strat_response_freq_df
