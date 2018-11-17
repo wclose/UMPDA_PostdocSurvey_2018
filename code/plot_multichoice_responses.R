@@ -65,7 +65,7 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     scale_fill_viridis(discrete = TRUE, option = "D") +
     labs(tag = paste(question_no_chr), # puts question label in upper left of panel for each plot
          x = "", # removing x label since the facet labels are the new x labels
-         y = "Proportion of postdoctoral respondents (%)") +
+         y = "Proportion of responses (%)") +
     coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
     # NOTE: x and y commands are now swapped due to coord_flip rotating the axes
     theme(axis.line = element_line(size = 0.5, colour = "black"), # formatting axis lines as desired
