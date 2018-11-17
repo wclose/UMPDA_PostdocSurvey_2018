@@ -13,7 +13,7 @@ library(ggpubr) # required to save gtable plots as ggplot items
 # plotting functions ------------------------------------------------------
 
 # creating a plotting function that makes new graph for each question for entire dataset
-make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
+make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
   
   ### modifying dfs in preparation for plotting ###
   response_data <- df %>% 
@@ -186,24 +186,16 @@ make_response_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
   
 }
 
-# # # testing make_response_plot()
-# make_response_plot(response_freq, "Q6")
-# make_response_plot(strat_response_freq$college_school, "Q6")
-# make_response_plot(strat_response_freq$college_school, "Q6", response_freq)
-# make_response_plot(response_freq, "Q22")
-# make_response_plot(strat_response_freq$college_school, "Q22")
-# make_response_plot(strat_response_freq$residency, "Q49", response_freq)
-
 
 
 # making function to cycle through each question for each data frame based on strat category
 # extra function needed because of the nested nature of strat_response_freq_df
-make_all_response_plots <- function(response_freq_df, question_no_chr_list, unstrat_ref_df = NULL) {
+make_all_multichoice_plots <- function(response_freq_df, question_no_chr_list, unstrat_ref_df = NULL) {
   
   arguments <- data_frame(df = list(response_freq_df), # 1st col = input df repeated to be same length as number of questions
                           question_no_chr = c(question_no_chr_list)) # 2nd col = list of question numbers in chr format
   
-  data <- pmap(arguments, make_response_plot, unstrat_ref_df = unstrat_ref_df) %>% # collating data during map and assigning output
+  data <- pmap(arguments, make_multichoice_plot, unstrat_ref_df = unstrat_ref_df) %>% # collating data during map and assigning output
     set_names(question_no_chr_list) # naming the output for easier indexing
   
   return(data)
@@ -214,263 +206,165 @@ make_all_response_plots <- function(response_freq_df, question_no_chr_list, unst
 
 # saving functions --------------------------------------------------------
 
-# creating save function for unstratified data
-# dynamically scales height of output, saves in desired dir, and names files dynamically
-test_save_plots <- function(plot_name) {
-  
-  category <- str_split(deparse(substitute(plot_name)), "\\$")[[1]][2] # pulling category from name of plot
-  
-  question_no_chr <- last(str_split(deparse(substitute(plot_name)), "\\$") %>% unlist()) # pulling question_no from name of plot by extracting last string after splitting at '$'
-  
+# creating save function for unstratified data (dynamically scales height of output, saves in desired dir, and names files dynamically)
+save_multichoice_plot <- function(plot_name, question_no_chr, category = NULL) {
+
   # if the extracted category variable contains a question number, it signifies the data was not stratified so do this
-  if (str_detect(category, "Q\\d+")) {
-    
+  if (is.null(category)) {
+
     category <- "all" # if category is not present (as in case of unstratified data), sets category to "all" so the plot is saved in the proper location, etc.
-    
+
     question_tally <- response_freq %>% # pulls questions from data used to generate plots
       filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>% # removing ambiguous answers from plots
       pull(question) %>%  # returns list of questions to be stored
       unique() %>% # removing repeated questions from list
       length() # calculates the number of questions for use in scaling height
-    
+
     # setting different plot height scale for Q6 data because facet_wrap is set to nrow = 4 in plotting function
     if (question_no_chr == "Q6") {
-      
-      plot_height <- 0.010 * (440 + (75.7 * 1 + 8))
-      # plot_height <- 1.358 * (0.003443280977312 * ((0 + 178 * question_tally) + (0 + 397.85)))
-      # plot_height <- 4 * ((4/7 * question_tally) + 2) # scaling factor for plot height based on (lots of) trial and error
-      
-    # setting plot height scale for all other plots
+
+      plot_height <- 0.010 * (440 + (75.7 * 1 + 8)) # scaling factor for plot height based on (lots of) trial and error
+
+      # setting plot height scale for all other plots
     } else {
-      
-      plot_height <- 0.005 * (620 + (39.7 * 1 + 8) + ((37.5 * 1 + 68.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1))))
-      # plot_height <- 0.003 * (361 + 57.7 + (59.6 + 62.5) * (question_tally - 1)) + 2
-      # plot_height <- (0.003443280977312 * ((0 + 178 * question_tally) + (0 + 397.85)))
-      # plot_height <- (0.002443280977312 * ((182+184*question_tally) + (7 + 50))) + 2
-      # plot_height <- ((4/7 * question_tally) + 2) # scaling factor for plot height based on (lots of) trial and error
-      
+
+      plot_height <- 0.005 * (620 + (39.7 * 1 + 8) + ((37.5 * 1 + 68.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1)))) # scaling factor for plot height based on (lots of) trial and error
+
     }
-  
-  # otherwise the data is stratified so do this instead
+
+    # otherwise the data is stratified so do this instead
   } else {
-    
+
     question_tally <- strat_response_freq[[category]] %>% # pulls questions from data used to generate plots
       filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>% # removing ambiguous answers from plots
       pull(question) %>%  # returns list of questions to be stored
-      unique() %>% 
-      length()
-    
+      unique() %>%  # removing repeated questions from list
+      length() # calculates the number of questions for use in scaling height
+
     strat_tally <- strat_response_freq[[category]] %>% # pulls list of strat_ids for each plot for use in scaling height of output figure
-      pull(strat_id) %>% 
-      unique() %>% 
-      length()
-    
+      pull(strat_id) %>% # returns list of strat_ids to be stored
+      unique() %>% # removing repeated strat_ids from list
+      length() # calculates the number of questions for use in scaling height
+
     # setting different plot height scale for Q6 data because facet_wrap is set to nrow = 4 in plotting function
     if (question_no_chr == "Q6") {
-      
-      plot_height <- 0.010 * (440 + (75.7 * strat_tally + 8))
-      # plot_height <- 1.358 * (0.003443280977312 * ((0 + 178 * question_tally) + (0 + 397.85 * strat_tally)))
-      # plot_height <- 4 * ((4/7 * question_tally * 0.6 * strat_tally) + 2) # scaling factor for plot height based on (lots of) trial and error
-      
+
+      plot_height <- 0.010 * (440 + (75.7 * strat_tally + 8)) # scaling factor for plot height based on (lots of) trial and error
+
       # setting plot height scale for all other plots
     } else {
-      
-      plot_height <- 0.005 * (620 + (39.7 * strat_tally + 8) + ((37.5 * strat_tally + 68.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1))))
-      # plot_height <- (0.003443280977312 * ((0 + 178 * question_tally) + (0 + 397.85 * strat_tally)))
-      # plot_height <- ((4/7 * question_tally * 0.6 * strat_tally) + 2) # scaling factor for plot height based on (lots of) trial and error
-      
+
+      plot_height <- 0.005 * (620 + (39.7 * strat_tally + 8) + ((37.5 * strat_tally + 68.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1)))) # scaling factor for plot height based on (lots of) trial and error
+
     }
-    
+
   }
-  
-  # return(plot_height)
+
   # saving the plots using the parameters defined above
   ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
          device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions/resolution of plots
 
 }
 
-# # testing test_save_plots() function
-# test_save_plots(unstrat_response_plots$Q12)
-# test_save_plots(strat_response_plots$language$Q12)
-# test_save_plots(strat_response_plots$satisfaction$Q12)
-# test_save_plots(strat_response_plots$college_school$Q12)
 
-
-# 245 7
-# 140 3
-# 26.25 * quest
-# - (61.25 + 20.25 * quest)
-# 
-# -4.5x2 + 23.5x + 2
-# 
-# 1.4 = 1 q + 4 s
-# 0.002443280977312 * ((182+184*quest) + (7 + 50*strat))
-# 0.002443280977312 * ((182+184*1) + (7 + 50*4))
-# 
-# 1 s 7 q 409
-# 2 s 7 q 470
-# 3 s 7 q 531
-# 4 s 7 q 592
-# 
-# 348 + 61 * strat
-
-# # creating save function for unstratified data
-# # dynamically scales height of output, saves in desired dir, and names files dynamically
-# save_multichoice_plots <- function(plot_name, category=NULL, question_no_chr) {
-#   questions <- response_freq %>% # pulls questions from data used to generate plots
-#     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer") %>% # removing ambiguous answers from plots
-#     pull(question) # returns list of questions to be stored
-#   
-#   subquestion_no <- length(unique(questions)) # calculates the number of questions for use in scaling height
-#   
-#   plot_height <- ((4/7 * subquestion_no) + 2) # scaling factor for plot height based on trial and error
-#   
-#   ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
-#          device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions of plots
-# }
 
 # setting up mapping function to loop through all plots and question numbers of unstratified data
-save_all_multichoice_plots <- function(plot_list, category, question_no_chr_list) {
-  arguments <- data_frame(plot_name = plot_list,
-                          question_no_chr = c(question_no_chr_list))
-  pmap(arguments, save_multichoice_plots, category = category)
-}
-
-
-
-
-
-# # creating function to save plots of stratified data
-# # based on unstratified function but also adds in scaling factor for number of strat categories (bars) in each
-# save_strat_plots <- function(plot_name, category, question_no_chr) {
-#   
-#   # defining global final attributes for saved plots
-#   questions <- strat_response_freq[[category]] %>% # pulls questions from data used to generate plots
-#     filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>% # removing ambiguous answers from plots
-#     pull(question) # returns list of questions to be stored
-#   
-#   strat_ids <- strat_response_freq[[category]] %>% # pulls list of strat_ids for each plot for use in scaling height of output figure
-#     pull(strat_id)
-#   
-#   subquestion_no <- length(unique(questions)) # calculates the number of questions for use in scaling height
-#   
-#   strat_id_no <- length(unique(strat_ids)) # calculates number of strat ids for use in scaling
-#   
-#   # setting different plot height scale for Q6 data because facet_wrap is set to nrow = 4 in plotting function
-#   if (question_no_chr == "Q6") {
-#     
-#     plot_height <- 4 * ((4/7 * subquestion_no * 0.6 * strat_id_no) + 3) # scaling factor for plot height based on (lots of) trial and error
-#     
-#   # setting plot height scale for all other plots
-#   } else {
-#     
-#     plot_height <- ((4/7 * subquestion_no * 0.6 * strat_id_no) + 3) # scaling factor for plot height based on (lots of) trial and error
-#     
-#   }
-#   
-#   # saving the plots using the parameters defined above
-#   ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
-#          device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions/resolution of plots
-#   
-# }
-
-# # testing save_strat_plots() function
-# save_strat_plots(college_test, "college_school", "Q6")
-
-
-
-
-
-
-
-
-
-
-# setting up mapping function to loop through all plots and question numbers of stratified data
-save_all_strat_plots <- function(plot_list, question_no_chr_list, category) {
+save_all_multichoice_plots <- function(plot_list, question_no_chr_list, category = NULL) {
+  
   arguments <- data_frame(plot_name = plot_list,
                           question_no_chr = question_no_chr_list)
-  pmap(arguments, save_strat_plots, category = category)
-}
-
-# creating function to feed multiple lists of plots, categories, and save folders for stratified data
-# need this extra function due to the stratified plots being in a list within a list
-save_all_strat_plots_set <- function(plot_list_list, category_list, question_no_chr_list) {
-  arguments <- data_frame(plot_list = plot_list_list,
-                          category = category_list)
-  pmap(arguments, save_all_strat_plots, question_no_chr_list = question_no_chr_list)
+  
+  pmap(arguments, save_multichoice_plot, category = category)
+  
 }
 
 
 
-# generating plots for unstratified data ----------------------------------
+# generating plots --------------------------------------------------------
 
 # iterating through the list of question numbers over the df response_freq which contains all the data
-unstrat_response_plots <- make_all_response_plots(response_freq, multi_choice_question_list)
-
-# # testing make_all_response_plots() output
-# unstrat_response_plots$Q22
-
-
-
-# saving unstratified plots -----------------------------------------------
-
-# # testing save_multichoice_plots()
-# save_multichoice_plots(response_plots$Q35, "test", "Q35")
-# save_multichoice_plots(response_plots$Q49, "test", "Q49")
-# save_multichoice_plots(response_plots$Q7, "test", "Q7")
-
-# saving all of the unstratified plots
-save_all_multichoice_plots(response_plots, "all", multi_choice_question_list)
-
-
-
-# generating plots for stratified data ------------------------------------
-
-# # testing make_strat_response_plot()
-# make_strat_response_plot(strat_response_freq$language, "Q16")
-# make_strat_response_plot(strat_response_freq$language, "Q35")
-# make_strat_response_plot(strat_response_freq$college_school, "Q35")
-
-# # testing make_all_response_plots()
-# test_output <- make_all_response_plots(strat_response_freq$language, multi_choice_question_list)
-# test_output[[1]]
-# test_output$Q27
+unstrat_multichoice_plots <- make_all_multichoice_plots(response_freq, multi_choice_question_list)
 
 # making plots for all of the stratified data sets
-# question_no_chr_list is passed on to make_all_strat_response_plots()
-strat_response_plots <- map(.x = strat_response_freq, .f = make_all_response_plots,
-                            question_no_chr_list = multi_choice_question_list, unstrat_ref_df = response_freq)
-
-# # verifying output of map(make_all_strat_response_plots())
-# strat_response_plots$residency$Q6
-# strat_response_plots$college_school$Q35
-# strat_response_plots$residency$Q16
-# strat_response_plots$college_school$Q16
-# strat_response_plots$residency$Q49
+strat_multichoice_plots <- map(.x = strat_response_freq, .f = make_all_multichoice_plots,
+                               question_no_chr_list = multi_choice_question_list, unstrat_ref_df = response_freq)
 
 
 
-# saving stratified plots -------------------------------------------------
+# saving plots ------------------------------------------------------------
 
-# # testing save_strat_plots()
-# save_strat_plots(strat_response_plots$residency$Q35, "residency", "Q35")
-# save_strat_plots(strat_response_plots$residency$Q49, "residency", "Q49")
-
-# # testing save_all_strat_plots
-# save_all_strat_plots(strat_response_plots$college_school, category = "college_school", multi_choice_question_list)
+# saving all of the unstratified plots
+save_all_multichoice_plots(unstrat_multichoice_plots, multi_choice_question_list)
 
 # saving all of the stratified plots in the appropriate locations
-save_all_strat_plots_set(strat_response_plots, strat_list_names, multi_choice_question_list)
+pmap(.l = list(plot_list = strat_multichoice_plots, category = strat_list_names),
+     .f = save_all_multichoice_plots, question_no_chr_list = multi_choice_question_list)
 
 
 
 # notes -------------------------------------------------------------------
 
-# NOTE: Q22 responses need to be broken up and retabulated before graphing
-
-# NOTE: could set up an if/else statement to consolidate plotting functions into a single function
-
-# NOTE: Need to design separate plotting functions for Q6 and 22
-
+# # NOTE: try to find way to fix parsing of plot_name when using map (would make saving plots much more efficient)
+# # creating save function for unstratified data (dynamically scales height of output, saves in desired dir, and names files dynamically)
+# save_plots <- function(plot_name) {
+#   
+#   category <- str_split(deparse(substitute(plot_name)), "\\$")[[1]][2] # pulling category from name of plot
+# 
+#   question_no_chr <- last(str_split(deparse(substitute(plot_name)), "\\$") %>% unlist()) # pulling question_no from name of plot by extracting last string after splitting at '$'
+# 
+#   # if the extracted category variable contains a question number, it signifies the data was not stratified so do this
+#   if (str_detect(category, "Q\\d+")) {
+# 
+#     category <- "all" # if category is not present (as in case of unstratified data), sets category to "all" so the plot is saved in the proper location, etc.
+# 
+#     question_tally <- response_freq %>% # pulls questions from data used to generate plots
+#       filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>% # removing ambiguous answers from plots
+#       pull(question) %>%  # returns list of questions to be stored
+#       unique() %>% # removing repeated questions from list
+#       length() # calculates the number of questions for use in scaling height
+# 
+#     # setting different plot height scale for Q6 data because facet_wrap is set to nrow = 4 in plotting function
+#     if (question_no_chr == "Q6") {
+# 
+#       plot_height <- 0.010 * (440 + (75.7 * 1 + 8)) # scaling factor for plot height based on (lots of) trial and error
+# 
+#     # setting plot height scale for all other plots
+#     } else {
+# 
+#       plot_height <- 0.005 * (620 + (39.7 * 1 + 8) + ((37.5 * 1 + 68.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1)))) # scaling factor for plot height based on (lots of) trial and error
+# 
+#     }
+# 
+#   # otherwise the data is stratified so do this instead
+#   } else {
+# 
+#     question_tally <- strat_response_freq[[category]] %>% # pulls questions from data used to generate plots
+#       filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>% # removing ambiguous answers from plots
+#       pull(question) %>%  # returns list of questions to be stored
+#       unique() %>%  # removing repeated questions from list
+#       length() # calculates the number of questions for use in scaling height
+# 
+#     strat_tally <- strat_response_freq[[category]] %>% # pulls list of strat_ids for each plot for use in scaling height of output figure
+#       pull(strat_id) %>% # returns list of strat_ids to be stored
+#       unique() %>% # removing repeated strat_ids from list
+#       length() # calculates the number of questions for use in scaling height
+# 
+#     # setting different plot height scale for Q6 data because facet_wrap is set to nrow = 4 in plotting function
+#     if (question_no_chr == "Q6") {
+# 
+#       plot_height <- 0.010 * (440 + (75.7 * strat_tally + 8)) # scaling factor for plot height based on (lots of) trial and error
+# 
+#       # setting plot height scale for all other plots
+#     } else {
+# 
+#       plot_height <- 0.005 * (620 + (39.7 * strat_tally + 8) + ((37.5 * strat_tally + 68.5) * (question_tally - 1) - (87.5 + 26.25 * (question_tally - 1)))) # scaling factor for plot height based on (lots of) trial and error
+# 
+#     }
+# 
+#   }
+#   
+#   # saving the plots using the parameters defined above
+#   ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+#          device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions/resolution of plots
+# 
+# }
