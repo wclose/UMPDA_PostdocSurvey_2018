@@ -46,53 +46,14 @@
 # import dataset
 source("code/stratify_data.R")
 
-
-# library(tidyverse)
 library(tidytext) # text manipulation, used for tokenization and stop words
-# library(wordcloud) # word cloud
-# library(wordcloud2)
 library(ggwordcloud) # geom_text_wordcloud()
-# library(RColorBrewer)
-# library(stringr) #string manipulation
-# library(igraph)
-# library(ggraph)
-# 
-# library(widyr)
-# library(broom)
-# 
-# library(DT)
-# 
-# library(irlba)
-# library(topicmodels) # for LDA topic modelling 
-# library(tm) # general text mining functions, making document term matrixes
-# 
-# library(caret)
-# library(glmnet)
 
 
 
 # text analysis -----------------------------------------------------------
 
 # NOTE: stop_words includes "no", "not", etc. which may be bad for some types of analyses
-
-# creating list of all the questions
-question_list <- unique(tidy_survey_data$question_no)
-
-# making list of questions to exclude from graph generation because they were typed response
-# to change the questions included in this list, add/subtract/change the numbers in paste0() as desired
-typed_question_list <- question_list[grepl(paste(paste0("Q", c(23,29,42,43,44,45,46,51)), collapse = "|"), question_list)]
-# typed_question_list <- question_list[grepl(paste(paste0("Q", c(29,42,43,44,45,46,51)), collapse = "|"), question_list)]
-
-
-# typed_question_df <- tidy_survey_data %>%
-#   filter(question_no %in% typed_question_list) %>%
-#   mutate(response = str_replace_all(response, "_", " ")) %>%
-#   filter(!is.na(response) & !str_detect(response, "\\bn[/]a\\b"))
-# 
-# 
-# typed_question_df %>% 
-#   filter(question_no == "Q51" & !is.na(response)) %>%
-#   createWordCloud()
 
 # setting the seed for all functions in script (could put in original tidy script to have propagate through all scripts)
 my_seed <- 1
@@ -101,36 +62,9 @@ my_seed <- 1
 example_data <- strat_data$college_school %>% 
   filter(question_no %in% typed_question_list)
 
-
-# # testing how to filter out numbers
-# test <- tidy_survey_data %>%
-#   mutate(response = str_replace_all(response, "_", " ")) %>%
-#   unnest_tokens(n_gram, response, token = "ngrams", n = 2) %>% # breaking data up into bigrams
-#   separate(n_gram, c("word1", "word2"), sep = " ") %>% # separating bigrams into individual cols to filter out stop words
-#   filter(!word1 %in% stop_words$word) %>% # removing stop words from col1
-#   filter(!word2 %in% stop_words$word) %>% # removing stop words from col2
-#   filter(!str_detect(word1, "\\b\\d+\\b") & !str_detect(word2, "\\b\\d+\\b"))
-#   #unite(n_gram, word1, word2, sep = " ") # reuniting words to reform bigrams
-# 
-# test %>% 
-#   filter(str_detect(word1, "\\d")) %>%
-#   pull(response_id)
-# 
-# test %>% 
-#   filter(response_id == "R_11hDl8Gh8dQoETi" & question_no == "Q42")
-# 
-# tidy_survey_data %>% 
-#   mutate(response = str_replace_all(response, "_", " ")) %>% 
-#   filter(response_id == "R_11hDl8Gh8dQoETi" & question_no == "Q42")
-
 # creating custom stop_words df to filter out specific terms that may affect results
 my_stop_words <- stop_words %>%
   add_row(word = c("post", "doc"), lexicon = "custom")
-
-# tidy_survey_data %>% 
-#   mutate(response = str_replace_all(response, "_", " ")) %>% 
-#   filter(str_detect(response, "Chinese")) %>% 
-#   pull(response)
 
 
 
@@ -512,7 +446,7 @@ all_tf_idf_wordclouds <- map(strat_data, plot_all_wordclouds, question_no_chr_li
 # all_tf_wordclouds$Q44
 # all_tf_idf_wordclouds$college_school$Q45
 
-
+all_tf_wordclouds$Q29
 
 # creating function to save plots of stratified data using dynamic scaling of heights based on number of unique strat_ids per plot
 save_wordclouds <- function(freq_type, question_no_chr, category = NULL) {
@@ -576,155 +510,67 @@ save_all_wordclouds <- function(freq_type, question_no_chr_list, category_list) 
 # save_all_wordclouds("tf-idf", typed_question_list, "gender")
 
 # saving all tf wordclouds
-save_all_wordclouds("tf", typed_question_list, "all")
+# save_all_wordclouds("tf", typed_question_list, "all")
 
 # saving all tf-idf wordclouds
-save_all_wordclouds("tf-idf", typed_question_list, strat_list_names)
-
-
-
-
-
-
-
-
-# # creating function to save all top n-gram wordclouds
-# save_all_wordclouds <- function(survey_df, question_no_chr_list, n_token, freq_type, n_top, category_list) {
-#   
-#   if (freq_type == "tf") {
-#     
-#     # generating all top n-grams based on tf
-#     all_top_tf <- get_all_top_n_grams(survey_df, question_no_chr_list = question_no_chr_list, n_token = n_token, 
-#                                       freq_type = freq_type, n_top = n_top)
-#     
-#     # generating all tf wordclouds
-#     all_tf_wordclouds <- plot_all_wordclouds(survey_df, question_no_chr_list = question_no_chr_list, n_token = n_token, 
-#                                              freq_type = freq_type, n_top = n_top)
-#     
-#     arguments <- data_frame(category = rep(category_list, each = length(question_no_chr_list)),
-#                             question_no_chr = rep(question_no_chr_list, times = length(category_list)))
-# 
-#     pmap(arguments, save_wordclouds, freq_type = freq_type)
-#     
-#   # } else if (freq_type == "tf-idf") {
-#   #   
-#   #   # generating all top n-grams based on tf-idf
-#   #   all_top_tf_idf <- map(survey_df, get_all_top_n_grams, question_no_chr_list = question_no_chr_list, n_token = n_token, 
-#   #                         freq_type = freq_type, n_top = n_top)
-#   #   
-#   #   # generating all tf-idf wordclouds
-#   #   all_tf_idf_wordclouds <- map(survey_df, plot_all_wordclouds, question_no_chr_list = question_no_chr_list, n_token = n_token, 
-#   #                                freq_type = freq_type, n_top = n_top)
-#     
-#     # arguments <- data_frame(category = rep(category_list, each = length(question_no_chr_list)),
-#     #                         question_no_chr = rep(question_no_chr_list, times = length(category_list)))
-#     # 
-#     # pmap(arguments, save_wordclouds, freq_type = freq_type)
-#     
-#   }
-#   
-# 
-#   return(arguments)
-# }
-
-
-# # generating and saving all top n-gram wordclouds
-# save_all_wordclouds(tidy_survey_data, typed_question_list, 2, "tf", 15, "all")
-# save_all_wordclouds(strat_data, typed_question_list, 2, "tf-idf", 15, strat_list_names)
-
-
-# # creating function to save plots of stratified data using dynamic scaling of heights based on number of unique strat_ids per plot
-# save_tf_idf_plots <- function(category, question_no_chr) {
-# 
-#   strat_ids <- all_top_tf_idf[[category]][[question_no_chr]] %>%  # pulling out the list of strat_ids for each plot to properly scale the plot height
-#     pull(strat_id) %>% # compiling list of strat_ids
-#     unique() # finding only unique ids
-#   
-#   strat_id_no <- ceiling(length(strat_ids)) + ceiling(length(strat_ids)) %% 2 # counting the number of unique strat_ids for plot scaling
-#   
-#   ggsave(plot = all_wordcloud_tf_idf[[category]][[question_no_chr]], filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
-#          device = "png", width = 15, height = 0.25+(2*strat_id_no), dpi = 300) # specifying dimensions of plots found by trial and error
-#   
-# }
-# 
-# save_tf_idf_plots()
-
-# # testing save_tf_idf_plots
-# save_tf_idf_plots("college_school", "Q44")
-# save_tf_idf_plots("gender", "Q44")
-
-
-
-# # setting up mapping function to loop through all plots and question numbers of stratified data
-# save_all_tf_idf_plots <- function(category_list, question_no_chr_list) {
-#   
-#   arguments <- data_frame(category = rep(category_list, each = length(typed_question_list)),
-#                           question_no_chr = rep(question_no_chr_list, times = length(category_list)))
-#   
-#   pmap(arguments, save_tf_idf_plots)
-#   
-# }
-
-# # saving all of the plots to the appropriate folders
-# save_all_tf_idf_plots(names(strat_list), typed_question_list)
-
+# save_all_wordclouds("tf-idf", typed_question_list, strat_list_names)
 
 
 
 # sentiment analysis ------------------------------------------------------
 
-# deciding which classification system to use for sentiment analysis
-# afinn has best score distribution (ex: negative scores align well with negative opinions) and better range (-5 to 5) but fewer words in lexicon (2476 words)
-# bing has second best score distribution and significantly more words in lexicon (6788 words) but scores are either "pos" or "neg"
-get_sentiments("bing") %>% 
-  select(sentiment) %>% 
-  unique()
-get_sentiments("afinn") %>% 
-  select(score) %>% 
-  unique() %>% 
-  pull() %>% 
-  sort()
-
-
-
-# testing AFINN based scoring
-# basing code off of example from kaggle on text mining:
-# https://www.kaggle.com/ambarish/seinfeld-text-mining-wordembeddings-modelling
-top_30_sentiment <- typed_question_df %>% # calling df of typed question from survey data
-  mutate(response = str_replace_all(response, "_", " ")) %>% # removing all "_" left from tidying dataset
-  filter(question_no == "Q43") %>% # filtering to a specific questions
-  # filter(question == "What_aspects_of_your_UM_postdoctoral_fellow_have_not_been_positive?") %>% 
-  unnest_tokens(word, response) %>% # breaks apart responses into individual words
-  filter(!is.na(word)) %>% # removes any blank rows
-  inner_join(get_sentiments("afinn"), by = "word") %>% # adds AFINN scores to words from dataset if present in each
-  group_by(word) %>% # groups based on word
-  summarize(n = n(), # counts number of occurrences
-            cum_score = sum(score)) %>% # calculates (score * number of occurrences) of each word to find relative contribution to total score
-  mutate(percent_score = (cum_score / sum(cum_score)) * 100) %>%  # calculates percent of total score attributed to each word
-  arrange(desc(percent_score)) %>% # arranges words based on percent score (makes human readable but not preserved for plotting)
-  mutate(word = reorder(word, percent_score)) %>% # reorders the words for use in plotting
-  top_n(30, abs(cum_score)) # selects top number of words based on absolute score for contribution
-
-# plotting based on sentiment scores
-top_30_sentiment %>% 
-  ggplot(aes(word, percent_score, fill = percent_score > 0)) + # colors based on score
-  geom_col(show.legend = TRUE) + # makes bar plot
-  coord_flip() # turns plot on its side
-
-# NOTE: AFINN is score based so quantitative scores can be calculated/plotted, bing is classification based so is only binary pos or neg
-
-typed_question_df %>% 
-  mutate(response = str_replace_all(response, "_", " ")) %>% 
-  unnest_tokens(word, response) %>% 
-  filter(!is.na(word)) %>% 
-  inner_join(get_sentiments("nrc"), by = "word")
+# # deciding which classification system to use for sentiment analysis
+# # afinn has best score distribution (ex: negative scores align well with negative opinions) and better range (-5 to 5) but fewer words in lexicon (2476 words)
+# # bing has second best score distribution and significantly more words in lexicon (6788 words) but scores are either "pos" or "neg"
+# get_sentiments("bing") %>% 
+#   select(sentiment) %>% 
+#   unique()
+# get_sentiments("afinn") %>% 
+#   select(score) %>% 
+#   unique() %>% 
+#   pull() %>% 
+#   sort()
+# 
+# 
+# 
+# # testing AFINN based scoring
+# # basing code off of example from kaggle on text mining:
+# # https://www.kaggle.com/ambarish/seinfeld-text-mining-wordembeddings-modelling
+# top_30_sentiment <- typed_question_df %>% # calling df of typed question from survey data
+#   mutate(response = str_replace_all(response, "_", " ")) %>% # removing all "_" left from tidying dataset
+#   filter(question_no == "Q43") %>% # filtering to a specific questions
+#   # filter(question == "What_aspects_of_your_UM_postdoctoral_fellow_have_not_been_positive?") %>% 
+#   unnest_tokens(word, response) %>% # breaks apart responses into individual words
+#   filter(!is.na(word)) %>% # removes any blank rows
+#   inner_join(get_sentiments("afinn"), by = "word") %>% # adds AFINN scores to words from dataset if present in each
+#   group_by(word) %>% # groups based on word
+#   summarize(n = n(), # counts number of occurrences
+#             cum_score = sum(score)) %>% # calculates (score * number of occurrences) of each word to find relative contribution to total score
+#   mutate(percent_score = (cum_score / sum(cum_score)) * 100) %>%  # calculates percent of total score attributed to each word
+#   arrange(desc(percent_score)) %>% # arranges words based on percent score (makes human readable but not preserved for plotting)
+#   mutate(word = reorder(word, percent_score)) %>% # reorders the words for use in plotting
+#   top_n(30, abs(cum_score)) # selects top number of words based on absolute score for contribution
+# 
+# # plotting based on sentiment scores
+# top_30_sentiment %>% 
+#   ggplot(aes(word, percent_score, fill = percent_score > 0)) + # colors based on score
+#   geom_col(show.legend = TRUE) + # makes bar plot
+#   coord_flip() # turns plot on its side
+# 
+# # NOTE: AFINN is score based so quantitative scores can be calculated/plotted, bing is classification based so is only binary pos or neg
+# 
+# typed_question_df %>% 
+#   mutate(response = str_replace_all(response, "_", " ")) %>% 
+#   unnest_tokens(word, response) %>% 
+#   filter(!is.na(word)) %>% 
+#   inner_join(get_sentiments("nrc"), by = "word")
 
 
 
 # wordclouds --------------------------------------------------------------
 
-top_30_sentiment %>% 
-  wordcloud2(word, size = 0.5)
+# top_30_sentiment %>% 
+#   wordcloud2(word, size = 0.5)
 
 
 # notes -------------------------------------------------------------------
@@ -732,134 +578,5 @@ top_30_sentiment %>%
 # # cmd for removing weird NA responses if desired
 # filter(str_detect(response, regex(paste(paste0("\\b", c("n[/]a", "na"), "\\b"), collapse = "|"), ignore_case = TRUE)))
 
-
-
 # NOTE: need to change color scheme
 # NOTE: combine calc function and plot function then take out question col from calc function and only have in plot
-
-# # creating plotting function for looking at tf for each question/dataset
-# plot_tf <- function(tf_df) {
-#   
-#   tf_data <- tf_df %>% 
-#     top_n(20, tf) %>% # pulls out top 20 entries based on tf
-#     filter(tf != min(tf)) %>% # removing n-grams that have the smallest tf value for each group (prevents over-plotting)
-#     filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token 
-#     mutate(n_gram = reorder(n_gram, tf)) # ordering the data to be based on value for nicer looking plots
-#   
-#   response_no <- length(unique(tf_data$n_gram)) # calculating the number of unique responses for aspect ratio scaling
-#   
-#   aspect <- 0.2*response_no/7 # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
-#   
-#   tf_plot <- tf_data %>% 
-#     ggplot(aes(n_gram, tf)) + # setting the plotting conditions
-#     geom_col(show.legend = FALSE, fill = "red", color = "black") + # graph will be a bar chart without a legend
-#     labs(title = str_wrap(str_replace_all(unique(tf_data$question), "_", " "), width = 100),
-#          x = NULL, y = "tf") + # only need the tf value label (n-grams will be other labels)
-#     coord_flip(expand = FALSE) + # turns the plot sideways
-#     theme(plot.title = element_text(size = 10, hjust = 0.5), # sets size of chart title and centers over plot
-#           axis.line = element_line(size = 0.5, color = "black"), # formatting axis lines as desired
-#           axis.title = element_text(size = 10), # making all chart titles a consistent size
-#           axis.title.x = element_text(margin = margin(10,0,0,0)), # adding space between x axis title and axis labels
-#           axis.text = element_text(size = 8),
-#           plot.margin = margin(20,20,20,20), # giving plot a bit of padding on edges in case something is plotted out of bounds
-#           panel.background = element_rect(fill = "white"), # making panels have white background
-#           # formatting plots to have a consistent size
-#           aspect.ratio = aspect) # making size of bars compared to plot consistent
-#   
-#   grob_table <- ggplotGrob(tf_plot) # creates a gtable of plot features
-#   
-#   grob_table$widths[4] <- unit(6, "cm") # sets alignment of y axis in chart area thereby aligning all plots generated with this script (moves chart to the right)
-#   grob_table$widths[6] <- unit(6, "cm") # used for alignment (moves chart to the left)
-# 
-#   grobbed_plot <- as_ggplot(arrangeGrob(grob_table)) # recreating the plots with updated coordinates and saving as a ggplot item
-#   
-#   return(grobbed_plot)
-#   
-# }
-# 
-# # testing
-# map(test2, plot_tf)
-
-
-
-# # creating plotting function for looking at tf-idf of the various strat_id's
-# plot_tf_idf <- function(tf_idf_df) {
-#   
-#   tf_idf_plot <- tf_idf_df %>% 
-#     group_by(strat_id) %>% # grouping for calculations
-#     top_n(20, tf_idf) %>% # pulls out top 20 possible entries for each strat_id based on tf-idf
-#     filter(tf_idf != min(tf_idf)) %>% # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
-#     filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token 
-#     ungroup() %>% # ungroup for plotting
-#     mutate(n_gram = reorder(n_gram, tf_idf)) %>% # ordering the data to be based on value for nicer looking plots
-#     ggplot(aes(n_gram, tf_idf, fill = strat_id)) + # setting the plotting conditions
-#     geom_col(show.legend = FALSE) + # graph will be a bar chart without a legend
-#     labs(x = NULL, y = "tf-idf") + # only need the tf-idf value label (n-grams will be other labels)
-#     facet_wrap(~strat_id, ncol = 2, scales = "free") + # making individual plots for each strat_id
-#     coord_flip(expand = FALSE) # turns the plot sideways
-#   
-#   return(tf_idf_plot)
-#   
-# }
-
-
-
-# plot_wordcloud_tf <- function(tf_df) {
-#   
-#   tf_data <- tf_df %>% 
-#     top_n(20, tf) %>% # pulls out top 20 entries based on tf
-#     filter(tf != min(tf)) %>% # removing n-grams that have the smallest tf value for each group (prevents over-plotting)
-#     filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token 
-#     mutate(n_gram = reorder(n_gram, tf)) # ordering the data to be based on value for nicer looking plots
-#   
-#   tf_wordcloud <- tf_data %>%
-#     ggplot(aes(label = n_gram, size = tf)) +
-#     geom_text_wordcloud(eccentricity = 1, grid_size = 4, grid_margin = 3, fontface = "bold", family = "Times New Roman") +
-#     scale_size(range = c(5, 15)) +
-#     labs(title = "Test") +
-#     theme_minimal()
-#   
-#   return(tf_wordcloud)
-#   
-# }
-# 
-# plot_wordcloud_tf2(test2$Q43)
-# 
-# map(test2, plot_wordcloud_tf2)
-
-
-
-# calc_tf <- function(survey_df, n_token, question_no_chr) 
-# setting up mapping function to loop through all plots and question numbers of stratified data
-# save_all_strat_plots <- function(plot_list, question_no_chr_list, category) {
-#   arguments <- data_frame(plot_name = plot_list,
-#                           question_no_chr = question_no_chr_list)
-#   pmap(arguments, save_strat_plots, category = category)
-# }
-
-# test_function <- function(survey_df, n_token, question_no_chr_list) {
-#   arguments <- data_frame(survey_df = list(survey_df),
-#                           n_token = n_token,
-#                           question_no_chr = question_no_chr_list)
-#   data <- pmap(arguments, calc_tf) %>% 
-#     set_names(question_no_chr_list)
-#   return(data)
-# }
-# 
-# test2 <- test_function(example_data, 2, typed_question_list)
-# 
-# map(test2, plot_tf)
-
-# plot_wordcloud_tf_idf <- function(tf_idf_df) {
-#   
-#   tf_idf_data <- tf_idf_df %>% 
-#     group_by(strat_id) %>% # grouping for calculations
-#     top_n(20, tf_idf) %>% # pulls out top 20 possible entries for each strat_id based on tf-idf
-#     filter(tf_idf != min(tf_idf)) %>% # removing n-grams that have the smallest tf-idf value for each group (prevents over-plotting)
-#     filter(!str_detect(n_gram, "\\bNA\\b")) %>% # filtering out lines containing NA as a token 
-#     ungroup() %>% # ungroup for plotting
-#     mutate(n_gram = reorder(n_gram, tf_idf)) 
-#   
-# }
-
-
