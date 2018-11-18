@@ -3,8 +3,8 @@ title: "2018 Postdoc Survey"
 author: "Jay Vornhagen, Francois Beaufay, Ashley Kalinski, William L. Close"
 date: "9/22/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 
