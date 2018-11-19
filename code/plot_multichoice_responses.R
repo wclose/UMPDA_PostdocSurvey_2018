@@ -69,9 +69,10 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
     # NOTE: x and y commands are now swapped due to coord_flip rotating the axes
     theme(axis.line = element_line(size = 0.5, colour = "black"), # formatting axis lines as desired
-          axis.title = element_text(size = 10), # making all chart titles a consistent size
+          axis.title = element_text(size = 9), # making all chart titles a consistent size
           axis.title.x = element_text(margin = margin(10,0,0,0), size = 9, face = "bold"), # adding space between x axis title and axis labels
-          axis.text = element_text(size = 9))
+          axis.text = element_text(size = 9),
+          plot.tag = element_text(size = 12))
   
   ### adding in reference lines if desired ###
   # if the data is stratified and a reference df has been included
