@@ -58,9 +58,14 @@ library(ggwordcloud) # geom_text_wordcloud()
 # setting the seed for all functions in script (could put in original tidy script to have propagate through all scripts)
 my_seed <- 1
 
-# creating test dataset
-example_data <- strat_data$college_school %>% 
-  filter(question_no %in% typed_question_list)
+# # creating test dataset
+# example_data <- strat_data$college_school %>% 
+#   filter(question_no %in% typed_question_list)
+# 
+# example_data %>% 
+#   filter(question_no == "Q44") %>% 
+#   filter(str_detect(response, "i\\.e\\."))
+
 
 # creating custom stop_words df to filter out specific terms that may affect results
 my_stop_words <- stop_words %>%
@@ -78,7 +83,7 @@ my_stop_words <- stop_words %>%
 # need to compare questions that are inverse of each other
 # works similar to random forest modelling by finding words that are common but to only a subset of the collection of documents
 
-
+# test %>% filter(str_detect(n_gram, paste(c("\\b\\d+\\b", "\\d+th", "\\w\\.\\w"), collapse = "|"))) # removing numbers, dates, and n_grams with punctuation from list of n-grams
 
 # creating function to break responses into n-grams
 # survery_df = df containing survey responses; n_token = size of n-gram to use (ex: 2 = bigram)
@@ -97,7 +102,7 @@ get_n_gram <- function(survey_df, n_token) {
     n_gram_df <- data %>% 
       unnest_tokens(n_gram, response) %>% # breaking responses up into individual words
       filter(!n_gram %in% my_stop_words$word) %>% # filtering out stop words from tokens
-      filter(!str_detect(n_gram, "\\b\\d+\\b")) # removing numbers from list of n-grams
+      filter(!str_detect(n_gram, paste(c("\\b\\d+\\b", "\\d+th", "\\w\\.\\w"), collapse = "|"))) # removing numbers, dates, and n_grams with punctuation from list of n-grams
     
   # creating list of bigrams
   } else if (n_token == 2) {
@@ -107,7 +112,8 @@ get_n_gram <- function(survey_df, n_token) {
       separate(n_gram, c("word1", "word2"), sep = " ") %>% # separating bigrams into individual cols to filter out stop words
       filter(!word1 %in% my_stop_words$word) %>% # removing stop words from col1
       filter(!word2 %in% my_stop_words$word) %>% # removing stop words from col2
-      filter(!str_detect(word1, "\\b\\d+\\b") & !str_detect(word2, "\\b\\d+\\b")) %>% # removing numbers from list of n-grams
+      filter(!str_detect(word1, paste(c("\\b\\d+\\b", "\\d+th", "\\w\\.\\w"), collapse = "|")) & # removing numbers, dates, and n_grams with punctuation from list of n-grams
+               !str_detect(word2, paste(c("\\b\\d+\\b", "\\d+th", "\\w\\.\\w"), collapse = "|"))) %>% 
       unite(n_gram, word1, word2, sep = " ") # reuniting words to reform bigrams
   
   # creating list of trigrams
@@ -119,7 +125,9 @@ get_n_gram <- function(survey_df, n_token) {
       filter(!word1 %in% my_stop_words$word) %>% # removing stop words from col1
       filter(!word2 %in% my_stop_words$word) %>% # removing stop words from col2
       filter(!word3 %in% my_stop_words$word) %>% # removing stop words from col3
-      filter(!str_detect(word1, "\\b\\d+\\b") & !str_detect(word2, "\\b\\d+\\b") & !str_detect(word3, "\\b\\d+\\b")) %>% # removing numbers from list of n-grams
+      filter(!str_detect(word1, paste(c("\\b\\d+\\b", "\\d+th", "\\w\\.\\w"), collapse = "|")) & # removing numbers, dates, and n_grams with punctuation from list of n-grams
+               !str_detect(word2, paste(c("\\b\\d+\\b", "\\d+th", "\\w\\.\\w"), collapse = "|")) &
+               !str_detect(word3, paste(c("\\b\\d+\\b", "\\d+th", "\\w\\.\\w"), collapse = "|"))) %>% 
       unite(n_gram, word1, word2, word3, sep = " ") # reuniting words to reform bigrams
     
   # making message for debugging
@@ -328,13 +336,13 @@ get_all_top_n_grams <- function(survey_df, question_no_chr_list, n_token, freq_t
   
 }
 
-# generating all top n-grams based on tf
-all_top_tf <- get_all_top_n_grams(survey_df = tidy_survey_data, question_no_chr_list = typed_question_list,
-                                   n_token = 2, freq_type = "tf", n_top = 15)
-
-# generating all top n-grams based on tf-idf
-all_top_tf_idf <- map(strat_data, get_all_top_n_grams, question_no_chr_list = typed_question_list,
-                      n_token = 2, freq_type = "tf-idf", n_top = 15)
+# # generating all top n-grams based on tf
+# all_top_tf <- get_all_top_n_grams(survey_df = tidy_survey_data, question_no_chr_list = typed_question_list,
+#                                    n_token = 2, freq_type = "tf", n_top = 15)
+# 
+# # generating all top n-grams based on tf-idf
+# all_top_tf_idf <- map(strat_data, get_all_top_n_grams, question_no_chr_list = typed_question_list,
+#                       n_token = 2, freq_type = "tf-idf", n_top = 15)
 
 
 # # verifying output
@@ -362,16 +370,21 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
     
     # creating the wordcloud
     n_gram_wordcloud <- top_n_grams %>%
-      ggplot(aes(label = n_gram, size = tf_scale)) + # specifying data to be plotted
-      geom_text_wordcloud(color = "#00274c", # changing color of n-grams in plot
-                          eccentricity = 1, # roundness of the wordcloud
+      ggplot(aes(label = n_gram, size = tf_scale, color = tf_scale)) + # specifying data to be plotted
+      geom_text_wordcloud(eccentricity = 1, # roundness of the wordcloud
                           grid_size = 6, grid_margin = 2, # spacing between terms in cloud
-                          fontface = "bold", family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
-      scale_size(range = c(8*text_size_conv, 24*text_size_conv)) + # setting the lower and upper bounds of text point sizes
-      labs(title = paste(unique(top_n_grams$question_no), str_replace_all(unique(top_n_grams$question), "_", " "), sep = ". ")) + # adding the question text as the plot title
+                          family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
+      scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
+      scale_size(range = c(8*text_size_conv, 18*text_size_conv)) + # setting the lower and upper bounds of text point sizes
+      labs(tag = unique(top_n_grams$question_no),
+           title = str_replace_all(unique(top_n_grams$question), "_", " ")) + # adding the question text as the plot title
       theme_minimal() + # getting rid of all theme background
-      theme(plot.title = element_text(hjust = 0.5, size = 10),  # centers the plot title and alters font size
-            strip.background = element_rect(fill = NULL, color = "black", size = 1))
+      theme(plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),  # centers the plot title and alters font size
+            strip.background = element_rect(fill = NULL, color = "white"),
+            strip.text = element_text(size = 9, face = "bold"),
+            axis.title = element_text(size = 9),
+            plot.tag = element_text(size = 12),
+            panel.spacing = unit(2, "lines"))
     
   } else if (freq_type == "tf-idf") {
     
@@ -380,17 +393,22 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
     
     # creating the wordcloud
     n_gram_wordcloud <- top_n_grams %>%
-      ggplot(aes(label = n_gram, size = tf_idf_scale)) + # specifying data to be plotted
-      geom_text_wordcloud(color = "#00274c", # changing color of n-grams in plot
-                          eccentricity = 1, # roundness of the wordcloud
+      ggplot(aes(label = n_gram, size = tf_idf_scale, color = tf_idf_scale)) + # specifying data to be plotted
+      geom_text_wordcloud(eccentricity = 1, # roundness of the wordcloud
                           grid_size = 6, grid_margin = 2, # spacing between terms in cloud
-                          fontface = "bold", family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
-      scale_size(range = c(8*text_size_conv, 24*text_size_conv)) + # setting the lower and upper bounds of text point sizes
-      labs(title = paste(unique(top_n_grams$question_no), str_replace_all(unique(top_n_grams$question), "_", " "), sep = ". ")) + # adding the question text as the plot title
+                          family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
+      scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
+      scale_size(range = c(8*text_size_conv, 18*text_size_conv)) + # setting the lower and upper bounds of text point sizes
+      labs(tag = unique(top_n_grams$question_no),
+           title = str_replace_all(unique(top_n_grams$question), "_", " ")) + # adding the question text as the plot title
       facet_wrap(~str_replace_all(strat_id, "_", " "), ncol = 2, scales = "free") + # making individual plots for each strat_id
       theme_minimal() + # getting rid of all theme background
-      theme(plot.title = element_text(hjust = 0.5, size = 10),  # centers the plot title and alters font size
-            strip.background = element_rect(fill = NULL, color = "black", size = 1))
+      theme(plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),  # centers the plot title and alters font size
+            strip.background = element_rect(fill = NULL, color = "white"),
+            strip.text = element_text(size = 9, face = "bold"),
+            axis.title = element_text(size = 9),
+            plot.tag = element_text(size = 12),
+            panel.spacing = unit(2, "lines"))
     
   }
   
@@ -399,8 +417,33 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
   
 }
 
-# # testing plot_top_wordcloud() function
+plot_top_wordcloud(strat_data$college_school, "Q44", 2, freq_type = "tf", n_top = 15)
+
+plot_top_wordcloud(strat_data$college_school, "Q44", 2, freq_type = "tf-idf", n_top = 15)
+
+
+
+# ### shared formatting elements of the facets/strips (facet labels) ###
+# # needs be added after faceting and different questions require different faceting strategies
+# shared_theme <- theme(plot.margin = margin(20,40,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
+#                       panel.background = element_rect(fill = "white"), # making panels have white background
+#                       panel.spacing = unit(1, "lines"), # increasing spacing between panels
+#                       panel.spacing.x = unit(2.5, "lines"), # adding a bit more horizontal space between panels
+#                       strip.text = element_text(size = 9, face = "bold"), # setting strip labels to same size as other plot labels
+#                       strip.text.y = element_text(angle = 180, margin = margin(0,10,0,10)), # formatting and positioning new y labels
+#                       strip.text.x = element_text(margin = margin(15,0,15,0)),
+#                       strip.background = element_rect(fill = "white", color = NA), # formatting strip col labels
+#                       strip.placement = "outside") # moving strip row labels outside y axis labels to make them the new y labels
+# 
+# # # testing plot_top_wordcloud() function
 # plot_top_wordcloud(example_data, "Q44", n_token = 2, freq_type = "tf-idf", n_top = 15)
+
+
+
+
+
+
+
 
 
 
@@ -446,7 +489,7 @@ all_tf_idf_wordclouds <- map(strat_data, plot_all_wordclouds, question_no_chr_li
 # all_tf_wordclouds$Q44
 # all_tf_idf_wordclouds$college_school$Q45
 
-all_tf_wordclouds$Q29
+
 
 # creating function to save plots of stratified data using dynamic scaling of heights based on number of unique strat_ids per plot
 save_wordclouds <- function(freq_type, question_no_chr, category = NULL) {
@@ -514,6 +557,13 @@ save_all_wordclouds <- function(freq_type, question_no_chr_list, category_list) 
 
 # saving all tf-idf wordclouds
 # save_all_wordclouds("tf-idf", typed_question_list, strat_list_names)
+
+
+# all_tf_idf_wordclouds$college_school$Q23
+
+
+
+
 
 
 
