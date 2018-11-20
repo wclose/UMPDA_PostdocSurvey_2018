@@ -138,7 +138,8 @@ plot_us_degree_freq <- function(df) {
     labs(title = "Locations of U.S. Ph.D. Granting Institutions for University of Michigan Postdocs",
          fill = "Respondents (%)") +
     coord_map() + # gives map proper dimensions
-    theme(axis.title = element_blank(),
+    theme(plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),
+          axis.title = element_blank(),
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           panel.grid = element_blank(),
@@ -167,7 +168,8 @@ plot_world_degree_freq <- function(df) {
     labs(title = "Locations of Ph.D. Granting Institutions for University of Michigan Postdocs", # setting chart labels
          fill = "Respondents (%)") +
     coord_proj(proj = "+proj=wintri") + # correcting for Earth curvature using Winkel tripel projection
-    theme(axis.title = element_blank(),
+    theme(plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),
+          axis.title = element_blank(),
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           panel.grid = element_blank(),
