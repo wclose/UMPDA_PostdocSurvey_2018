@@ -336,13 +336,13 @@ get_all_top_n_grams <- function(survey_df, question_no_chr_list, n_token, freq_t
   
 }
 
-# # generating all top n-grams based on tf
-# all_top_tf <- get_all_top_n_grams(survey_df = tidy_survey_data, question_no_chr_list = typed_question_list,
-#                                    n_token = 2, freq_type = "tf", n_top = 15)
-# 
-# # generating all top n-grams based on tf-idf
-# all_top_tf_idf <- map(strat_data, get_all_top_n_grams, question_no_chr_list = typed_question_list,
-#                       n_token = 2, freq_type = "tf-idf", n_top = 15)
+# generating all top n-grams based on tf
+all_top_tf <- get_all_top_n_grams(survey_df = tidy_survey_data, question_no_chr_list = typed_question_list,
+                                   n_token = 2, freq_type = "tf", n_top = 15)
+
+# generating all top n-grams based on tf-idf
+all_top_tf_idf <- map(strat_data, get_all_top_n_grams, question_no_chr_list = typed_question_list,
+                      n_token = 2, freq_type = "tf-idf", n_top = 15)
 
 
 # # verifying output
@@ -371,10 +371,11 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
     # creating the wordcloud
     n_gram_wordcloud <- top_n_grams %>%
       ggplot(aes(label = n_gram, size = tf_scale, color = tf_scale)) + # specifying data to be plotted
-      geom_text_wordcloud(eccentricity = 1, # roundness of the wordcloud
+      geom_text_wordcloud(eccentricity = 2, # roundness of the wordcloud
                           grid_size = 6, grid_margin = 2, # spacing between terms in cloud
                           family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
-      scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
+      scale_color_viridis_c(begin = 0, end = 0.7, option = "E") +
+      # scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
       scale_size(range = c(8*text_size_conv, 18*text_size_conv)) + # setting the lower and upper bounds of text point sizes
       labs(tag = unique(top_n_grams$question_no),
            title = str_replace_all(unique(top_n_grams$question), "_", " ")) + # adding the question text as the plot title
@@ -383,8 +384,13 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
             strip.background = element_rect(fill = NULL, color = "white"),
             strip.text = element_text(size = 9, face = "bold"),
             axis.title = element_text(size = 9),
-            plot.tag = element_text(size = 12),
-            panel.spacing = unit(2, "lines"))
+            plot.tag = element_text(size = 12))
+    
+    grob_plot <- ggplotGrob(n_gram_wordcloud)
+    
+    grob_plot$heights[4] <- unit(-0.25, "cm")
+    
+    n_gram_wordcloud <- as_ggplot(arrangeGrob(grob_plot))
     
   } else if (freq_type == "tf-idf") {
     
@@ -396,8 +402,10 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
       ggplot(aes(label = n_gram, size = tf_idf_scale, color = tf_idf_scale)) + # specifying data to be plotted
       geom_text_wordcloud(eccentricity = 1, # roundness of the wordcloud
                           grid_size = 6, grid_margin = 2, # spacing between terms in cloud
+                          # fontface = "bold",
                           family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
-      scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
+      scale_color_viridis_c(begin = 0, end = 0.7, option = "E") +
+      # scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
       scale_size(range = c(8*text_size_conv, 18*text_size_conv)) + # setting the lower and upper bounds of text point sizes
       labs(tag = unique(top_n_grams$question_no),
            title = str_replace_all(unique(top_n_grams$question), "_", " ")) + # adding the question text as the plot title
@@ -417,9 +425,9 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
   
 }
 
-plot_top_wordcloud(strat_data$college_school, "Q44", 2, freq_type = "tf", n_top = 15)
+# plot_top_wordcloud(strat_data$residency, "Q44", 2, freq_type = "tf", n_top = 15)
 
-plot_top_wordcloud(strat_data$college_school, "Q44", 2, freq_type = "tf-idf", n_top = 15)
+# plot_top_wordcloud(strat_data$college_school, "Q44", 2, freq_type = "tf-idf", n_top = 15)
 
 
 
@@ -500,7 +508,7 @@ save_wordclouds <- function(freq_type, question_no_chr, category = NULL) {
     print("Saving tf wordclouds.")
     
     ggsave(plot = all_tf_wordclouds[[question_no_chr]], filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
-           device = "png", width = 15, height = 4.25, dpi = 300) # specifying dimensions of plots found by trial and error
+           device = "png", width = 15, height = 2.75, dpi = 300) # specifying dimensions of plots found by trial and error
     
   } else if (freq_type == "tf-idf") {
     
@@ -514,7 +522,7 @@ save_wordclouds <- function(freq_type, question_no_chr, category = NULL) {
     strat_id_no <- ceiling(length(strat_ids)) + ceiling(length(strat_ids)) %% 2 # counting the number of unique strat_ids for plot scaling
     
     ggsave(plot = all_tf_idf_wordclouds[[category]][[question_no_chr]], filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
-           device = "png", width = 15, height = 0.25+(2*strat_id_no), dpi = 300) # specifying dimensions of plots found by trial and error
+           device = "png", width = 15, height = 0.75+(1.25*strat_id_no), dpi = 300) # specifying dimensions of plots found by trial and error
     
   }
   
@@ -523,6 +531,8 @@ save_wordclouds <- function(freq_type, question_no_chr, category = NULL) {
 # # testing save_wordclouds
 # save_wordclouds("tf", "all", "Q44")
 # save_wordclouds("tf-idf", "Q44", category = "gender")
+# save_wordclouds("tf-idf", "Q44", category = "college_school")
+# save_wordclouds("tf", "Q44", category = "all")
 
 
 
@@ -553,10 +563,10 @@ save_all_wordclouds <- function(freq_type, question_no_chr_list, category_list) 
 # save_all_wordclouds("tf-idf", typed_question_list, "gender")
 
 # saving all tf wordclouds
-# save_all_wordclouds("tf", typed_question_list, "all")
+save_all_wordclouds("tf", typed_question_list, "all")
 
 # saving all tf-idf wordclouds
-# save_all_wordclouds("tf-idf", typed_question_list, strat_list_names)
+save_all_wordclouds("tf-idf", typed_question_list, strat_list_names)
 
 
 # all_tf_idf_wordclouds$college_school$Q23
