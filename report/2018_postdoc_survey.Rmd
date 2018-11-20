@@ -7,6 +7,7 @@ output:
   html_document: default
 ---
 
+\pagebreak
 
 ```{r libraries, message = FALSE}
 library(tidyverse)
@@ -23,7 +24,9 @@ knitr::opts_chunk$set(echo = TRUE)
 #source("code/make_response_plots.R")
 ```
 
-## Section 1. The entire University of Michigan postdoc population
+\pagebreak
+
+## Section 1. The entire University of Michigan postdoc population.
 
 #### Population
 
@@ -35,7 +38,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### Threats
 
-## Section 2. Postdocs broken down by school/college
+\pagebreak
+
+## Section 2. Postdocs broken down by school/college.
 
 #### Population
 
@@ -47,7 +52,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### Threats
 
-## Section 3. Postdocs broken down by domestic vs. international
+\pagebreak
+
+## Section 3. Postdocs broken down by domestic vs. international.
 
 #### Population
 
@@ -59,7 +66,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### Threats
 
-## Section 4. Postdocs broken down by English as a first language (EFL) vs. English as an acquired language (EAL)
+\pagebreak
+
+## Section 4. Postdocs broken down by dependents vs. no dependents.
 
 #### Population
 
@@ -71,7 +80,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### Threats
 
-## Section 5. Postdocs broken down by dependents vs. no dependents
+\pagebreak
+
+## Section 5. Postdocs broken down by relationship status.
 
 #### Population
 
@@ -83,7 +94,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### Threats
 
-## Section 6. Postdocs broken down by relationship status
+\pagebreak
+
+## Section 6. Postdocs broken down by gender.
 
 #### Population
 
@@ -95,7 +108,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### Threats
 
-## Section 7. Postdocs broken down by gender
+\pagebreak
+
+## Section 7. Postdocs broken down by population representation.
 
 #### Population
 
@@ -107,7 +122,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### Threats
 
-## Section 8. Postdocs broken down by population representation
+\pagebreak
+
+## Section 8. Postdocs broken down by career track.
 
 #### Population
 
@@ -119,7 +136,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### Threats
 
-## Section 9. Postdocs broken down by career track
+\pagebreak
+
+## Section 9. Postdocs broken down by number of postdoc positions.
 
 #### Population
 
@@ -131,7 +150,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### Threats
 
-## Section 10. Postdocs broken down by number of postdoc positions
+\pagebreak
+
+## Section 10. Postdocs broken down by postdoc satisifaction.
 
 #### Population
 
@@ -143,115 +164,207 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### Threats
 
-## Section 11. Postdocs broken down by postdoc satisifaction
+\pagebreak
 
-#### Population
+## Section 11. Summary
 
-#### Strengths
+\pagebreak
 
-#### Weaknesses
+<center>
 
-#### Opportunities
+<h1>
 
-#### Threats
+#Appendices
 
-## Section 12. Summary
+</h1>
 
+</center>
 
+\pagebreak
 
-## Section 1. Appendix A. UMPDA question results.
+## Appendix A. UMPDA question results.
+
+```{r world_location, echo=FALSE}
+# adding in location figures
+# myimages <- paste0("../", list.files("results/location/", pattern = ".png", full.names = TRUE))
+
+knitr::include_graphics("../results/location/world_degree_map.png")
+```
+
+<br>
+<br>
+<br>
 
 ```{r us_location, echo=FALSE}
-# knitr::include_graphics(paste0("../", "results/"))
-# knitr::include_graphics(paste0("../", "results/us_degree_locations.png"))
-
-myimages <- paste0("../", list.files("results/location/", pattern = ".png", full.names = TRUE))
-knitr::include_graphics(myimages)
+# adding in location figures
+knitr::include_graphics("../results/location/us_degree_map.png")
 ```
+
+\pagebreak
 
 ```{r survey_all, echo=FALSE, fig.width=20, fig.asp=1}
 # loading in figures for section
-myimages <- paste0("../", list.files("results/all/", pattern = ".png", full.names = TRUE))
-knitr::include_graphics(myimages)
+figures <- paste0("../", list.files("results/all/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>% 
+  as.numeric() %>% 
+  sort()
+
+figures_sorted <- paste0("../results/", "all", "/", paste0("all", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
 ```
 
-## Section 2. Appendix A. UMPDA question results.
+\pagebreak
+
+## Appendix B. Postdocs broken down by school/college.
 
 ```{r survey_college, echo=FALSE, fig.width=20, fig.asp=1}
 # loading in figures for section
-myimages <- paste0("../", list.files("results/college_school/", pattern = ".png", full.names = TRUE))
-knitr::include_graphics(myimages)
+figures <- paste0("../", list.files("results/college_school/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>% 
+  as.numeric() %>% 
+  sort()
+
+figures_sorted <- paste0("../results/", "college_school", "/", paste0("college_school", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
 ```
 
-## Section 3. Appendix A. UMPDA question results.
+\pagebreak
+
+## Appendix C. Postdocs broken down by domestic vs. international.
 
 ```{r survey_residency, echo=FALSE, fig.width=20, fig.asp=1}
 # loading in figures for section
-myimages <- paste0("../", list.files("results/residency/", pattern = ".png", full.names = TRUE))
-knitr::include_graphics(myimages)
+figures <- paste0("../", list.files("results/residency/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>% 
+  as.numeric() %>% 
+  sort()
+
+figures_sorted <- paste0("../results/", "residency", "/", paste0("residency", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
 ```
 
-## Section 4. Appendix A. UMPDA question results.
+\pagebreak
 
-```{r survey_language, echo=FALSE, fig.width=20, fig.asp=1}
-# loading in figures for section
-myimages <- paste0("../", list.files("results/language/", pattern = ".png", full.names = TRUE))
-knitr::include_graphics(myimages)
-```
-
-## Section 5. Appendix A. UMPDA question results.
+## Appendix D. Postdocs broken down by dependents vs. no dependents.
 
 ```{r survey_dependents, echo=FALSE, fig.width=20, fig.asp=1}
 # loading in figures for section
-myimages <- paste0("../", list.files("results/dependents/", pattern = ".png", full.names = TRUE))
-knitr::include_graphics(myimages)
+figures <- paste0("../", list.files("results/dependents/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>% 
+  as.numeric() %>% 
+  sort()
+
+figures_sorted <- paste0("../results/", "dependents", "/", paste0("dependents", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
 ```
 
-## Section 6. Appendix A. UMPDA question results.
+\pagebreak
+
+## Appendix E. Postdocs broken down by relationship status.
 
 ```{r survey_relationship, echo=FALSE, fig.width=20, fig.asp=1}
 # loading in figures for section
-myimages <- paste0("../", list.files("results/relationship_status/", pattern = ".png", full.names = TRUE))
-knitr::include_graphics(myimages)
+figures <- paste0("../", list.files("results/relationship_status/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>% 
+  as.numeric() %>% 
+  sort()
+
+figures_sorted <- paste0("../results/", "relationship_status", "/", paste0("relationship_status", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
 ```
 
-## Section 7. Appendix A. UMPDA question results.
+\pagebreak
+
+## Appendix F. Postdocs broken down by gender.
 
 ```{r survey_gender, echo=FALSE, fig.width=20, fig.asp=1}
 # loading in figures for section
-myimages <- paste0("../", list.files("results/gender/", pattern = ".png", full.names = TRUE))
-knitr::include_graphics(myimages)
+figures <- paste0("../", list.files("results/gender/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>% 
+  as.numeric() %>% 
+  sort()
+
+figures_sorted <- paste0("../results/", "gender", "/", paste0("gender", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
 ```
 
-## Section 8. Appendix A. UMPDA question results.
+\pagebreak
+
+## Appendix G. Postdocs broken down by population representation.
 
 ```{r survey_representation, echo=FALSE, fig.width=20, fig.asp=1}
 # loading in figures for section
-myimages <- paste0("../", list.files("results/pop_representation/", pattern = ".png", full.names = TRUE))
-knitr::include_graphics(myimages)
+figures <- paste0("../", list.files("results/pop_representation/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>% 
+  as.numeric() %>% 
+  sort()
+
+figures_sorted <- paste0("../results/", "pop_representation", "/", paste0("pop_representation", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
 ```
 
-## Section 9. Appendix A. UMPDA question results.
+\pagebreak
+
+## Appendix H. Postdocs broken down by career track.
 
 ```{r survey_career, echo=FALSE, fig.width=20, fig.asp=1}
 # loading in figures for section
-myimages <- paste0("../", list.files("results/career_track/", pattern = ".png", full.names = TRUE))
-knitr::include_graphics(myimages)
+figures <- paste0("../", list.files("results/career_track/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>% 
+  as.numeric() %>% 
+  sort()
+
+figures_sorted <- paste0("../results/", "career_track", "/", paste0("career_track", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
 ```
 
-## Section 10. Appendix A. UMPDA question results.
+\pagebreak
+
+## Appendix I. Postdocs broken down by number of postdoc positions.
 
 ```{r survey_postdoc_no, echo=FALSE, fig.width=20, fig.asp=1}
 # loading in figures for section
-myimages <- paste0("../", list.files("results/postdoc_no/", pattern = ".png", full.names = TRUE))
-knitr::include_graphics(myimages)
+figures <- paste0("../", list.files("results/postdoc_no/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>% 
+  as.numeric() %>% 
+  sort()
+
+figures_sorted <- paste0("../results/", "postdoc_no", "/", paste0("postdoc_no", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
 ```
 
-## Section 11. Appendix A. UMPDA question results.
+\pagebreak
+
+## Appendix J. Postdocs broken down by postdoc satisifaction.
 
 ```{r survey_satisfaction, echo=FALSE, fig.width=20, fig.asp=1}
 # loading in figures for section
-myimages <- paste0("../", list.files("results/satisfaction/", pattern = ".png", full.names = TRUE))
-knitr::include_graphics(myimages)
+figures <- paste0("../", list.files("results/satisfaction/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>% 
+  as.numeric() %>% 
+  sort()
+
+figures_sorted <- paste0("../results/", "satisfaction", "/", paste0("satisfaction", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
 ```
 
