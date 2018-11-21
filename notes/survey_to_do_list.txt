@@ -1,17 +1,28 @@
 2018-10-29
-- Find what happened to non-binary responses in text analysis
-	- Also verify inclusion in other plots
-- Add lines to stratified multichoice question plots representing relative percentages from unstratified data
-- Fix plotting of multichoice questions
-	- Some need to be plotted differently (aka not as bar charts)
-	- Fix text wrapping/cut off in plot titles
-- Add question numbers to all plot titles
-- Play around with wordcloud plot features (font size, bold, etc.)
+x Find what happened to non-binary responses in text analysis
+	x Also verify inclusion in other plots
+	x Update: only had one repsonder classified as non-binary but they didn't answer some of the questions so their inclusion as a category is sporadic throughout the gender section
+x Add lines to stratified multichoice question plots representing relative percentages from unstratified data
+x Fix plotting of multichoice questions
+	x Some need to be plotted differently (aka not as bar charts)
+	x Fix text wrapping/cut off in plot titles
+x Add question numbers to all plot titles
+x Play around with wordcloud plot features (font size, bold, etc.)
+	x Font, font size, strip label sizes, etc.
+	x Try to match up with multichoice plots
 
 
-- 6, 26, 24
-- academic - teaching, academic - research to academic (teaching), academic (research)
-- in question text, replace "," with ", "
-- wrap response text
-- reorganize so it's "agree", "neutral", "disagree" and "yes", "no"
-- split q22 responses then retally
+x 6 (schools), 26 (text), 24, 28 (wrap response)
+x in question text, replace "," with ", "
+x wrap response text
+x split q22 responses then retally
+x port updates from strat plot function to unstrat plot function
+	x combined the functions together
+
+2018-11-20
+- Academic - teaching, academic - research to academic (teaching), academic (research)
+- Reorganize so it's "agree", "neutral", "disagree" and "yes", "no"
+- Change question numbers so they go from 1 through n without missing any
+	- Need to be careful because some question numbers are hard coded so it could break scripts
+- Add question number tag to location plots
+- Go back through and clean up scripts where necessary
