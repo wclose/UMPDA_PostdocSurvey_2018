@@ -133,7 +133,7 @@ plot_us_degree_freq <- function(df) {
     geom_map(aes(fill = percent_freq), map = fifty_states, color = "black", size = 0.25) + # plots the map using fifty_states for coordinates
     fifty_states_inset_boxes() + # package function to add boxes around insets for AK and HI
     expand_limits(x = fifty_states$long, y = fifty_states$lat) +
-    scale_fill_viridis(option = "cividis", na.value = "white", guide = guide_colorbar(ticks = FALSE, frame.colour = "black"),
+    scale_fill_viridis(na.value = "white", guide = guide_colorbar(ticks = FALSE, frame.colour = "black"),
                        limits = c(0,10), breaks = c(0, 5, 10), labels = c(0, 5, 10)) + # making NA values = white and scaling using cividis palette from viridis pkg
     labs(title = "Locations of U.S. Ph.D. Granting Institutions for University of Michigan Postdocs",
          fill = "Respondents (%)") +
@@ -163,7 +163,7 @@ plot_world_degree_freq <- function(df) {
     ggplot(aes(map_id = region)) + # map_id is required aes for geom_map
     geom_map(aes(fill = percent_freq), map = world_map, colour = "black", size = 0.25) + # plots the world map
     expand_limits(x = c(-179,179), y = c(-75,89)) + # expands plot limits to encompass data, x = longitude, y = latitude
-    scale_fill_viridis(option = "cividis", na.value = "white", guide = guide_colorbar(ticks = FALSE, frame.colour = "black"),
+    scale_fill_viridis(na.value = "white", guide = guide_colorbar(ticks = FALSE, frame.colour = "black"),
                        limits = c(0,40), breaks = c(0, 20, 40), labels = c(0, 20, 40)) + # making NA values = white and scaling using cividis palette from viridis pkg
     labs(title = "Locations of Ph.D. Granting Institutions for University of Michigan Postdocs", # setting chart labels
          fill = "Respondents (%)") +
@@ -190,7 +190,7 @@ us_degree_freq <- calc_degree_freq("state", tidy_survey_data)
 us_degree_map <- plot_us_degree_freq(us_degree_freq)
 
 # saving us degree freq map
-ggsave(filename = "results/us_degree_map.png", plot = us_degree_map, width = 20, dpi = 300)
+ggsave(filename = "results/location/us_degree_map.png", plot = us_degree_map, width = 15, dpi = 300)
 
 
 
@@ -203,7 +203,7 @@ world_degree_freq <- calc_degree_freq("world", tidy_survey_data)
 world_degree_map <- plot_world_degree_freq(world_degree_freq)
 
 # saving world degree freq map
-ggsave(filename = "results/world_degree_map.png", plot = world_degree_map, width = 20, height = 10, dpi = 300)
+ggsave(filename = "results/location/world_degree_map.png", plot = world_degree_map, width = 15, height = 10, dpi = 300)
 
 
 
