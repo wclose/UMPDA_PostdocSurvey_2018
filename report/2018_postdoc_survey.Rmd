@@ -1,7 +1,7 @@
 ---
 title: "2018 Postdoc Survey"
 author: "Jay Vornhagen, Francois Beaufay, Ashley Kalinski, William L. Close"
-date: "9/22/2018"
+date: "2018-11-20"
 output:
   pdf_document: default
   html_document: default
@@ -9,7 +9,7 @@ output:
 
 \pagebreak
 
-```{r libraries, message = FALSE}
+```{r libraries, message = FALSE, include=FALSE}
 library(tidyverse)
 library(knitr)
 ```
@@ -23,8 +23,6 @@ knitr::opts_chunk$set(echo = TRUE)
 # reading in data and making plots
 #source("code/make_response_plots.R")
 ```
-
-\pagebreak
 
 ## Section 1. The entire University of Michigan postdoc population.
 
@@ -170,19 +168,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 \pagebreak
 
-<center>
+&nbsp;
 
-<h1>
+&nbsp;
 
-#Appendices
+\centering
 
-</h1>
-
-</center>
+# Appendices
 
 \pagebreak
 
-## Appendix A. UMPDA question results.
+## Appendix A. The entire University of Michigan postdoc population.
 
 ```{r world_location, echo=FALSE}
 # adding in location figures
@@ -191,9 +187,7 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::include_graphics("../results/location/world_degree_map.png")
 ```
 
-<br>
-<br>
-<br>
+&nbsp;
 
 ```{r us_location, echo=FALSE}
 # adding in location figures
