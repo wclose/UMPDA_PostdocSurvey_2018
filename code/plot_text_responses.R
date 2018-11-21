@@ -48,7 +48,9 @@ source("code/stratify_data.R")
 
 library(tidytext) # text manipulation, used for tokenization and stop words
 library(ggwordcloud) # geom_text_wordcloud()
-
+library(grid) # required for table grobbing of response plots
+library(gridExtra) # used to align response plot coordinates
+library(ggpubr) # required to save gtable plots as ggplot items
 
 
 # text analysis -----------------------------------------------------------
@@ -66,6 +68,7 @@ my_seed <- 1
 #   filter(question_no == "Q44") %>% 
 #   filter(str_detect(response, "i\\.e\\."))
 
+typed_question_list <- typed_question_list[-1:-2] # removing location 
 
 # creating custom stop_words df to filter out specific terms that may affect results
 my_stop_words <- stop_words %>%
@@ -374,7 +377,7 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
       geom_text_wordcloud(eccentricity = 2, # roundness of the wordcloud
                           grid_size = 6, grid_margin = 2, # spacing between terms in cloud
                           family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
-      scale_color_viridis_c(begin = 0, end = 0.7, option = "E") +
+      scale_color_viridis_c(begin = 0, end = 0.75) +
       # scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
       scale_size(range = c(8*text_size_conv, 18*text_size_conv)) + # setting the lower and upper bounds of text point sizes
       labs(tag = unique(top_n_grams$question_no),
@@ -404,7 +407,7 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
                           grid_size = 6, grid_margin = 2, # spacing between terms in cloud
                           # fontface = "bold",
                           family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
-      scale_color_viridis_c(begin = 0, end = 0.7, option = "E") +
+      scale_color_viridis_c(begin = 0, end = 0.75) +
       # scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
       scale_size(range = c(8*text_size_conv, 18*text_size_conv)) + # setting the lower and upper bounds of text point sizes
       labs(tag = unique(top_n_grams$question_no),
