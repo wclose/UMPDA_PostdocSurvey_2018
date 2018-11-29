@@ -31,6 +31,14 @@ tidy_survey_data <- survey_data %>%
   mutate(response = ifelse(question_no == "Q22", str_split(response, ","), response)) %>% # splits concatenated answers for Q22 into a list of strings
   unnest(response) # breaks col of lists into separate rows (does not affect other answers)
 
+# creating df of all survey data minus specific location data (will be plotted elsewhere/differently)
+question_data <- tidy_survey_data %>% 
+  filter(question_no != "Q10" & question_no != "Q11")
+
+# creating separate dataframe for plotting degree location maps (will require different methods than the rest of the data)
+location_data <- tidy_survey_data %>% 
+  filter(question_no == "Q10" | question_no == "Q11")
+
 
 
 # creating question lists -------------------------------------------------
@@ -52,3 +60,11 @@ multi_choice_question_list <- setdiff(question_list, typed_question_list)
 # split location questions into separate df
 # will make it easier to renumber other questions and still use map functions (location question numbers won't change)
 # also change responses to be international vs domestic for Q10 vs Q11 (or make new question with domestic vs international vs na)
+# Need to take data from Q10/Q11 and combine into a single question -> Q10.5
+# Are you a U.S. citizen? Yes/No based on responses to Q10/11 (can look at format from stratify script)
+# USE Q9
+
+# tidy_survey_data %>%
+#   filter(question == "Are_you_a_U.S._citizen?")
+
+
