@@ -22,13 +22,13 @@ source("code/tidy_survey.R")
 
 # stratifying data based on responses
 # NOTE: need to find way to streamline process instead of hard coding everything (also need to clean up code in places)
-classified_survey_data <- tidy_survey_data %>% 
+classified_survey_data <- question_data %>% 
   mutate(stratifications = case_when(question_no == "Q6" & response == "Medicine" ~ "UMMS", # school of medicine
                                      question_no == "Q6" & response == "Literature,Science,and_the_Arts" ~ "LSA", # lit, science, and arts
                                      question_no == "Q6" & response == "Engineering" ~ "ENG", # engineering
                                      question_no == "Q6" & !is.na(response) & response != "Prefer_not_to_answer" ~ "Other", # classifying other schools as "Other"
-                                     question_no == "Q10" & !is.na(response) ~ "Domestic", # anything other than NA = citizen
-                                     question_no == "Q11" & !is.na(response) ~ "International", # anything other NA = non-citizen
+                                     question_no == "Q9" & response == "Yes" ~ "Domestic", # anything other than NA = citizen
+                                     question_no == "Q9" & response == "No" ~ "International", # anything other NA = non-citizen
                                      question_no == "Q12" & response == "Yes" ~ "EFL",
                                      question_no == "Q12" & !is.na(response) & response != "Prefer_not_to_answer" ~ "EAL",
                                      question_no == "Q17" & response == "Yes" ~ "Dependents",
@@ -60,6 +60,7 @@ classified_survey_data <- tidy_survey_data %>%
 # creating the function to separate the data into different data frames based on stratification categories
 # pulls data one strat category (ex: "UMMS") at a time, need to use map_df to join data from all strat categories for a given strat_id (ex: "college_school")
 make_stratified_data <- function(strat_col_value) {
+  
   resp_id_list <- classified_survey_data %>% 
     filter(stratifications == strat_col_value) %>% # filters rows to contain only data for specified stratification category
     pull(response_id) # extracts all response_ids from col as chr vector
@@ -69,37 +70,38 @@ make_stratified_data <- function(strat_col_value) {
     pull(question_no) %>% # extracts question number used to stratify category
     unique() # narrows down to a single chr string question number
   
-  stratified_data <- tidy_survey_data %>% 
+  stratified_data <- question_data %>% 
     filter(response_id %in% resp_id_list) %>%  # extracts responses to all questions for each response_id in resp_id_list
-    filter(question_no != "Q10" & question_no != "Q11") %>% # removing location data (allows proper renumbering of questions and will be plotted via specialized location script)
     mutate(question_no = case_when(question_no == "Q49" ~ "Q35.5", # changing position of Q49 to be near questions of similar topics
                                    question_no == strat_question_no ~ "Q1", # reassigns question used for stratification as question 1
                                    TRUE ~ question_no), # all other questions maintain same question number
            strat_id = strat_col_value) %>%  # creating a new col to label the responses with the specified stratification category
     mutate(question_no = as.numeric(str_extract(question_no, "\\d+\\.?\\d*"))) %>% # converting question numbers to numerics for proper sorting
-    mutate(question_no = paste("Q", group_indices(., question_no), sep = "")) # renumbering questions so there aren't any gaps in the question sequence
+    mutate(question_no = group_indices(., question_no)) %>% # renumbering questions so there aren't any gaps in the question sequence
+    arrange(response_id, question_no) %>% # rearranges order of questions in resulting df (makes it more human readable)
+    mutate(question_no = paste("Q", question_no, sep = "")) # pastes a "Q" onto the front of each question number to make it more visible
+  
   return(stratified_data)
   
 }
 
-# creating list of names for naming list of comparison classifications
-strat_list_names <- c("college_school", "postdoc_no", "residency", "language", "gender", "pop_representation",
-                "relationship_status", "dependents", "career_track", "satisfaction")
+# # creating list of names for naming list of comparison classifications
+# strat_list_names <- c("college_school", "postdoc_no", "residency", "language", "gender", "pop_representation",
+#                 "relationship_status", "dependents", "career_track", "satisfaction")
 
 # creating a named list of all of the desired breakdowns for comparisons then naming the output list
 # the output will maintain the names given to the items in the input list which is why naming at this step is so important
-strat_list <- list(c("UMMS", "ENG", "LSA", "Other"), 
-                   c("First_postdoc", ">1_postdoc"),
-                   c("Domestic", "International"),
-                   c("EFL", "EAL"),
-                   c("Male", "Female", "Non-binary"),
-                   c("Under-represented", "Well-represented"),
-                   c("Single_(unmarried)", "Married/domestic_partnership", "Widowed", "Divorced/separated"),
-                   c("Dependents", "No_dependents"),
-                   c("Academic_(research)", "Academic_(teaching)", "Non-academic", "Unsure"),
-                   c("Satisfied", "Unsatisfied", "Neutral")) %>% 
-  set_names(strat_list_names)
-
+strat_list <- list(college_school = c("UMMS", "ENG", "LSA", "Other"), 
+                   postdoc_no = c("First_postdoc", ">1_postdoc"),
+                   residency = c("Domestic", "International"),
+                   language = c("EFL", "EAL"),
+                   gender = c("Male", "Female", "Non-binary"),
+                   pop_representation = c("Under-represented", "Well-represented"),
+                   relationship_status = c("Single_(unmarried)", "Married/domestic_partnership", "Widowed", "Divorced/separated"),
+                   dependents = c("Dependents", "No_dependents"),
+                   career_track = c("Academic_(research)", "Academic_(teaching)", "Non-academic", "Unsure"),
+                   satisfaction = c("Satisfied", "Unsatisfied", "Neutral")) 
+  
 # setting up a function to allow use of map to iterate through each set of stratification classifications
 get_strat_data <- function(x) {
   data <- map_df(x, make_stratified_data) # map_df iterates through each item in input list then collates output as a single dataframe
