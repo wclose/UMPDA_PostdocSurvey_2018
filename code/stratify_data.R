@@ -58,15 +58,49 @@ classified_survey_data <- tidy_survey_data %>%
 # breaking up data by stratification categories ---------------------------
 
 # creating the function to separate the data into different data frames based on stratification categories
-make_stratified_data <- function(strat_col_values) {
+# pulls data one strat category (ex: "UMMS") at a time, need to use map_df to join data from all strat categories for a given strat_id (ex: "college_school")
+make_stratified_data <- function(strat_col_value) {
   resp_id_list <- classified_survey_data %>% 
-    filter(stratifications == strat_col_values) %>%
-    pull(response_id) # extracts all values from col as text string
+    filter(stratifications == strat_col_value) %>% # filters rows to contain only data for specified stratification category
+    pull(response_id) # extracts all response_ids from col as chr vector
+  
+  strat_question_no <- classified_survey_data %>% 
+    filter(stratifications == strat_col_value) %>% # filters rows to contain only data for specified stratification category
+    pull(question_no) %>% # extracts question number used to stratify category
+    unique() # narrows down to a single chr string question number
+  
   stratified_data <- tidy_survey_data %>% 
-    filter(response_id %in% resp_id_list) %>%  # extracts responses to all questions for each response_id in id_list
-    mutate(strat_id = strat_col_values)
+    filter(response_id %in% resp_id_list) %>%  # extracts responses to all questions for each response_id in resp_id_list
+    filter(question_no != "Q10" & question_no != "Q11") %>% # removing location data (allows proper renumbering of questions and will be plotted via specialized location script)
+    mutate(question_no = case_when(question_no == "Q49" ~ "Q35.5", # changing position of Q49 to be near questions of similar topics
+                                   question_no == strat_question_no ~ "Q1", # reassigns question used for stratification as question 1
+                                   TRUE ~ question_no), # all other questions maintain same question number
+           strat_id = strat_col_value) %>%  # creating a new col to label the responses with the specified stratification category
+    mutate(question_no = as.numeric(str_extract(question_no, "\\d+\\.?\\d*"))) %>% # converting question numbers to numerics for proper sorting
+    mutate(question_no = paste("Q", group_indices(., question_no), sep = "")) # renumbering questions so there aren't any gaps in the question sequence
   return(stratified_data)
+  
 }
+
+# testing make_stratified_data
+make_stratified_data("Domestic")
+
+get_strat_data(strat_list$college_school) %>% 
+  filter(question_no == "Q1")
+
+get_strat_data(strat_list$postdoc_no) %>% 
+  filter(question_no == "35")
+
+
+# make_stratified_data <- function(strat_col_value) {
+#   resp_id_list <- classified_survey_data %>% 
+#     filter(stratifications == strat_col_value) %>% # filters rows to contain only data for specified stratification category
+#     pull(response_id) # extracts all response_ids from col as chr vector
+#   stratified_data <- tidy_survey_data %>% 
+#     filter(response_id %in% resp_id_list) %>%  # extracts responses to all questions for each response_id in resp_id_list
+#     mutate(strat_id = strat_col_value) # creating a new col to label the responses with the specified stratification category
+#   return(stratified_data)
+# }
 
 # creating list of names for naming list of comparison classifications
 strat_list_names <- c("college_school", "postdoc_no", "residency", "language", "gender", "pop_representation",
@@ -99,4 +133,13 @@ strat_data <- map(strat_list, get_strat_data) # running a nested map series take
 
 
 # notes -------------------------------------------------------------------
+
+# need to find way to reorganize questions so Q1 is the question used to stratify the data
+# create a function that recognizes which question is used for stratification and assigns that to be number 1
+classified_survey_data %>% 
+  filter(stratifications == "Domestic") %>% 
+  pull(question_no) %>% 
+  unique()
+
+
 
