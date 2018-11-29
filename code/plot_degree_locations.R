@@ -184,7 +184,7 @@ plot_world_degree_freq <- function(df) {
 # generating plots of degrees from USA ------------------------------------
 
 # calculating response rates for individual states in USA
-us_degree_freq <- calc_degree_freq("state", tidy_survey_data)
+us_degree_freq <- calc_degree_freq("state", location_data)
 
 # plotting the data
 us_degree_map <- plot_us_degree_freq(us_degree_freq)
@@ -197,7 +197,7 @@ ggsave(filename = "results/location/us_degree_map.png", plot = us_degree_map, wi
 # generating plots of degrees from world ----------------------------------
 
 # calculating response rates for individual countries
-world_degree_freq <- calc_degree_freq("world", tidy_survey_data)
+world_degree_freq <- calc_degree_freq("world", location_data)
 
 # generating world map with postdoc degree freqs
 world_degree_map <- plot_world_degree_freq(world_degree_freq)
