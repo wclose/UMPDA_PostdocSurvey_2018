@@ -44,11 +44,11 @@ location_data <- tidy_survey_data %>%
 # creating question lists -------------------------------------------------
 
 # creating list of all the questions
-question_list <- unique(tidy_survey_data$question_no)
+question_list <- unique(question_data$question_no)
 
 # making list of questions to exclude from graph generation because they were typed response
 # to change the questions included in this list, add/subtract/change the numbers in paste0() as desired
-typed_question_list <- question_list[grepl(paste(paste0("Q", c(10,11,23,26,29,42,43,44,45,46,51)), collapse = "|"), question_list)]
+typed_question_list <- question_list[grepl(paste(paste0("Q", c(23,26,29,42,43,44,45,46,51)), collapse = "|"), question_list)]
 
 # list of the remaining questions to be used for graph generation
 multi_choice_question_list <- setdiff(question_list, typed_question_list)
