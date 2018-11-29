@@ -82,26 +82,6 @@ make_stratified_data <- function(strat_col_value) {
   
 }
 
-# testing make_stratified_data
-make_stratified_data("Domestic")
-
-get_strat_data(strat_list$college_school) %>% 
-  filter(question_no == "Q1")
-
-get_strat_data(strat_list$postdoc_no) %>% 
-  filter(question_no == "35")
-
-
-# make_stratified_data <- function(strat_col_value) {
-#   resp_id_list <- classified_survey_data %>% 
-#     filter(stratifications == strat_col_value) %>% # filters rows to contain only data for specified stratification category
-#     pull(response_id) # extracts all response_ids from col as chr vector
-#   stratified_data <- tidy_survey_data %>% 
-#     filter(response_id %in% resp_id_list) %>%  # extracts responses to all questions for each response_id in resp_id_list
-#     mutate(strat_id = strat_col_value) # creating a new col to label the responses with the specified stratification category
-#   return(stratified_data)
-# }
-
 # creating list of names for naming list of comparison classifications
 strat_list_names <- c("college_school", "postdoc_no", "residency", "language", "gender", "pop_representation",
                 "relationship_status", "dependents", "career_track", "satisfaction")
@@ -133,13 +113,4 @@ strat_data <- map(strat_list, get_strat_data) # running a nested map series take
 
 
 # notes -------------------------------------------------------------------
-
-# need to find way to reorganize questions so Q1 is the question used to stratify the data
-# create a function that recognizes which question is used for stratification and assigns that to be number 1
-classified_survey_data %>% 
-  filter(stratifications == "Domestic") %>% 
-  pull(question_no) %>% 
-  unique()
-
-
 
