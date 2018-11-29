@@ -49,4 +49,6 @@ multi_choice_question_list <- setdiff(question_list, typed_question_list)
 
 # notes -------------------------------------------------------------------
 
-
+# split location questions into separate df
+# will make it easier to renumber other questions and still use map functions (location question numbers won't change)
+# also change responses to be international vs domestic for Q10 vs Q11 (or make new question with domestic vs international vs na)
