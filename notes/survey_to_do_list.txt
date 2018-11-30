@@ -26,3 +26,8 @@ x port updates from strat plot function to unstrat plot function
 	- Need to be careful because some question numbers are hard coded so it could break scripts
 - Add question number tag to location plots
 - Go back through and clean up scripts where necessary
+
+2018-11-29
+- Add breakdown for MI vs everywhere else
+- Fix old Q6 plotting functions
+- Fix space between "word,word" in questions with typed responses
