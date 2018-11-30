@@ -32,8 +32,18 @@ tidy_survey_data <- survey_data %>%
   unnest(response) # breaks col of lists into separate rows (does not affect other answers)
 
 # creating df of all survey data minus specific location data (will be plotted elsewhere/differently)
+# also reassigns position of Q49 in order so it's nearer similar questions before renumbering the questions
 question_data <- tidy_survey_data %>% 
-  filter(question_no != "Q10" & question_no != "Q11")
+  filter(question_no != "Q10" & question_no != "Q11") %>% 
+  mutate(question_no = case_when(question_no == "Q49" ~ "Q35.5", # changing position of Q49 to be near questions of similar topics
+                                 TRUE ~ question_no)) %>%  # all other questions maintain same question number
+  mutate(question_no = as.numeric(str_extract(question_no, "\\d+\\.?\\d*\\b"))) %>% # converting question numbers to numerics for proper sorting
+  mutate(sorted_question_no = group_indices(., question_no)) %>% # renumbering questions so there aren't any gaps in the question sequence but leaves original for comparison
+  arrange(response_id, sorted_question_no) %>% # rearranges order of questions in resulting df (makes it more human readable)
+  mutate(question_no = paste("Q", question_no, sep = ""), # pastes a "Q" onto the front of each question number for ease of filtering later
+         sorted_question_no = paste("Q", sorted_question_no, sep = "")) %>%  # pastes a "Q" onto the front of each question number to make it more visible
+  mutate(question_no = case_when(question_no == "Q35.5" ~ "Q49", # changes the original question_no back to what it was in the original data
+                                 TRUE ~ question_no)) # leaves all the rest of the question_no's unchanged
 
 # creating separate dataframe for plotting degree location maps (will require different methods than the rest of the data)
 location_data <- tidy_survey_data %>% 
