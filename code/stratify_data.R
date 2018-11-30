@@ -84,6 +84,7 @@ make_stratified_data <- function(strat_col_value) {
     mutate(question_no = paste("Q", question_no, sep = ""), # pastes a "Q" onto the front of each question number for ease of filtering later
            sorted_question_no = paste("Q", sorted_question_no, sep = "")) %>%  # pastes a "Q" onto the front of each question number to make it more visible
     mutate(question_no = case_when(sorted_question_no == "Q1" ~ strat_question_no, # changes the original strat_question_no (should be Q1 in sorted) back to what it was in the original data
+                                   question_no == "Q35.5" ~ "Q49", # changes the original question_no back to what it was in the original data
                                    TRUE ~ question_no)) # leaves all the rest of the question_no's unchanged
   
   return(stratified_data)
@@ -119,4 +120,4 @@ strat_data <- map(strat_list, get_strat_data) # running a nested map series take
 strat_data$language
 question_data
 strat_data$dependents %>% 
-  filter(sorted_question_no == "Q2")
+  filter(question_no == "Q49")
