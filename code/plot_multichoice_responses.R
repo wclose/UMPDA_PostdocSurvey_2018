@@ -23,6 +23,12 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     mutate(question = str_replace_all(question, c("_" = " ", "," = ", ")), # making text look nice
            response = str_replace_all(response, c("_" = " ", "," = ", "))) # making text look nice
   
+  # changing question number to be based on sorted numbers instead for use in filename after saving
+  sorted_question_no_chr <- df %>% 
+    filter(question_no == question_no_chr) %>% # matches question_no to find sorted_question_no
+    pull(sorted_question_no) %>% # extracts value(s)
+    unique() # finds unique sorted question number
+  
   ### setting global function variables for standardizing plot aesthetics ###
   geom_text_pt_size <- 8 # setting desired text point size (geom_text uses different default scale than pt)
   
@@ -64,7 +70,7 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     scale_x_discrete(labels = c(str_replace_all(unique(response_data[[x_var]]), "_", " "))) + # reformatting axis labels to look nice
     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
     scale_fill_viridis(discrete = TRUE, option = "D") +
-    labs(tag = paste(question_no_chr), # puts question label in upper left of panel for each plot
+    labs(tag = paste(sorted_question_no_chr), # puts question label in upper left of panel for each plot
          x = "", # removing x label since the facet labels are the new x labels
          y = "Proportion of responses (%)") +
     coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
@@ -188,23 +194,37 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
   
 }
 
+make_multichoice_plot(strat_response_freq$college_school, "Q49", response_freq)
+
+
+
 
 
 # making function to cycle through each question for each data frame based on strat category
 # extra function needed because of the nested nature of strat_response_freq_df
 make_all_multichoice_plots <- function(response_freq_df, question_no_chr_list, unstrat_ref_df = NULL) {
   
+  # pulling sorted question list numbers for use in labeling output plots
+  sorted_question_no_chr_list <- response_freq_df %>% 
+    filter(question_no %in% question_no_chr_list) %>% 
+    pull(sorted_question_no) %>% 
+    unique()
+  
   arguments <- data_frame(df = list(response_freq_df), # 1st col = input df repeated to be same length as number of questions
                           question_no_chr = c(question_no_chr_list)) # 2nd col = list of question numbers in chr format
   
   data <- pmap(arguments, make_multichoice_plot, unstrat_ref_df = unstrat_ref_df) %>% # collating data during map and assigning output
-    set_names(question_no_chr_list) # naming the output for easier indexing
+    set_names(sorted_question_no_chr_list) # naming the output for easier indexing
   
   return(data)
   
 }
 
-
+make_all_multichoice_plots(strat_response_freq$college_school, "Q49")
+View(strat_response_freq$college_school)
+strat_response_freq$college_school %>% 
+  pull(question_no) %>% 
+  unique
 
 # saving functions --------------------------------------------------------
 
@@ -291,16 +311,16 @@ unstrat_multichoice_plots <- make_all_multichoice_plots(response_freq, multi_cho
 strat_multichoice_plots <- map(.x = strat_response_freq, .f = make_all_multichoice_plots,
                                question_no_chr_list = multi_choice_question_list, unstrat_ref_df = response_freq)
 
-
+strat_multichoice_plots$college_school
 
 # saving plots ------------------------------------------------------------
 
-# saving all of the unstratified plots
-save_all_multichoice_plots(unstrat_multichoice_plots, multi_choice_question_list)
-
-# saving all of the stratified plots in the appropriate locations
-pmap(.l = list(plot_list = strat_multichoice_plots, category = strat_list_names),
-     .f = save_all_multichoice_plots, question_no_chr_list = multi_choice_question_list)
+# # saving all of the unstratified plots
+# save_all_multichoice_plots(unstrat_multichoice_plots, multi_choice_question_list)
+# 
+# # saving all of the stratified plots in the appropriate locations
+# pmap(.l = list(plot_list = strat_multichoice_plots, category = strat_list_names),
+#      .f = save_all_multichoice_plots, question_no_chr_list = multi_choice_question_list)
 
 
 
