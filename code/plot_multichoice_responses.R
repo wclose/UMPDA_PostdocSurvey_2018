@@ -120,7 +120,7 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
       
       # paste(strwrap(unique(response_data$question), width = 60), collapse = "\n")
       
-      labs(x = paste(strwrap(unique(response_data$question), width = 60), collapse = "\n")) +
+      labs(x = paste(strwrap(unique(response_data$question), width = 50), collapse = "\n")) +
       facet_wrap(~ response, nrow = 4, # plots each question/group of subquestions
                  labeller = label_wrap_gen(width = 40, multi_line = TRUE)) + # allows text wrapping in strip labels
       # theme(plot.margin = margin(20,40,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
@@ -144,7 +144,7 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     
     grob_table$widths[3] <- unit(0.438267114369292, "cm") # changes the spacing between the left border and title text (found by using convertX on representative 1grobwidth)
     
-    grob_table$widths[4] <- unit(14.0966514459665145, "cm") # moves entire plot, etc. to desired position in plotting window
+    grob_table$widths[4] <- unit(15.0966514459665145, "cm") # moves entire plot, etc. to desired position in plotting window
     
   ### creating/formatting plots from all other multichoice questions ###
   } else {
@@ -158,7 +158,7 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     unformatted_response_plot <- shared_plot +
       facet_grid(question ~ response, # plots each question/group of subquestions
                  switch = "y", # moves y axis strip to opposite side of plot
-                 labeller = labeller(question = label_wrap_gen(width = 60, multi_line = TRUE), # allows long text wrapping in strip labels
+                 labeller = labeller(question = label_wrap_gen(width = 50, multi_line = TRUE), # allows long text wrapping in strip labels
                                      # response = label_wrap_gen(width = 15, multi_line = TRUE))) + # allows shorter text wrapping in strip labels
                                      response = label_wrap_gen(width = label_width, multi_line = TRUE))) + # allows shorter text wrapping in strip labels
       theme(aspect.ratio = aspect) + # formatting bars to have a consistent size
@@ -176,7 +176,7 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     # altering the grob tables of generated plots to line up margins, axes, etc.
     grob_table <- ggplotGrob(unformatted_response_plot) # creates gtable of plot features
     
-    grob_table$widths[4] <- unit(14, "cm") # changes left side of plot to be in consistent place making all the plots align (unit value set by trial and error)
+    grob_table$widths[4] <- unit(15, "cm") # changes left side of plot to be in consistent place making all the plots align (unit value set by trial and error)
     
     grob_table$widths[6] <- unit(0, "cm") # lines all of the left-most axes up for all of the plots (negates spacing used for offsetting length of text label)
 
@@ -194,7 +194,7 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
   
 }
 
-make_multichoice_plot(strat_response_freq$college_school, "Q49", response_freq)
+# make_multichoice_plot(strat_response_freq$college_school, "Q49", response_freq)
 
 
 
@@ -220,11 +220,7 @@ make_all_multichoice_plots <- function(response_freq_df, question_no_chr_list, u
   
 }
 
-make_all_multichoice_plots(strat_response_freq$college_school, "Q49")
-View(strat_response_freq$college_school)
-strat_response_freq$college_school %>% 
-  pull(question_no) %>% 
-  unique
+
 
 # saving functions --------------------------------------------------------
 
@@ -235,6 +231,12 @@ save_multichoice_plot <- function(plot_name, question_no_chr, category = NULL) {
   if (is.null(category)) {
 
     category <- "all" # if category is not present (as in case of unstratified data), sets category to "all" so the plot is saved in the proper location, etc.
+    
+    # changing question number to be based on sorted numbers instead for use in filename after saving
+    sorted_question_no_chr <- response_freq %>% 
+      filter(question_no == question_no_chr) %>% # matches question_no to find sorted_question_no
+      pull(sorted_question_no) %>% # extracts value(s)
+      unique() # finds unique sorted question number
 
     question_tally <- response_freq %>% # pulls questions from data used to generate plots
       filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>% # removing ambiguous answers from plots
@@ -256,6 +258,12 @@ save_multichoice_plot <- function(plot_name, question_no_chr, category = NULL) {
 
     # otherwise the data is stratified so do this instead
   } else {
+    
+    # changing question number to be based on sorted numbers instead for use in filename after saving
+    sorted_question_no_chr <- strat_response_freq[[category]] %>% 
+      filter(question_no == question_no_chr) %>% # matches question_no to find sorted_question_no
+      pull(sorted_question_no) %>% # extracts value(s)
+      unique() # finds unique sorted question number
 
     question_tally <- strat_response_freq[[category]] %>% # pulls questions from data used to generate plots
       filter(question_no == question_no_chr & !is.na(response) & response != "Prefer_not_to_answer" & response != "Not_applicable") %>% # removing ambiguous answers from plots
@@ -283,7 +291,7 @@ save_multichoice_plot <- function(plot_name, question_no_chr, category = NULL) {
   }
 
   # saving the plots using the parameters defined above
-  ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+  ggsave(plot = plot_name, filename = paste0("results/", category, "/", paste(category, sorted_question_no_chr, sep = "_"), ".png"), # saving the plots as png
          device = "png", width = 15, height = plot_height, dpi = 300) # specifying dimensions/resolution of plots
 
 }
@@ -311,16 +319,16 @@ unstrat_multichoice_plots <- make_all_multichoice_plots(response_freq, multi_cho
 strat_multichoice_plots <- map(.x = strat_response_freq, .f = make_all_multichoice_plots,
                                question_no_chr_list = multi_choice_question_list, unstrat_ref_df = response_freq)
 
-strat_multichoice_plots$college_school
+# strat_multichoice_plots$college_school
 
 # saving plots ------------------------------------------------------------
 
-# # saving all of the unstratified plots
-# save_all_multichoice_plots(unstrat_multichoice_plots, multi_choice_question_list)
-# 
-# # saving all of the stratified plots in the appropriate locations
-# pmap(.l = list(plot_list = strat_multichoice_plots, category = strat_list_names),
-#      .f = save_all_multichoice_plots, question_no_chr_list = multi_choice_question_list)
+# saving all of the unstratified plots
+save_all_multichoice_plots(unstrat_multichoice_plots, multi_choice_question_list)
+
+# saving all of the stratified plots in the appropriate locations
+pmap(.l = list(plot_list = strat_multichoice_plots, category = names(strat_list)),
+     .f = save_all_multichoice_plots, question_no_chr_list = multi_choice_question_list)
 
 
 
