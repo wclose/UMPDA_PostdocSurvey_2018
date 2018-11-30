@@ -587,7 +587,7 @@ save_all_wordclouds <- function(freq_type, question_no_chr_list, category_list) 
 save_all_wordclouds("tf", typed_question_list, "all")
 
 # saving all tf-idf wordclouds
-save_all_wordclouds("tf-idf", typed_question_list, strat_list_names)
+save_all_wordclouds("tf-idf", typed_question_list, names(strat_list))
 
 
 # all_tf_idf_wordclouds$college_school$Q23
