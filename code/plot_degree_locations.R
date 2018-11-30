@@ -210,9 +210,9 @@ ggsave(filename = "results/location/world_degree_map.png", plot = world_degree_m
 # detaching conflicting packages ------------------------------------------
 
 # these pacakges may interfere with other packages, specifically purrr
-# detach("package:mapproj", unload = TRUE)
-# detach("package:ggalt", unload = TRUE)
-# detach("package:maps", unload = TRUE)
+detach("package:mapproj", unload = TRUE)
+detach("package:ggalt", unload = TRUE)
+detach("package:maps", unload = TRUE)
 
 
 # notes -------------------------------------------------------------------
