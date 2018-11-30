@@ -31,3 +31,4 @@ x port updates from strat plot function to unstrat plot function
 - Add breakdown for MI vs everywhere else
 - Fix old Q6 plotting functions
 - Fix space between "word,word" in questions with typed responses
+- Fix label spacing for "relationship/status" breakdown (y axis labels overlap with question text)
