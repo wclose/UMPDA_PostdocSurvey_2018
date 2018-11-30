@@ -68,7 +68,7 @@ my_seed <- 1
 #   filter(question_no == "Q44") %>% 
 #   filter(str_detect(response, "i\\.e\\."))
 
-typed_question_list <- typed_question_list[-1:-2] # removing location 
+# typed_question_list <- typed_question_list[-1:-2] # removing location 
 
 # creating custom stop_words df to filter out specific terms that may affect results
 my_stop_words <- stop_words %>%
@@ -193,7 +193,7 @@ calc_n_gram_freq <- function(freq_type, survey_df, n_token, question_no_chr) {
 }
 
 # # testing combined function
-# calc_n_gram_freq(freq_type = "tf-idf", example_data, 2, "Q44")
+# calc_n_gram_freq(freq_type = "tf-idf", strat_data$college_school, 2, "Q44")
 
 
 
@@ -204,7 +204,8 @@ get_top_n_gram <- function(survey_df, question_no_chr, n_token = 1, freq_type = 
   # generating df of frequencies
   freq_df <- calc_n_gram_freq(freq_type, survey_df, n_token, question_no_chr) %>% # calcs term frequencies for n-grams
     mutate(question_no = question_no_chr, # adding col with question number for plotting
-           question = tidy_survey_data %>% filter(question_no == question_no_chr) %>% pull(question) %>% unique()) %>% # adds col with question text back in
+           sorted_question_no = survey_df %>% filter(question_no == question_no_chr) %>% pull(sorted_question_no) %>% unique(),
+           question = question_data %>% filter(question_no == question_no_chr) %>% pull(question) %>% unique()) %>% # adds col with question text back in
     filter(!str_detect(n_gram, "\\bNA\\b")) # filtering out lines containing NA as a token/part of an n-gram (focuses data)
   
   # message for debugging
@@ -307,8 +308,8 @@ get_top_n_gram <- function(survey_df, question_no_chr, n_token = 1, freq_type = 
   
 }
 
-# # testing the combined function
-# get_top_n_gram(survey_df = example_data, question_no_chr = "Q44", freq_type = "tf-idf", n_token = 2, n_top = 15)
+# # # testing the combined function
+# get_top_n_gram(survey_df = strat_data$college_school, question_no_chr = "Q23", freq_type = "tf-idf", n_token = 2, n_top = 15)
 
 
 
@@ -326,13 +327,19 @@ get_all_top_n_grams <- function(survey_df, question_no_chr_list, n_token, freq_t
     
   }
   
+  # pulling sorted question list numbers for use in labeling output plots
+  sorted_question_no_chr_list <- survey_df %>% 
+    filter(question_no %in% question_no_chr_list) %>% 
+    pull(sorted_question_no) %>% 
+    unique()
+  
   # creating df of arguments for use with pmap
   arguments <- data_frame(survey_df = list(survey_df),
                           question_no_chr = question_no_chr_list)
   
   # mapping over list of arguments in arguments df
   data <- pmap(arguments, get_top_n_gram, n_token = n_token, freq_type = freq_type, n_top = n_top) %>%
-    set_names(question_no_chr_list)
+    set_names(sorted_question_no_chr_list)
   
   # outputting results
   return(data)
@@ -340,7 +347,7 @@ get_all_top_n_grams <- function(survey_df, question_no_chr_list, n_token, freq_t
 }
 
 # generating all top n-grams based on tf
-all_top_tf <- get_all_top_n_grams(survey_df = tidy_survey_data, question_no_chr_list = typed_question_list,
+all_top_tf <- get_all_top_n_grams(survey_df = question_data, question_no_chr_list = typed_question_list,
                                    n_token = 2, freq_type = "tf", n_top = 15)
 
 # generating all top n-grams based on tf-idf
@@ -380,7 +387,7 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
       scale_color_viridis_c(begin = 0, end = 0.75) +
       # scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
       scale_size(range = c(8*text_size_conv, 18*text_size_conv)) + # setting the lower and upper bounds of text point sizes
-      labs(tag = unique(top_n_grams$question_no),
+      labs(tag = unique(top_n_grams$sorted_question_no),
            title = str_replace_all(unique(top_n_grams$question), "_", " ")) + # adding the question text as the plot title
       theme_minimal() + # getting rid of all theme background
       theme(plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),  # centers the plot title and alters font size
@@ -410,7 +417,7 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
       scale_color_viridis_c(begin = 0, end = 0.75) +
       # scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
       scale_size(range = c(8*text_size_conv, 18*text_size_conv)) + # setting the lower and upper bounds of text point sizes
-      labs(tag = unique(top_n_grams$question_no),
+      labs(tag = unique(top_n_grams$sorted_question_no),
            title = str_replace_all(unique(top_n_grams$question), "_", " ")) + # adding the question text as the plot title
       facet_wrap(~str_replace_all(strat_id, "_", " "), ncol = 2, scales = "free") + # making individual plots for each strat_id
       theme_minimal() + # getting rid of all theme background
@@ -451,13 +458,6 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
 
 
 
-
-
-
-
-
-
-
 # creating function to plot all of the unstratified dataset using pmap
 plot_all_wordclouds <- function(survey_df, question_no_chr_list, n_token, freq_type, n_top) {
   
@@ -472,13 +472,19 @@ plot_all_wordclouds <- function(survey_df, question_no_chr_list, n_token, freq_t
     
   }
 
+  # pulling sorted question list numbers for use in labeling output plots
+  sorted_question_no_chr_list <- survey_df %>% 
+    filter(question_no %in% question_no_chr_list) %>% 
+    pull(sorted_question_no) %>% 
+    unique()
+  
   # creating df of arguments for use with pmap
   arguments <- data_frame(survey_df = list(survey_df),
                           question_no_chr = question_no_chr_list)
   
   # mapping over list of arguments in arguments df
   plots <- pmap(arguments, plot_top_wordcloud, n_token = n_token, freq_type = freq_type, n_top = n_top) %>%
-    set_names(question_no_chr_list)
+    set_names(sorted_question_no_chr_list)
   
   # outputting results
   return(plots)
@@ -489,16 +495,16 @@ plot_all_wordclouds <- function(survey_df, question_no_chr_list, n_token, freq_t
 # plot_all_wordclouds(example_data, typed_question_list, 2, "tf-idf", 15)
 
 # generating all tf wordclouds
-all_tf_wordclouds <- plot_all_wordclouds(survey_df = tidy_survey_data, question_no_chr_list = typed_question_list,
+all_tf_wordclouds <- plot_all_wordclouds(survey_df = question_data, question_no_chr_list = typed_question_list,
                          n_token = 2, freq_type = "tf", n_top = 15)
 
 # generating all tf-idf wordclouds
 all_tf_idf_wordclouds <- map(strat_data, plot_all_wordclouds, question_no_chr_list = typed_question_list,
                              n_token = 2, freq_type = "tf-idf", n_top = 15)
 
-# # verifying the outputs
-# all_tf_wordclouds$Q44
-# all_tf_idf_wordclouds$college_school$Q45
+# verifying the outputs
+all_tf_wordclouds$Q44
+all_tf_idf_wordclouds$college_school$Q45
 
 
 
@@ -566,10 +572,10 @@ save_all_wordclouds <- function(freq_type, question_no_chr_list, category_list) 
 # save_all_wordclouds("tf-idf", typed_question_list, "gender")
 
 # saving all tf wordclouds
-save_all_wordclouds("tf", typed_question_list, "all")
+# save_all_wordclouds("tf", typed_question_list, "all")
 
 # saving all tf-idf wordclouds
-save_all_wordclouds("tf-idf", typed_question_list, strat_list_names)
+# save_all_wordclouds("tf-idf", typed_question_list, strat_list_names)
 
 
 # all_tf_idf_wordclouds$college_school$Q23
