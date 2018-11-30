@@ -11,9 +11,9 @@ source("code/stratify_data.R")
 
 # function for generating individual response frequencies
 get_response_freq <- function(question_no_chr) { # question_no_chr = question number in character format (aka need quotes)
-  freq <- tidy_survey_data %>% # assigning the output to a variable
+  freq <- question_data %>% # assigning the output to a variable
     filter(question_no == question_no_chr) %>% # selects rows containing responses for specific questions
-    group_by(question_no, subquestion_no, question, response) %>% # groups by question and response to provide summary stats
+    group_by(question_no, sorted_question_no, subquestion_no, question, response) %>% # groups by question and response to provide summary stats
     summarize(n = n()) %>% # creates col for number of a given response (n)
     mutate(percent_freq = n/sum(n)*100) %>% # creates col for percent of total responses attributed to a given response
     ungroup()
@@ -35,7 +35,7 @@ response_freq <- map_df(multi_choice_question_list, get_response_freq) # running
 get_strat_response_freq <- function(df, question_no_chr) { # question_no_chr = question number in character format (aka need quotes)
   freq <- df %>% # assigning the output to a variable
     filter(question_no == question_no_chr) %>% # selects rows containing responses for specific questions
-    group_by(strat_id, question_no, subquestion_no, question, response) %>% # groups by question and response to provide summary stats
+    group_by(strat_id, question_no, sorted_question_no, subquestion_no, question, response) %>% # groups by question and response to provide summary stats
     summarize(n = n()) %>% # creates col for number of a given response (n)
     mutate(percent_freq = n/sum(n)*100) %>% # creates col for percent of total responses attributed to a given response
     ungroup()
@@ -85,7 +85,7 @@ strat_response_freq <- map(strat_data, aggregate_strat_response_freq)
 # notes -------------------------------------------------------------------
 
 # # playing around with mapping function as possible alternative
-# test <- tidy_survey_data %>% # assigning the output to a variable
+# test <- question_data %>% # assigning the output to a variable
 #   filter(question_no == "Q37") %>% # selects rows containing responses for specific questions
 #   group_by(question_no, subquestion_no, response) %>% # groups by question and response to provide summary stats
 #   nest() %>%
@@ -123,4 +123,4 @@ strat_response_freq <- map(strat_data, aggregate_strat_response_freq)
 #   geom_bar(stat = "identity")
 
 # # doesn't work on original dataset because there isn't a strat_id col (need to use original form of get_response_freq for regular dataset)
-# aggregate_strat_response_freq(tidy_survey_data)
+# aggregate_strat_response_freq(question_data)
