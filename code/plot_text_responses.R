@@ -502,9 +502,9 @@ all_tf_wordclouds <- plot_all_wordclouds(survey_df = question_data, question_no_
 all_tf_idf_wordclouds <- map(strat_data, plot_all_wordclouds, question_no_chr_list = typed_question_list,
                              n_token = 2, freq_type = "tf-idf", n_top = 15)
 
-# verifying the outputs
-all_tf_wordclouds$Q44
-all_tf_idf_wordclouds$college_school$Q45
+# # verifying the outputs
+# all_tf_wordclouds$Q44
+# all_tf_idf_wordclouds$college_school$Q45
 
 
 
@@ -516,7 +516,13 @@ save_wordclouds <- function(freq_type, question_no_chr, category = NULL) {
     # debugging message
     print("Saving tf wordclouds.")
     
-    ggsave(plot = all_tf_wordclouds[[question_no_chr]], filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+    # changing question number to be based on sorted numbers instead for use in filename after saving
+    sorted_question_no_chr <- question_data %>% 
+      filter(question_no == question_no_chr) %>% # matches question_no to find sorted_question_no
+      pull(sorted_question_no) %>% # extracts value(s)
+      unique() # finds unique sorted question number
+    
+    ggsave(plot = all_tf_wordclouds[[sorted_question_no_chr]], filename = paste0("results/", category, "/", paste(category, sorted_question_no_chr, sep = "_"), ".png"), # saving the plots as png
            device = "png", width = 15, height = 2.75, dpi = 300) # specifying dimensions of plots found by trial and error
     
   } else if (freq_type == "tf-idf") {
@@ -524,13 +530,19 @@ save_wordclouds <- function(freq_type, question_no_chr, category = NULL) {
     # debugging message
     print("Saving tf-idf wordclouds.")
     
-    strat_ids <- all_top_tf_idf[[category]][[question_no_chr]] %>%  # pulling out the list of strat_ids for each plot to properly scale the plot height
+    # changing question number to be based on sorted numbers instead for use in filename after saving
+    sorted_question_no_chr <- strat_data[[category]] %>% 
+      filter(question_no == question_no_chr) %>% # matches question_no to find sorted_question_no
+      pull(sorted_question_no) %>% # extracts value(s)
+      unique() # finds unique sorted question number
+    
+    strat_ids <- all_top_tf_idf[[category]][[sorted_question_no_chr]] %>%  # pulling out the list of strat_ids for each plot to properly scale the plot height
       pull(strat_id) %>% # compiling list of strat_ids
       unique() # finding only unique ids
     
     strat_id_no <- ceiling(length(strat_ids)) + ceiling(length(strat_ids)) %% 2 # counting the number of unique strat_ids for plot scaling
     
-    ggsave(plot = all_tf_idf_wordclouds[[category]][[question_no_chr]], filename = paste0("results/", category, "/", paste(category, question_no_chr, sep = "_"), ".png"), # saving the plots as png
+    ggsave(plot = all_tf_idf_wordclouds[[category]][[sorted_question_no_chr]], filename = paste0("results/", category, "/", paste(category, sorted_question_no_chr, sep = "_"), ".png"), # saving the plots as png
            device = "png", width = 15, height = 0.75+(1.25*strat_id_no), dpi = 300) # specifying dimensions of plots found by trial and error
     
   }
@@ -538,7 +550,7 @@ save_wordclouds <- function(freq_type, question_no_chr, category = NULL) {
 }
 
 # # testing save_wordclouds
-# save_wordclouds("tf", "all", "Q44")
+# save_wordclouds("tf", "Q51", "all")
 # save_wordclouds("tf-idf", "Q44", category = "gender")
 # save_wordclouds("tf-idf", "Q44", category = "college_school")
 # save_wordclouds("tf", "Q44", category = "all")
@@ -647,5 +659,4 @@ save_all_wordclouds <- function(freq_type, question_no_chr_list, category_list) 
 # # cmd for removing weird NA responses if desired
 # filter(str_detect(response, regex(paste(paste0("\\b", c("n[/]a", "na"), "\\b"), collapse = "|"), ignore_case = TRUE)))
 
-# NOTE: need to change color scheme
 # NOTE: combine calc function and plot function then take out question col from calc function and only have in plot
