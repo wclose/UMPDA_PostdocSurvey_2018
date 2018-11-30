@@ -70,24 +70,25 @@ make_stratified_data <- function(strat_col_value) {
     pull(question_no) %>% # extracts question number used to stratify category
     unique() # narrows down to a single chr string question number
   
+  # creating df of data to be labeled by strat category
+  # also sorts and renumbers questions so question used for stratification becomes Q1 while making plots
   stratified_data <- question_data %>% 
     filter(response_id %in% resp_id_list) %>%  # extracts responses to all questions for each response_id in resp_id_list
     mutate(question_no = case_when(question_no == "Q49" ~ "Q35.5", # changing position of Q49 to be near questions of similar topics
-                                   question_no == strat_question_no ~ "Q1", # reassigns question used for stratification as question 1
+                                   question_no == strat_question_no ~ "Q0.1", # reassigns question used for stratification as question 1 so it'll always be the first item when grouped later
                                    TRUE ~ question_no), # all other questions maintain same question number
            strat_id = strat_col_value) %>%  # creating a new col to label the responses with the specified stratification category
-    mutate(question_no = as.numeric(str_extract(question_no, "\\d+\\.?\\d*"))) %>% # converting question numbers to numerics for proper sorting
-    mutate(question_no = group_indices(., question_no)) %>% # renumbering questions so there aren't any gaps in the question sequence
-    arrange(response_id, question_no) %>% # rearranges order of questions in resulting df (makes it more human readable)
-    mutate(question_no = paste("Q", question_no, sep = "")) # pastes a "Q" onto the front of each question number to make it more visible
+    mutate(question_no = as.numeric(str_extract(question_no, "\\d+\\.?\\d*\\b"))) %>% # converting question numbers to numerics for proper sorting
+    mutate(sorted_question_no = group_indices(., question_no)) %>% # renumbering questions so there aren't any gaps in the question sequence but leaves original for comparison
+    arrange(response_id, sorted_question_no) %>% # rearranges order of questions in resulting df (makes it more human readable)
+    mutate(question_no = paste("Q", question_no, sep = ""), # pastes a "Q" onto the front of each question number for ease of filtering later
+           sorted_question_no = paste("Q", sorted_question_no, sep = "")) %>%  # pastes a "Q" onto the front of each question number to make it more visible
+    mutate(question_no = case_when(sorted_question_no == "Q1" ~ strat_question_no, # changes the original strat_question_no (should be Q1 in sorted) back to what it was in the original data
+                                   TRUE ~ question_no)) # leaves all the rest of the question_no's unchanged
   
   return(stratified_data)
   
 }
-
-# # creating list of names for naming list of comparison classifications
-# strat_list_names <- c("college_school", "postdoc_no", "residency", "language", "gender", "pop_representation",
-#                 "relationship_status", "dependents", "career_track", "satisfaction")
 
 # creating a named list of all of the desired breakdowns for comparisons then naming the output list
 # the output will maintain the names given to the items in the input list which is why naming at this step is so important
@@ -115,4 +116,7 @@ strat_data <- map(strat_list, get_strat_data) # running a nested map series take
 
 
 # notes -------------------------------------------------------------------
-
+strat_data$language
+question_data
+strat_data$dependents %>% 
+  filter(sorted_question_no == "Q2")
