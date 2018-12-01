@@ -165,7 +165,7 @@ plot_world_degree_freq <- function(df) {
     expand_limits(x = c(-179,179), y = c(-75,89)) + # expands plot limits to encompass data, x = longitude, y = latitude
     scale_fill_viridis(na.value = "white", guide = guide_colorbar(ticks = FALSE, frame.colour = "black"),
                        limits = c(0,40), breaks = c(0, 20, 40), labels = c(0, 20, 40)) + # making NA values = white and scaling using cividis palette from viridis pkg
-    labs(title = "Locations of Ph.D. Granting Institutions for University of Michigan Postdocs", # setting chart labels
+    labs(title = "Worldwide Locations of Ph.D. Granting Institutions for University of Michigan Postdocs", # setting chart labels
          fill = "Respondents (%)") +
     coord_proj(proj = "+proj=wintri") + # correcting for Earth curvature using Winkel tripel projection
     theme(plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),
