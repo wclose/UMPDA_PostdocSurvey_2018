@@ -33,8 +33,8 @@ classified_survey_data <- question_data %>%
                                      question_no == "Q12" & !is.na(response) & response != "Prefer_not_to_answer" ~ "EAL",
                                      question_no == "Q17" & response == "Yes" ~ "Dependents",
                                      question_no == "Q17" & response == "No" ~ "No_dependents",
-                                     question_no == "Q16" & response == "Single,never_married" ~ "Single_(unmarried)",
-                                     question_no == "Q16" & response == "Married_or_in_domestic_partnership" ~ "Married/domestic_partnership",
+                                     question_no == "Q16" & response == "Single,never_married" ~ "Single",
+                                     question_no == "Q16" & response == "Married_or_in_domestic_partnership" ~ "Married/partnered",
                                      question_no == "Q16" & response == "Widowed" ~ "Widowed",
                                      question_no == "Q16" & response == "Divorced_or_separated" ~ "Divorced/separated",
                                      question_no == "Q14" & response == "Female" ~ "Female",
@@ -42,8 +42,8 @@ classified_survey_data <- question_data %>%
                                      question_no == "Q14" & response == "Non-binary" ~ "Non-binary",
                                      question_no == "Q15" & response == "Yes" ~ "Under-represented",
                                      question_no == "Q15" & response == "No" ~ "Well-represented",
-                                     question_no == "Q31" & response == "Academic_-_research" ~ "Academic_(research)",
-                                     question_no == "Q31" & response == "Academic_-_teaching" ~ "Academic_(teaching)",
+                                     question_no == "Q31" & response == "Academic_(research)" ~ "Academic_(research)",
+                                     question_no == "Q31" & response == "Academic_(teaching)" ~ "Academic_(teaching)",
                                      question_no == "Q31" & response == "Non-academic" ~ "Non-academic",
                                      question_no == "Q31" & response == "Unsure" ~ "Unsure",
                                      question_no == "Q8" & response == "Yes" ~ "First_postdoc",
@@ -99,7 +99,7 @@ strat_list <- list(college_school = c("UMMS", "ENG", "LSA", "Other"),
                    language = c("EFL", "EAL"),
                    gender = c("Male", "Female", "Non-binary"),
                    pop_representation = c("Under-represented", "Well-represented"),
-                   relationship_status = c("Single_(unmarried)", "Married/domestic_partnership", "Widowed", "Divorced/separated"),
+                   relationship_status = c("Single", "Married/partnered", "Widowed", "Divorced/separated"),
                    dependents = c("Dependents", "No_dependents"),
                    career_track = c("Academic_(research)", "Academic_(teaching)", "Non-academic", "Unsure"),
                    satisfaction = c("Satisfied", "Unsatisfied", "Neutral")) 
@@ -117,7 +117,9 @@ strat_data <- map(strat_list, get_strat_data) # running a nested map series take
 
 
 # notes -------------------------------------------------------------------
-strat_data$language
-question_data
-strat_data$dependents %>% 
-  filter(question_no == "Q49")
+# strat_data$career_track
+# question_data
+# strat_data$career_track %>%
+#   filter(question_no == "Q31") %>%
+#   pull(strat_id) %>% 
+#   unique()
