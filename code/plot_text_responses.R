@@ -388,7 +388,7 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
       # scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
       scale_size(range = c(8*text_size_conv, 18*text_size_conv)) + # setting the lower and upper bounds of text point sizes
       labs(tag = unique(top_n_grams$sorted_question_no),
-           title = str_replace_all(unique(top_n_grams$question), "_", " ")) + # adding the question text as the plot title
+           title = str_replace_all(unique(top_n_grams$question), c("_" = " ", "," = ", "))) + # adding the question text as the plot title
       theme_minimal() + # getting rid of all theme background
       theme(plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),  # centers the plot title and alters font size
             strip.background = element_rect(fill = NULL, color = "white"),
@@ -418,7 +418,7 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
       # scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
       scale_size(range = c(8*text_size_conv, 18*text_size_conv)) + # setting the lower and upper bounds of text point sizes
       labs(tag = unique(top_n_grams$sorted_question_no),
-           title = str_replace_all(unique(top_n_grams$question), "_", " ")) + # adding the question text as the plot title
+           title = str_replace_all(unique(top_n_grams$question), c("_" = " ", "," = ", "))) + # adding the question text as the plot title
       facet_wrap(~str_replace_all(strat_id, "_", " "), ncol = 2, scales = "free") + # making individual plots for each strat_id
       theme_minimal() + # getting rid of all theme background
       theme(plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),  # centers the plot title and alters font size
