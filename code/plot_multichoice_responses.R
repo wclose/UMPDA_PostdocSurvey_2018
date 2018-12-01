@@ -42,6 +42,9 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     # setting variable for x axis
     x_var <- "question_no" # set the x variable to be question_no (plots a single bar)
     
+    # setting text wrapping of question text
+    question_label_width <- 60
+    
     # setting variables for scaling purposes
     # found equations based on changes in pixel dimensions when using different numbers of response_no
     aspect <- (66+6)/(3281.6*response_no^-1.248) # scales the aspect ratio to standardize appearance of bars after setting consistent width w/ grobbing
@@ -51,6 +54,9 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     
   # setting variable for x axis
     x_var <- "strat_id" # set the x variable to be strat_id (one bar per strat_id = multiple bars)
+    
+    # setting text wrapping of question text
+    question_label_width <- 50
     
     # setting variables for scaling purposes
     strat_no <- length(unique(response_data$strat_id)) # calculating the number of categories/bars per question for scaling
@@ -121,7 +127,7 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
       
       # paste(strwrap(unique(response_data$question), width = 60), collapse = "\n")
       
-      labs(x = paste(strwrap(unique(response_data$question), width = 50), collapse = "\n")) +
+      labs(x = paste(strwrap(unique(response_data$question), width = question_label_width), collapse = "\n")) +
       facet_wrap(~ response, nrow = 4, # plots each question/group of subquestions
                  labeller = label_wrap_gen(width = 40, multi_line = TRUE)) + # allows text wrapping in strip labels
       # theme(plot.margin = margin(20,40,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
@@ -151,7 +157,7 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
   } else {
 
     # setting scaling factor for text wrapping of facet titles (more facets = less space for facet titles)
-    label_width <- case_when(response_no <= 4 ~ 40,
+    response_label_width <- case_when(response_no <= 4 ~ 40,
                              response_no <= 6 ~ 22,
                              TRUE ~ 16)
 
@@ -159,9 +165,9 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     unformatted_response_plot <- shared_plot +
       facet_grid(question ~ response, # plots each question/group of subquestions
                  switch = "y", # moves y axis strip to opposite side of plot
-                 labeller = labeller(question = label_wrap_gen(width = 50, multi_line = TRUE), # allows long text wrapping in strip labels
+                 labeller = labeller(question = label_wrap_gen(width = question_label_width, multi_line = TRUE), # allows long text wrapping in strip labels
                                      # response = label_wrap_gen(width = 15, multi_line = TRUE))) + # allows shorter text wrapping in strip labels
-                                     response = label_wrap_gen(width = label_width, multi_line = TRUE))) + # allows shorter text wrapping in strip labels
+                                     response = label_wrap_gen(width = response_label_width, multi_line = TRUE))) + # allows shorter text wrapping in strip labels
       theme(aspect.ratio = aspect) + # formatting bars to have a consistent size
       shared_theme # adding in the shared theme elements    
     
