@@ -32,3 +32,5 @@ x port updates from strat plot function to unstrat plot function
 - Fix old Q6 plotting functions
 - Fix space between "word,word" in questions with typed responses
 - Fix label spacing for "relationship/status" breakdown (y axis labels overlap with question text)
+- Look into DeepBlue Data as repo for survey data
+- Set up UMPDA GitHub org and fork repo to it for dissemination
