@@ -383,14 +383,15 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
       ggplot(aes(label = n_gram, size = tf_scale, color = tf_scale)) + # specifying data to be plotted
       geom_text_wordcloud(eccentricity = 2, # roundness of the wordcloud
                           grid_size = 6, grid_margin = 2, # spacing between terms in cloud
-                          family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
+                          family = "Helvetica") + # altering font characteristics (does not inherit changes from theme())
       scale_color_viridis_c(begin = 0, end = 0.75) +
       # scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
       scale_size(range = c(8*text_size_conv, 18*text_size_conv)) + # setting the lower and upper bounds of text point sizes
       labs(tag = unique(top_n_grams$sorted_question_no),
            title = str_replace_all(unique(top_n_grams$question), c("_" = " ", "," = ", "))) + # adding the question text as the plot title
       theme_minimal() + # getting rid of all theme background
-      theme(plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),  # centers the plot title and alters font size
+      theme(text = element_text(family = "Helvetica"),
+            plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),  # centers the plot title and alters font size
             strip.background = element_rect(fill = NULL, color = "white"),
             strip.text = element_text(size = 9, face = "bold"),
             axis.title = element_text(size = 9),
@@ -413,7 +414,7 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
       geom_text_wordcloud(eccentricity = 1, # roundness of the wordcloud
                           grid_size = 6, grid_margin = 2, # spacing between terms in cloud
                           # fontface = "bold",
-                          family = "Times New Roman") + # altering font characteristics (does not inherit changes from theme())
+                          family = "Helvetica") + # altering font characteristics (does not inherit changes from theme())
       scale_color_viridis_c(begin = 0, end = 0.75) +
       # scale_color_gradient(low = "#00274c", high = "#886b01") + # changing color of n-grams in plot
       scale_size(range = c(8*text_size_conv, 18*text_size_conv)) + # setting the lower and upper bounds of text point sizes
@@ -421,7 +422,8 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
            title = str_replace_all(unique(top_n_grams$question), c("_" = " ", "," = ", "))) + # adding the question text as the plot title
       facet_wrap(~str_replace_all(strat_id, "_", " "), ncol = 2, scales = "free") + # making individual plots for each strat_id
       theme_minimal() + # getting rid of all theme background
-      theme(plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),  # centers the plot title and alters font size
+      theme(text = element_text(family = "Helvetica"),
+            plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),  # centers the plot title and alters font size
             strip.background = element_rect(fill = NULL, color = "white"),
             strip.text = element_text(size = 9, face = "bold"),
             axis.title = element_text(size = 9),

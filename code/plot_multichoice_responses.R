@@ -66,7 +66,7 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     ggplot(aes(x = eval(as.name(x_var)), y = percent_freq, fill = response)) + # plotting the stratified categories by response
     geom_bar(stat = "identity", show.legend = F, color = "black") + # bar plot
     geom_text(aes(x = eval(as.name(x_var)), y = percent_freq, label = paste0(format(round(percent_freq, digits = 1), nsmall = 1), "")), # adding response freq over bars
-              hjust = -0.25, size = 1/72*25.4*geom_text_pt_size) + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
+              hjust = -0.25, size = 1/72*25.4*geom_text_pt_size, family = "Helvetica") + # size is given in mm so need to convert to pts = 1/72*25.4*desired_pt_size
     scale_x_discrete(labels = c(str_replace_all(unique(response_data[[x_var]]), "_", " "))) + # reformatting axis labels to look nice
     scale_y_continuous(limits = c(0,100), expand = c(0,0)) + # formatting y axis
     scale_fill_viridis(discrete = TRUE, option = "D") +
@@ -75,7 +75,8 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
          y = "Proportion of responses (%)") +
     coord_flip(clip = "off") + # rotating the plots and allowing plotting outside of plot area
     # NOTE: x and y commands are now swapped due to coord_flip rotating the axes
-    theme(axis.line = element_line(size = 0.5, colour = "black"), # formatting axis lines as desired
+    theme(text = element_text(family = "Helvetica"),
+          axis.line = element_line(size = 0.5, colour = "black"), # formatting axis lines as desired
           axis.title = element_text(size = 9), # making all chart titles a consistent size
           axis.title.x = element_text(margin = margin(10,0,0,0), size = 9, face = "bold"), # adding space between x axis title and axis labels
           axis.text = element_text(size = 9),

@@ -135,10 +135,13 @@ plot_us_degree_freq <- function(df) {
     expand_limits(x = fifty_states$long, y = fifty_states$lat) +
     scale_fill_viridis(na.value = "white", guide = guide_colorbar(ticks = FALSE, frame.colour = "black"),
                        limits = c(0,10), breaks = c(0, 5, 10), labels = c(0, 5, 10)) + # making NA values = white and scaling using cividis palette from viridis pkg
-    labs(title = "Locations of U.S. Ph.D. Granting Institutions for University of Michigan Postdocs",
+    labs(title = "United States Locations of Ph.D. Granting Institutions for University of Michigan Postdocs",
          fill = "Respondents (%)") +
     coord_map() + # gives map proper dimensions
-    theme(plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),
+    theme(text = element_text(family = "Helvetica"),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
+          plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),
           axis.title = element_blank(),
           axis.text = element_blank(),
           axis.ticks = element_blank(),
@@ -168,7 +171,10 @@ plot_world_degree_freq <- function(df) {
     labs(title = "Worldwide Locations of Ph.D. Granting Institutions for University of Michigan Postdocs", # setting chart labels
          fill = "Respondents (%)") +
     coord_proj(proj = "+proj=wintri") + # correcting for Earth curvature using Winkel tripel projection
-    theme(plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),
+    theme(text = element_text(family = "Helvetica"),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
+          plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),
           axis.title = element_blank(),
           axis.text = element_blank(),
           axis.ticks = element_blank(),
