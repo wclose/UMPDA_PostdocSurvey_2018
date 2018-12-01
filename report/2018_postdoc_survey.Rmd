@@ -2,9 +2,12 @@
 title: "2018 Postdoc Survey"
 author: "Jay Vornhagen, Francois Beaufay, Ashley Kalinski, William L. Close"
 date: "2018-11-20"
+mainfont: Helvetica
 output:
-  pdf_document: default
+  pdf_document:
+    latex_engine: xelatex
   html_document: default
+
 ---
 
 \pagebreak
@@ -27,6 +30,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Section 1. The entire University of Michigan postdoc population.
 
 #### Population
+
+some text  
+*some text*  
+**some text**
 
 #### Strengths
 
@@ -200,8 +207,8 @@ knitr::include_graphics("../results/location/us_degree_map.png")
 # loading in figures for section
 figures <- paste0("../", list.files("results/all/", pattern = ".png", full.names = TRUE))
 
-figure_no <- str_extract(figures, pattern = "\\d+") %>% 
-  as.numeric() %>% 
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
   sort()
 
 figures_sorted <- paste0("../results/", "all", "/", paste0("all", "_Q", figure_no), ".png")
@@ -217,8 +224,8 @@ knitr::include_graphics(figures_sorted)
 # loading in figures for section
 figures <- paste0("../", list.files("results/college_school/", pattern = ".png", full.names = TRUE))
 
-figure_no <- str_extract(figures, pattern = "\\d+") %>% 
-  as.numeric() %>% 
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
   sort()
 
 figures_sorted <- paste0("../results/", "college_school", "/", paste0("college_school", "_Q", figure_no), ".png")
@@ -234,8 +241,8 @@ knitr::include_graphics(figures_sorted)
 # loading in figures for section
 figures <- paste0("../", list.files("results/residency/", pattern = ".png", full.names = TRUE))
 
-figure_no <- str_extract(figures, pattern = "\\d+") %>% 
-  as.numeric() %>% 
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
   sort()
 
 figures_sorted <- paste0("../results/", "residency", "/", paste0("residency", "_Q", figure_no), ".png")
@@ -251,8 +258,8 @@ knitr::include_graphics(figures_sorted)
 # loading in figures for section
 figures <- paste0("../", list.files("results/dependents/", pattern = ".png", full.names = TRUE))
 
-figure_no <- str_extract(figures, pattern = "\\d+") %>% 
-  as.numeric() %>% 
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
   sort()
 
 figures_sorted <- paste0("../results/", "dependents", "/", paste0("dependents", "_Q", figure_no), ".png")
@@ -268,8 +275,8 @@ knitr::include_graphics(figures_sorted)
 # loading in figures for section
 figures <- paste0("../", list.files("results/relationship_status/", pattern = ".png", full.names = TRUE))
 
-figure_no <- str_extract(figures, pattern = "\\d+") %>% 
-  as.numeric() %>% 
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
   sort()
 
 figures_sorted <- paste0("../results/", "relationship_status", "/", paste0("relationship_status", "_Q", figure_no), ".png")
@@ -285,8 +292,8 @@ knitr::include_graphics(figures_sorted)
 # loading in figures for section
 figures <- paste0("../", list.files("results/gender/", pattern = ".png", full.names = TRUE))
 
-figure_no <- str_extract(figures, pattern = "\\d+") %>% 
-  as.numeric() %>% 
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
   sort()
 
 figures_sorted <- paste0("../results/", "gender", "/", paste0("gender", "_Q", figure_no), ".png")
@@ -302,8 +309,8 @@ knitr::include_graphics(figures_sorted)
 # loading in figures for section
 figures <- paste0("../", list.files("results/pop_representation/", pattern = ".png", full.names = TRUE))
 
-figure_no <- str_extract(figures, pattern = "\\d+") %>% 
-  as.numeric() %>% 
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
   sort()
 
 figures_sorted <- paste0("../results/", "pop_representation", "/", paste0("pop_representation", "_Q", figure_no), ".png")
@@ -319,8 +326,8 @@ knitr::include_graphics(figures_sorted)
 # loading in figures for section
 figures <- paste0("../", list.files("results/career_track/", pattern = ".png", full.names = TRUE))
 
-figure_no <- str_extract(figures, pattern = "\\d+") %>% 
-  as.numeric() %>% 
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
   sort()
 
 figures_sorted <- paste0("../results/", "career_track", "/", paste0("career_track", "_Q", figure_no), ".png")
@@ -336,8 +343,8 @@ knitr::include_graphics(figures_sorted)
 # loading in figures for section
 figures <- paste0("../", list.files("results/postdoc_no/", pattern = ".png", full.names = TRUE))
 
-figure_no <- str_extract(figures, pattern = "\\d+") %>% 
-  as.numeric() %>% 
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
   sort()
 
 figures_sorted <- paste0("../results/", "postdoc_no", "/", paste0("postdoc_no", "_Q", figure_no), ".png")
@@ -353,8 +360,8 @@ knitr::include_graphics(figures_sorted)
 # loading in figures for section
 figures <- paste0("../", list.files("results/satisfaction/", pattern = ".png", full.names = TRUE))
 
-figure_no <- str_extract(figures, pattern = "\\d+") %>% 
-  as.numeric() %>% 
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
   sort()
 
 figures_sorted <- paste0("../results/", "satisfaction", "/", paste0("satisfaction", "_Q", figure_no), ".png")
