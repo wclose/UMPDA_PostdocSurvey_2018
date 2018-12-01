@@ -151,8 +151,8 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
 
     # setting scaling factor for text wrapping of facet titles (more facets = less space for facet titles)
     label_width <- case_when(response_no <= 4 ~ 40,
-                             response_no <= 6 ~ 25,
-                             TRUE ~ 18)
+                             response_no <= 6 ~ 22,
+                             TRUE ~ 16)
 
     # adding format specific attributes to shared plot format from above (different from Q6 style)
     unformatted_response_plot <- shared_plot +
