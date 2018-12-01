@@ -43,7 +43,7 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
     x_var <- "question_no" # set the x variable to be question_no (plots a single bar)
     
     # setting text wrapping of question text
-    question_label_width <- 60
+    question_label_width <- 75
     
     # setting variables for scaling purposes
     # found equations based on changes in pixel dimensions when using different numbers of response_no
@@ -86,7 +86,8 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
           axis.title = element_text(size = 9), # making all chart titles a consistent size
           axis.title.x = element_text(margin = margin(10,0,0,0), size = 9, face = "bold"), # adding space between x axis title and axis labels
           axis.text = element_text(size = 9),
-          plot.tag = element_text(size = 12))
+          plot.tag = element_text(hjust = 0, size = 12),
+          plot.tag.position = c(0.02,1))
   
   ### adding in reference lines if desired ###
   # if the data is stratified and a reference df has been included
@@ -201,11 +202,28 @@ make_multichoice_plot <- function(df, question_no_chr, unstrat_ref_df = NULL) {
   
 }
 
-# make_multichoice_plot(strat_response_freq$college_school, "Q49", response_freq)
-
-
-
-
+# make_multichoice_plot(response_freq, "Q49")
+# 
+# test1 <- make_multichoice_plot(response_freq, "Q49")
+# test2 <- make_multichoice_plot(strat_response_freq$college_school, "Q49")
+# test3 <- make_multichoice_plot(response_freq, "Q49")
+# 
+# 
+# table1 <- ggplotGrob(test1)
+# table2 <- ggplotGrob(test2)
+# table3 <- ggplotGrob(test3)
+# 
+# table1
+# table3
+# 
+# table1$layout[which(grepl("tag", grob_table$layout$name)),] <- c(18,4,18,4,6,"off", "ylab-l")
+# 
+# table1$layout
+# table2$widths
+# table3$widths
+# 
+# test <- c(test, "test2 ")
+# test
 
 # making function to cycle through each question for each data frame based on strat category
 # extra function needed because of the nested nature of strat_response_freq_df

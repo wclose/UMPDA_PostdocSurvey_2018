@@ -395,7 +395,8 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
             strip.background = element_rect(fill = NULL, color = "white"),
             strip.text = element_text(size = 9, face = "bold"),
             axis.title = element_text(size = 9),
-            plot.tag = element_text(size = 12))
+            plot.tag = element_text(hjust = 0, size = 12),
+            plot.tag.position = c(0.015,1))
     
     grob_plot <- ggplotGrob(n_gram_wordcloud)
     
@@ -427,7 +428,8 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
             strip.background = element_rect(fill = NULL, color = "white"),
             strip.text = element_text(size = 9, face = "bold"),
             axis.title = element_text(size = 9),
-            plot.tag = element_text(size = 12),
+            plot.tag = element_text(hjust = 0, size = 12),
+            plot.tag.position = c(0.015,1),
             panel.spacing = unit(2, "lines"))
     
   }
@@ -437,9 +439,9 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
   
 }
 
-# plot_top_wordcloud(strat_data$residency, "Q44", 2, freq_type = "tf", n_top = 15)
+plot_top_wordcloud(strat_data$residency, "Q44", 2, freq_type = "tf", n_top = 15)
 
-# plot_top_wordcloud(strat_data$college_school, "Q44", 2, freq_type = "tf-idf", n_top = 15)
+plot_top_wordcloud(strat_data$college_school, "Q44", 2, freq_type = "tf-idf", n_top = 15)
 
 
 
