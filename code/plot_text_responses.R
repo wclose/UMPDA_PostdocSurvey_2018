@@ -439,9 +439,9 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
   
 }
 
-plot_top_wordcloud(strat_data$residency, "Q44", 2, freq_type = "tf", n_top = 15)
-
-plot_top_wordcloud(strat_data$college_school, "Q44", 2, freq_type = "tf-idf", n_top = 15)
+# plot_top_wordcloud(strat_data$residency, "Q44", 2, freq_type = "tf", n_top = 15)
+# 
+# plot_top_wordcloud(strat_data$college_school, "Q44", 2, freq_type = "tf-idf", n_top = 15)
 
 
 
