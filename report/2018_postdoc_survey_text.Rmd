@@ -51,14 +51,16 @@ knitr::opts_chunk$set(echo = TRUE)
 \selectfont
 
 **Authored by:**  
-Francois Beaufay  
 William Close  
+Francois Beaufay  
 Ashley Kalinski  
 Jay Vornhagen  
 
 &nbsp;
 
 **Edited by:**  
+Aaron Reifler  
+Jay Vornhagen  
 
 
 \newpage
@@ -230,7 +232,7 @@ Despite having a better understanding of institutional resources, international 
 
 *"Toward the end of the application writing (Sept 22nd), I also informed PI that I would like to go back to my family for the holidays. I had wanted to take my plane tickets since mid-August but it was never really a good time to discuss that (he was on holidays or we had more pressing issues to discuss) and I had delayed the discussion. Prices for plane tickets were getting more and more expensive, I hadn’t been back to my country yet and had taken very little holidays for the entire year. I mentioned that I would like to take 3weeks off (12 workdays considering the university closes for season days) but would be back in the middle of the holiday week, coordinating with the grad student and a new postdoc of the lab so that there would always be at least one of us in the lab for the colony maintenance and other minor tasks (i.e. working on seasonal break, as I did the year before). He didn’t really comment on that but I received an email from him that evening, as I was about to take my tickets, asking me to hold on buying them until our next meeting, on October 3rd, when we would discuss the strategy for the R01 grant application. I agreed to it. On October 3rd, he never came to the lab and, when I emailed him to ask if we were still meeting, he said he was working on a grant from home and asked me to send him my experimental plans for the end of the year. I wrote a detailed email on different possible experiments I could do depending on what was the most needed for his next grant submission. He answered that that wasn’t the question he asked and asked me again what my plans were. I developed a detailed email with the different experiments I could reasonably do in my main project, with Ns considering how many animals I would have available in that time frame (limited, as we had had to limit the size of our colony because of recent space issues), and the results I was expecting. I also mentioned that because of the limitation of the colony we had, I would not have any animal to work with until beginning of November. He never answered that email, so I assumed he was satisfied with it and went on buying my plane tickets that night. On the 5th, he emailed me saying he would be in his office and we could discuss my experimental plan. He validated it and requested an additional experiment for a grant he was planning to write. I said that that experiment (experiment X) would need to be added to our IACUC protocol, that I would get on it right away, and I would start troubleshooting it as soon as the amendment would be approved. At the end of the meeting, I also mentioned that, as it seemed to me that he was okay with my experimental plans and tickets price were getting really expensive, I had taken my plane tickets. He got really angry about it, said that he could very well not approve my holiday. We left it to that. I was fairly shaken and went to discuss this with an admin (admin A), who sent me the postdoc handbook to look for answers about whether or not he could “not approve my holidays”. The only information I found was that “Fellows should always check with their research advisor/PI to determine if their presence will be needed at work during the holidays and/or desired vacation days”. I had made sure to discuss with the other lab members so that one of us would always be available to tend for the daily tasks of the lab, and that he hadn’t required any work that absolutely needed me to be in lab over the time I had planned away, I didn’t feel this applied to me."*
  
-#### When I Try to Make Things Better
+#### Trying to Make Things Better
 *"The next day, after reading the postdoc handbook, considering the previous discussion, and the general state of our relationship, I thought we needed to check that we still had aligned goals and the same ideas of what my work should be, and maybe to set new ground to have a better relationship, with more communication. I emailed him (Oct 6th) saying that, the one-year anniversary of my hiring coming up, I thought it would be a good time to conduct a yearly evaluation of my work at UofM, and ask if we could set up a date for it. He agreed that it was a good idea and told me he would send me material to prepare for it. On Oct 17th, I still hadn’t received anything. I emailed him again asking if we could set a date for that meeting. The next day (Oct 18th), he sent me an annual review questionnaire, asked me to prepare a PowerPoint with all the data I had acquired during the past year, and gave me his availabilities for the following week. Gathering all the data of the year was going to take me some time, so I started working on that right away. On Oct 20th, I was almost do with the task and received an email saying that, as I hadn’t answered when I would what to meet, he wasn’t available anymore at any of these times and would need to move our meeting to the following week. I emailed him 3h later with the power point, the questionnaire filled out and my preferred date. I also stated that I had made both the description of the research outcomes and goals (part of the questionnaire), and the PowerPoint concise but I’d be happy to develop any point. He didn’t ask any clarification. We met on November 1st. Note that this was the first time we had met since the argument (about 1mo earlier), and that he was meeting with other people in the lab on a regular basis during that month. Until August, we were meeting at least every other week, more often every week, at least in an informal way. Our relationship had always been cordial to my opinion until then. Also note, that, by chances of calendar, my yearly contract was renewed that day."*
 
 *"The meeting didn’t go as I expected at all. He asked me to go over the questions I answered in the questionnaire and develop the different things I had done and was planning on doing. During the entire meeting, he was typing on his computer, taking notes of everything I was saying. I thought that this was supposed to be an honest discussion to set up new bases and laid out the things I really liked doing and the new things I had learned in the lab (mentoring students, writing grants and ethics protocols, collaborating with the lab next door on a very fancy technique I couldn’t do anywhere else, learning about human research and talking to clinicians to develop the translational project, how I was really enthusiast about the translational project I had submitted and was really hoping it would go through), but also my frustrations and my hopes for the future (too much time spent managing the colony, ordering supplies,… being a lab manager as I was almost the only one doing it in the lab, hoping to attend more conferences and have more networking opportunities, the problem that the research I was doing in the lab was not allowing me to acquire any new skills as it was just building on my PhD skills). I also asked him what he thought of my work and was very surprised by the answer: he didn’t want me to submit that grant application, he didn’t want me to work on human research while I was in his lab (he is a clinician and working in translational research was THE reason I came to his lab; all 3 grants we submitted together were on translational research), he didn’t want me to develop my own research in his lab but wanted me to continue the research of the previous postdoc. This was all new to me. He quickly mentioned that if I wanted to learn about human research, maybe I should look into joining a lab who was doing only that."*
@@ -242,7 +244,7 @@ Despite having a better understanding of institutional resources, international 
 
 *"On Dec 13th, he asked me and the grad student to come to his office with our logs of control substance use so he could check our control substance logs (this never happened before). I asked the grad student to bring mine for me. He emailed me following that meeting with the grad student saying that he had been informed I had left for vacation and asking if this was true and when I left and was planning to return to work. I said it was, that I left on the 7th at noon and was coming back on the 29th. Over my vacations I kept working remotely until the 12th, as my students had projects to submit."*
  
-#### With the Administration
+#### The Administration
 *"Throughout my postdoc, admin A was clearly seeing that I was working more as a lab manager than a postdoc for the lab and was compassionate about my situation. The first time PI stated that he could refuse to approve my holidays, I went to her to ask about that. She is the one who directed me to the postdoc handbook. On the 4th, when PI threatened me again to not approve my holiday, she looked with me into the postdoc handbook and suggested me to contact the ombudsman to ask her about the situation. I did so on the 6th, when it became obvious that, regardless of the picture I would send, PI would not approve my vacations. Ombudsman contacted the medical school to ask about that and call me back saying that it didn’t seem that I needed any approval on his part to go on holidays, and that she could ask HR to email that information to PI if I needed. I thought that it would only add fuel to the fire and said that I’d like them to hold on for now and that I’ll ask them to do it if he really formally refused me to go on holiday. I never made them do that afterward, probably because of the rush of the events before my departure and the need to leave all this in the US once I was on holiday."*
 
 *"I came back over season days and worked in the lab as planned. I also emailed him as soon as I came back to ask for a meeting to continue our discussion of Dec 1st when we said I should probably leave the lab, i.e. if we could define together a good timeline and what needed to be done by then for the project to be successful. In my head, it was obvious that I could not stay in the lab after the way I had been treated before the holidays, but the project was starting to work and looked promising, and I wanted to make sure it was in good shape to be continued by someone else or to have enough data for a small publication before leaving. I was anxious to get something out of that postdoc to not have that time as a black part on my resume when I would be applying to faculty positions. He answered on January 2nd, saying that I needed to leave at the end of January and that we would discuss what needed to be done by then later. That timeframe was clearly not enough for me to have publishable data (I would have needed 3mo to be comfortable, may have be able to put the project on a good momentum to be continued by students in 2mo). I answered that if he wanted to terminate me, there was some administrative process to go through, to which he answered that in that case I was terminated immediately and that this would imply the subsequent expiration of your visa within 3 days. At that point, I didn’t know what to do anymore. I forwarded that discussion to admin A and to the ombudsman to ask what I was supposed to do."*
@@ -528,18 +530,37 @@ Additionally, analyses of more granular response data for postdoctoral fellows d
 
 
 
-\pagebreak
+
+\newpage
 
 
 # Section 12. Appendices
 
-## Methods
+## Appendix X. Methods
 
-Will will insert stuff here
+### Data collection  
+
+The survey was designed using the Qualtrics platform and disseminated via email campaigns to the postdoctoral cohort at the University of Michigan. The survey was active from 2018-07-25 to 2018-08-10 and logged 696 unique responses over the 16 day response period. Upon conclusion of the response period, survey results were exported from Qualtrics for downstream use.
+
+### Analysis  
+
+During analysis, individual responses were either aggregated by question (Appendix A) or stratified into populations of interest before aggregating by question (Appendices B-J). In analyses comparing multiple postdoctoral populations throughout the University, data were stratified based on responses to the questions labeled as "Q1"" within the respective appendices
+
+All analyses were conducted in R (v3.5.1). For maps of degree granting institutions, degree location data was extracted and plotted using a Winkel tripel projection and 'fiftystater', 'ggalt', 'ggplot2', 'mapproj', and 'viridis' packages. 
+
+For multiple-choice questions, response frequencies were calculated for each question and ambiguous responses (ex: "NA", "Prefer not to answer", etc.) were removed to minimize overplotting. Response frequencies were then plotted using 'ggplot2', 'ggpubr', 'grid', 'gridExtra', and 'viridis'. In plots generated from stratified data sets, vertical red lines represent the response rates for the entire postdoctoral cohort.
+
+For text-based responses, responses were broken into bigrams using the 'tidytext' package and any bigrams containing common stop words were removed. To identify overrepresented terms, the bigram term frequency (tf) was calculated for each question of the aggregated data set. When comparing multiple postdoctoral populations, term frequency-inverse document frequencies (tf-idf) were used to identify overrepresented bigrams and weight responses more favorably based on uniqueness to a given population. Overrepresented bigrams were plotted using 'ggplot2', 'ggpubr', 'ggwordcloud', 'grid', 'gridExtra', and 'viridis'.  Bigram size and color were scaled based on tf or tf-idf values for aggregated or stratified data sets, respectively.
+
+### Reproducibility
+
+All code used in this analysis is available at https://github.com/UMPDA1/UMPDA_PostdocSurvey_2018. Survey response data is available upon request.
+
 
 \pagebreak
 
-## Appendix A. The entire University of Michigan postdoc population.
+
+## Appendix A. Aggregated Postdoctoral Fellow Survey Data
 
 ```{r world_location, echo=FALSE}
 # adding in location figures
