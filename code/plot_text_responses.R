@@ -51,6 +51,7 @@ library(ggwordcloud) # geom_text_wordcloud()
 library(grid) # required for table grobbing of response plots
 library(gridExtra) # used to align response plot coordinates
 library(ggpubr) # required to save gtable plots as ggplot items
+library(viridis) # color scaling
 
 
 # text analysis -----------------------------------------------------------
