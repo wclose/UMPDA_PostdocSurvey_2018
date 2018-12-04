@@ -1,0 +1,737 @@
+---
+mainfont: Helvetica
+header-includes:
+  \usepackage{ragged2e}
+  \usepackage[bottom,hang]{footmisc}
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document: default
+---
+
+
+```{r libraries, message = FALSE, include=FALSE}
+library(tidyverse)
+library(knitr)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = "~/Dropbox/University_of_Michigan/umpda/postdoc_survey/UMPDA_PostdocSurvey_2018/")
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+\newpage
+
+
+\pagenumbering{gobble}
+
+![](images/umpda.jpg)
+
+\centering
+
+\fontsize{30pt}{30pt}
+\selectfont
+
+&nbsp;
+
+&nbsp;
+
+**Current State of the Postdoctoral**  
+**Fellow Experience**
+
+&nbsp;
+
+2018  
+
+&nbsp;
+
+\fontsize{12pt}{12pt}
+\selectfont
+
+**Authored by:**  
+William Close  
+Francois Beaufay  
+Ashley Kalinski  
+Jay Vornhagen  
+
+
+\newpage
+
+
+\fontsize{14pt}{14pt}
+\selectfont
+
+**Disclaimer** 
+
+\fontsize{11pt}{11pt}
+\selectfont
+&nbsp;
+
+The statements in this document solely reflect the positions of the University of Michigan Postdoctoral Association Board and do not necessarily reflect those of the University of Michigan, nor of any other affiliated organization.
+
+
+\newpage
+
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+
+
+\pagebreak
+
+
+\pagenumbering{arabic}
+
+\justifying
+
+# Statement of History and Purpose
+
+Although the “postdoc” designation was established almost 100 years ago, the postdoctoral fellow experience at the institutional level has largely been evaluated locally or anecdotally. Until recently, these methods have been sufficient for determining the postdoctoral fellow experience; however, the steady increase in the number of postdoctoral fellows (greater than 300% from 1980 to 2012[^1]) has led to a concentration of these individuals at large research institutions, such as the University of Michigan. As such, local and/or anecdotal evaluations are no longer sufficient for representing institutional experience. The National Postdoctoral Association has attempted to address this dissonance though the authorship of an institutional policy report in 2014, and most recently, in 2017[^2]. Congruently, the formation of the Coalition for Next Generation Life Science in 2017[^3] has created an excellent repository for career outcome data for the largest subset of postdoctoral fellows that can be used to evaluate institution level policies and practices, especially those recommended by National Postdoctoral Association [^4]. These initiatives represent a significant advancement in the evaluation of the postdoctoral experience; however, most institutions know little about the current experience of their postdoctoral fellows. 
+
+Understanding the current state of the postdoctoral fellow experience is critical for the development of programming and interventions to enhance the satisfaction, safety, and security of postdoctoral fellows. While career outcome remains the most salient data for institutions to collect and report, these data are largely influenced by the institutional experience of the postdoctoral fellow during their training period. In instances where career outcome data indicates insufficiencies in the training of postdoctoral fellows, underlying experiential data can be used to identify institutional shortcomings. Moreover, in instances where the institutional climate is threatening satisfaction, safety, and security of postdoctoral fellows regardless of career outcome, experiential data can be used to enhance the institutional environment. The purpose of this study is to (1) inform stakeholders at the University of Michigan about the current state of the postdoctoral fellow experience, (2) make recommendations concerning interpretation and application of the data presented here, and (3) provide a framework for future studies such that they are longitudinally comparable and available for use by other institutions. 
+
+The data generated in this study is presented below in raw form, and interpretation and application of the data are summarized in five sections titled Population, Strengths, Weaknesses, Opportunities, and Threats. The Population section will summarize the respondents’ demographics to aid in interpretation of the following sections. The Strengths and Weaknesses sections are intended to summarize the current institutional environment at the University of Michigan and highlight data of interest. The Opportunities section is intended to identify areas and make suggestions that reinforce institutional strengths and address institutional weaknesses. The Threats section is intended to identify internal and external influences that threaten the longevity of a positive institutional environment for postdoctoral fellows at the University of Michigan. These sections have been authored for a variety of delineations of data generated in this survey to enhance the granularity and applicability of the findings.
+
+This study was designed, performed, analyzed, and authored by the University of Michigan Postdoctoral Association (UMPDA) Board in 2018 to assess the state of the postdoctoral fellow experience at the University of Michigan. The UMPDA Board is comprised of a group of postdoctoral fellows that represent the interests and needs of the postdoctoral fellow community at the University of Michigan Ann Arbor campus to university faculty and staff. Participation on the UMPDA Board is voluntary, and UMPDA Board members declare no conflict of interest, as defined in the UMPDA bylaws , with any part of this study. The statements in this document solely reflect the positions of the University of Michigan Postdoctoral Association Board and do not necessarily reflect those of the University of Michigan, nor of any other affiliated organization.
+
+
+\pagebreak
+
+
+# Section 1. Full Data Summary 
+
+## Population
+
+At the time of distribution (July 25th, 2018 to August 10th, 2018) there were approximately 1,400 postdoctoral fellows across the University of Michigan Ann Arbor campus. Approximately 45% of those fellows were found in the School of Medicine, 26% in the College of Literature, Science and the Arts (LSA), 17% in the College of Engineering, and the remaining 12% in other schools and colleges. Of these, we received 696 responses (approximately 50% response rate), 93% of which has at least one question completed . To incentivize response, the UMPDA distributed free tee-shirts to respondents upon request; however, respondents were not incentivized in any other way. Survey respondent distribution reflected the distribution of the campus at-large, wherein 43% of respondents were found in the School of Medicine, 24% in the College of Literature, Science and the Arts (LSA), 18% in the College of Engineering, and the remaining 15% in other schools and colleges (Appendix A, Q1). Department-level or more granular data was not collected to protect the identity of respondents. These data indicate that collected responses are reflective of the University of Michigan Ann Arbor campus and are not biased towards an individual school or college. 
+
+In addition, the impartiality of responses is enhanced by the distribution of time spent as a postdoctoral fellow at the University of Michigan. Approximately 40% of respondents were in their first year of their postdoctoral fellowship, another 45% of respondents were in their second or third years, and 15% of respondents had been a postdoctoral fellow for more than three years (Appendix A, Q2). Given that the median time spent in a postdoctoral fellowship at the University of Michigan was 1.62 years in 2017 , these data indicate that survey responses are not biased towards a particular population of postdoctoral fellows. Finally, roughly three-fourths of respondents were in their first postdoctoral fellowship (Appendix A, Q3). The impact of these data is discussed in Section 9; however, this particular variable does not appear to drastically influence response data to a particular conclusion. 
+
+Demographic data indicate a wide breadth of respondent backgrounds. Approximately 34% of respondents were ages 26 to 30, 44% were ages 31 to 35, 16% were ages 36 to 40, and the remaining 6% fell out of that range or did not respond (Appendix A, Q6). Respondents were evenly split between males and females (Appendix A, Q7), and approximately 30% of respondents identified as a member of an underrepresented population (Appendix A, Q8). It is notable that this classification was self-reported, rather than fitting in an official definition of an underrepresented population , as this more appropriately reflected the individual’s experience. International postdoctoral fellows were well represented in this survey, wherein approximately 60% of respondents were non-U.S. citizens (Appendix A, Q4), with most of those identifying as English as an Alternative Language (EAL) population (Appendix A, Q5). A large proportion of these international respondents originated in China and India (Appendix A). Of the 40% of respondents that were U.S. citizens, many were granted their Ph.D. from an institution in the state of Michigan (Appendix A). These data indicate a slight over-representation of female respondents, respondents that identify as a member of an underrepresented population, and international respondents . While this may not be fully reflective of the broader University of Michigan postdoctoral fellow population, it biases the response data towards target populations that have been historically disenfranchised who may benefit from the policies resulting from these data. Finally, 60% of respondents were married or in a domestic partnership (Appendix A, Q9), and 35% of respondents had a dependent or dependents (Appendix A, Q10). These data indicate that the data collected in this survey likely reflected experiences beyond that of the postdoctoral fellows themselves, such as the experiences of partners and dependents. 
+
+To our knowledge, these data reflect the most comprehensive cross-sectional survey of the University of Michigan postdoctoral fellow experience. While there is a slight bias towards responses from female, self-reported underrepresented, and international postdoctoral fellows, we feel that this potential bias does not threaten the conclusions of this study, but rather enhances their impact by identifying the needs of historically disenfranchised individuals. In total, the data generated by this survey can justifiably be extrapolated onto the experience of the entirety of postdoctoral fellow population at the University of Michigan. 
+
+
+\pagebreak
+
+
+## Strengths
+
+The overarching strength of the University of Michigan postdoctoral experience is the reputation and resources afforded to postdoctoral fellows. Indeed, this was one of the most significant reasons leading recent terminal degree recipients to pursue a postdoctoral fellowship at the University of Michigan (Appendix Q, Q31). Although this is integral to the postdoctoral experience, we believe that is largely external to the influence of interventions and programming targeted at postdoctoral fellows. Given that the purview of this survey is to inform stakeholders at the University of Michigan about the current state of the postdoctoral fellow experience, we have focused on the internal factors, rather than the external factors. As such, there are multiple strengths that are highlighted by the data generated in this study, which are summarized below in four points:
+
+1.	**Postdoctoral fellows feel satisfied with their experience at the University of Michigan.** Approximately 67% of respondents indicated that they were satisfied with their experience at the University of Michigan, whereas only 4% were explicitly not satisfied. Of the remaining 29% of respondents, 20% felt neutral and 9% did not respond (Appendix A, Q30). To our knowledge, this is the first data generated assessing the contemporary satisfaction with the postdoctoral experience. These data indicate that efforts undertaken by administration and advocates for postdoctoral fellows should continue in earnest. A more granular analysis of postdoctoral satisfaction can be found in Section 10.
+
+2.	**Institutional knowledge about salary, benefits, career development programs, and social opportunities is strong.** A goal of this survey was to assess the institutional knowledge of postdoctoral fellows to determine if there were unmet needs regarding communication of institutional resources. More than 76% of respondents knew where to locate information regarding their salary and benefits, and 61% of respondents knew whom to contact if they had issues or disputes concerning their paycheck or benefits (Appendix A, Q11). Additionally, 65% of respondents knew where to locate information concerning career and skills development programming (Appendix A, Q11). Finally, 68% of respondents knew where to locate information regarding social and networking opportunities for postdoctoral fellows (Appendix A, Q11). These data highlight the efficacy of current efforts to communicate availably institutional resources, such as the Postdoctoral Orientation, email-based communications and newsletters, and postdoctoral fellow-targeted websites. 87% of respondents indicated that their preferred format for receiving information relevant to their experience is through email (Appendix A, Q15), thus, these efforts should continue in earnest. 
+
+3.	**Postdoctoral fellows feel supported by their mentors in their choice of future career.** As issues of postdoctoral mentorship efficacy receive more attention[^10], it is critical to evaluate the perceptions of mentor support from postdoctoral fellows themselves. Just under 70% of respondents indicated that they feel supported by their mentor in terms of their future career choice. 4% of respondents did not feel supported by their mentors in terms of their career choice, and only a small fraction (less than 4%) had not discussed their choice of future career with their mentors (Appendix A, Q21). This point subtly highlights the fact that institutional efforts to encourage postdoctoral fellows to discuss career choice with mentors have been successful and should continue. 
+
+4.	**Postdoctoral fellows feel valued at the University of Michigan.** Personal valuation is clearly connected to satisfaction. More than 65% of respondents indicated that they felt that their works was valued, and a similar number of respondents felt valued as a person during their postdoctoral experience (Appendix A, Q25). Concurrent with this finding, relatively few respondents, 26%, felt isolated during their postdoctoral experience (Appendix A, Q25). Together, these data suggest efforts to valuate postdoctoral fellows, such as National Postdoc Appreciation Week programming, have been successful, particularly in LSA, where there is a higher proportion of respondents that feel valued (see Section 2 for more detail). Efforts to value postdoctoral fellows should remain a priority.
+
+
+
+\pagebreak
+
+
+## Weaknesses
+
+There are clear weaknesses that are revealed by the data generated in this study. These are summarized below in four points:
+
+1.	**Institutional knowledge about conflict and harassment reporting is weak, and fear of retaliation is high.** Recent reports have underscored the serious issue of harassment of graduate students and postdoctoral fellows[^11]. Although the University of Michigan has taken clear forward steps to address this issue by creating resources and reporting avenues on campus, the penetrance of these efforts in the community of postdoctoral fellows is limited. Less than 56% of respondents know where to find University of Michigan definitions and policies concerning harassment, and 47% of respondents know whom to contact if they witness or experience harassment (Appendix B, Q26). While 63% of respondents feel that a report or harassment would be taken seriously, 53% feel that they are protected from retaliation (Appendix B, Q28). Mentor-mentee conflict is also a serious issue for postdoctoral fellows[^12], who are often reliant upon a single mentor for their career advancement. Less than 42% of respondents know whom to contact if they have a conflict with their mentor (Appendix B, Q26), 53% feel they would be taken seriously if they reported a conflict, less than 47% feel comfortable doing so, and 40% feel that they would be protected from retaliation (Appendix B, Q28). Highlighting this point, only 50% of respondents indicated they know where to find information regarding their rights as a University of Michigan employee (Appendix B, Q26). 
+
+2.	**Postdoctoral fellows do not feel their needs, or the needs of their partners, are taken seriously.** Although many respondents feel that they are valued at the University of Michigan, that does not indicate that they feel their needs are recognized. Indeed, only 44% of respondents feel that their needs are taken seriously (Appendix B, Q25), suggesting a disconnect between feeling valued and feeling that needs are being taken seriously. Additionally, as indicated in description of the respondent population many respondents are married or in a domestic partnership and have a dependent or dependents. Of these respondents, 36% indicated that they feel the needs of their partner and/or dependent(s) are taken seriously (Appendix B, Q27). 
+
+3.	**Postdoctoral fellows have career expectations that are dissonant with national and institutional outcome data, and postdoctoral fellows do not feel well-prepared for their future career.** Almost 60% of respondents have aspirations of pursuing a career in research at an academic institution (Appendix B, Q21). Given that the national matriculation rate to tenure-track positions in academia is between 10% and 20%[^13], and it is estimated that as many as 90% of postdoctoral fellows will eventually leave academia[^14], the future career goals of respondents cannot be realistically met. Even with the exceptional training at the University of Michigan, placing such an abundance of postdoctoral fellows into tenure-track positions is unrealistic. Additionally, less than 50% of respondents feel that current career and skill development programming is applicable to them (Appendix B, Q20), 48% of respondents feel that they are being well-prepared for their future career (Appendix B, Q22) and 52% of respondents feel supported by the University of Michigan in their career choice (Appendix B, Q23). 
+
+4.	**Institutional knowledge of where to locate emotional support and mental health services is limited.** Given the positive effects of emotional support and mental health services on career resiliency[^15], it is critical to provide these services in earnest to postdoctoral fellows. While 58% of respondents are aware that they have access to emotional and mental health services and 51% where to locate information regarding these services (Appendix B, Q26), only 40% known whom to contact if they are having or witnessing a mental health crisis, and less than 40% know whom to contact if they are having or witnessing a substance abuse problem (Appendix B, Q26).
+
+
+\pagebreak
+
+
+## Opportunities
+
+As the visibility of the postdoctoral fellows increases[^16], it is critical that the University of Michigan continues to set the standard for the postdoctoral fellowship. The data generated in this survey indicates that there are multiple opportunities for the enhancement of the postdoctoral experience. While these opportunities will intrinsically vary between units, there are globally relevant actions that can be taken to address the needs of current postdoctoral fellows and attract new postdoctoral fellows. These are summarized below in three points:
+
+1.	**Creation of a centralized postdoctoral office.** The creation of an office to serve the needs of postdoctoral fellows in a uniform manner is an excellent way to unify the postdoctoral experience. As indicated in the summary of weaknesses, institutional knowledge concerning conflict resolution, harassment, emotional support, and mental health services is limited. Additionally, as indicated in the summary of strengths, there are multiple institutional programs that are effective. Specific effort success can be assessed in detail at an institutional and local level, and effective programs should be highlighted, supported, and used as examples for new centralized programming. Resources and effort directed to address the needs of the postdoctoral fellows would most effectively be administered centrally. Additionally, centralization would create a direct means of communication with all postdoctoral fellows and vice versa, thus enhancing institutional knowledge and opening new avenues for conflict resolution, harassment reporting, and access to mental health services
+ 
+2.	**Creating of programming to address the needs to of the partners and dependents of postdoctoral fellow.** Given that many postdoctoral fellows have partners and dependents the ability to serve the needs of these individuals can enhance the attractiveness of the University of Michigan for potential postdoctoral fellows. For many current postdoctoral fellows, their partners were a contributing factor to come to the University of Michigan, indicating that this is a potential avenue for recruitment of new postdoctoral fellows. Moreover, partner satisfaction plays a crucial role in personal satisfaction. By enhancing partner satisfaction through programming targeted at addressing the needs of the partners and dependents of postdoctoral fellows, satisfaction with the postdoctoral experience can be improved. In addition to its impact on recruiting, the increase in postdoctoral fellow satisfaction is likely to improve productivity, as has been noted in evaluations of the private sector[^17].
+
+3.	**Increase transparency of career outcomes and emphasize support of non-tenure track and non-academic careers.** The goal of the postdoctoral fellowship it to develop a skillset that permits the transition into a terminal career; however, there is a clear emphasis on training for the tenure track academic career, and a general dissuasion of alternative career pathways[^18]. While the reasons for this paradigm are numerous, it is clear that there is a disparity between the career desires and career outcomes of postdoctoral fellows. There is a unique opportunity to address this disparity such that the experience of postdoctoral fellow at the University of Michigan equalizes these career desires and career outcomes of postdoctoral fellows. Firstly, increasing transparency of career outcomes will allow current and future postdoctoral fellows to make informed terminal career decisions and more effectively tailor their training. The goals of Coalition for Next Generation Life Science[^19] will be instrumental in this process and should be support across all University of Michigan units. Additionally, these units should strive to collect and report more granular data to aid their current and future postdoctoral fellows. Secondly, there is an opportunity to invest more effort into support for non-tenure track and non-academic career training. This will enhance career outcomes for those that desire such a career, as well as act as a clear signal that these careers are valued, and not viewed as a consolation by the University of Michigan. Finally, increased support for non-tenure track and non-academic career training can be used as a tool to recruit new postdoctoral fellows that desire training for these careers.
+
+
+\pagebreak
+
+
+## Threats
+
+The University of Michigan is in a unique position compared to many other postdoctoral training institutions due to the financial resources available to support its trainees. The recent announcement that the Victors for Michigan campaign has reached $5 billion in donor support[^20] suggests that the most significant threat to many other institutions, funding, does not pose a substantial existential risk to the training of postdoctoral fellows. As such, the external threats to the sustainability of the University of Michigan’s to recruit and retain excellent postdoctoral fellows are environmental in nature. These are summarized below in three points:
+
+1.	**The ability to prevent and respond to harassment and retaliation.** The prevalence of harassment of graduate students and postdoctoral fellows across the nation[^21] suggests that the University of Michigan is not immune to this issue. As indicated in the summary of weaknesses, postdoctoral fellows are not confident that they are protected from potential retaliatory consequences of reporting harassment. As such, the ability to respond to harassment is hindered through depression of reporting. Consequently, this limits the ability to prevent harassment as the consequences of harassing a postdoctoral fellow are not likely to be fully realized by a potential harasser. These issues are especially cogent for international postdoctoral fellows, who are not only reliant on their mentors for training, but also for their immigration status. Given the impact of a culture of harassment can have on an institutional level, this threat affects the entirety the University of Michigan, and efforts should be made to ensure this threat is not realized. An environment where postdoctoral fellows do not feel as though they are protected, or are not protected in some instances, in the case of harassment may depress the ability of the University of Michigan to recruit excellent postdoctoral fellows, both domestically and internationally.
+
+2.	**The ability to successfully resolve mentor-mentee conflicts.** Similar to that of harassment, postdoctoral fellows are not confident that they are protected from potential retaliatory consequences of reporting a mentor-mentee conflicts, creating an environment in which conflict goes unreported and unresolved. This inherently harms the mentee more than the mentor, as postdoctoral fellows are fully reliant upon their mentors, but the converse is generally not true. An environment where postdoctoral fellows do not feel as though they are protected in the case of a negative mentor-mentee relationship may depress the ability of the University of Michigan to continue to recruit excellent postdoctoral fellows. Alternatively, having discrete and transparent policies regarding resolution of mentor-mentee conflicts may help recruit new postdoctoral fellows. Additionally, as postdoctoral fellows are fully reliant for their career advancement, the inability to resolve mentor-mentee conflicts may affect the ability of postdoctoral fellows to be placed in their desired careers, thus negatively impacting the reputation of the University of Michigan for producing top-tier professionals following postdoctoral training.
+
+3.	**The threat of other institutions providing better compensation for postdoctoral fellows.** Although many survey respondents indicated that they feel valued at the University of Michigan, only 53% of respondents feel that they are compensated fairly for their work (Appendix B, Q25). There are many forms of compensation for a postdoctoral fellow[^22] (e.g. salary, retirement, professional development funds, travel funds, alleviation of moving expenses, space allocated to postdoctoral fellows on campus, etc.) that can impact the perception of being “well-compensated,” thus there are multiple avenues to approach this perception. As other leading research and training institutions increase the salaries[^23] and expand the benefits[^24] of postdoctoral fellows, the ability of the University of Michigan to compete for excellent postdoctoral fellow candidates may be threatened. An environment in which postdoctoral fellows feel that their compensation is equal to their effort is a significant factor in the decision of a potential postdoctoral fellow to pursue their training at the University of Michigan instead of a comparable research and training institution. 
+
+
+\pagebreak
+
+
+# Section 2. Postdoctoral Fellows Delineated by School and/or College
+
+## Population
+
+For the purposes of this analysis, survey respondents have been delineated into four groups: (1) College of Engineering, (2) School of Medicine, (3) College of Literature, Science and the Arts (LSA), and (4) Other Schools and Colleges. Of the four delineations, the College of Engineering has the most unique respondent population. Survey respondents from the College of Engineering were predominantly international (Appendix C, Q4) and English as an alternative language speakers (Appendix C, Q5). Additionally, survey respondents from the College of Engineering were heavily male (Appendix C, Q7), and somewhat younger (Appendix C, Q6). Correspondingly, survey respondents from “Other Schools and Colleges” were mainly female (Appendix C, Q7). Survey respondents from the School of Medicine have been a postdoctoral fellows at the University of Michigan for a longer period of time (Appendix C, Q2). Finally, survey respondents from the College of LSA have a lower rate of having dependents (Appendix C, Q10).
+
+## Strengths
+
+A programmatic strength across all schools and colleges is that survey respondents who self-identified as underrepresented are equally distributed (Appendix C, Q8). This indicates that all schools and colleges are accessible to underrepresented postdoctoral candidates and are amenable to efforts to increase diversity in the postdoctoral fellow population across the University of Michigan. Additionally, institutional knowledge of salary and benefits is strong across all schools and colleges (Appendix C, Q11), and is especially concentrated in the College of LSA (Appendix C, Q11), which speaks to the efficacy of central and local efforts to communicate this knowledge. Compared to respondent averages, survey respondents from the College of LSA and “Other Schools and Colleges” feel supported and valued by the University of Michigan (Appendix C, Q25) and feel supported by their mentors (Appendix C, Q24). Consequentially, survey respondents from the College of LSA reported high rates of satisfaction with their postdoctoral experience compared to respondent averages (Appendix C, Q30). Together, these data indicate that efforts to increase institutional knowledge across all postdoctoral fellows have been effective, and efforts to support postdoctoral fellows from the College of LSA and “Other Schools and Colleges” have been successful.
+
+## Weaknesses
+
+Of survey respondents, postdoctoral fellows in the College of Engineering have the lowest rates of satisfaction (Appendix C, Q30). This is likely attributed to low rates of feeling that their work valued by the University of Michigan (Appendix C, Q25), compensated fairly for their work (Appendix C, Q25), and supported by their mentor in their career choice (Appendix C, Q24). Additionally, survey respondents from the College of Engineering feel their immigration status could be used as leverage against them (Appendix C, Q29). A subset of these findings is also true for respondents from the School of Medicine, who also report low rates of feeling that they are personally valued by the University of Michigan (Appendix C, Q25). A subtle weakness is that respondents from “Other Schools and Colleges” display low rates of knowledge of conflict resolution, harassment, and mental health resources (Appendix C, Q26), which may be attributable to their dispersal across the University of Michigan campus.
+
+## Opportunities
+
+A significant opportunity lies in the specific responses amongst the specific school/college delineations, wherein each major delineation provides information that segregates clear focal populations. This should be considered an opportunity, as it allows for targeted programming that can enhance the postdoctoral experience at each major school/college. For example, the fact that College of Engineering postdoctoral fellows have high rates of feeling that their immigration status could be used as leverage against them (Appendix C, Q29) provides a unique opportunity for specific intervention and training for faculty and staff who mentor College of Engineering postdoctoral fellows. Additionally, there is significant opportunity for cross-school/college learning. Given that there are obvious differences between the responses amongst the specific school/college delineations, school/colleges that want to improve specific areas of the postdoctoral experience can look to examples set by other school/colleges to build rigorous and sustainable programming.
+
+## Threats
+
+Many of the threats revealed by delineating respondent data by school/college are consistent with that of all respondent data (Section 1, “Threats”). One significant threat to the sustainability of the postdoctoral experience is the isolation of postdoctoral fellows at “Other Schools and Colleges” (Appendix C, Q25), and in conjunction, the poor of institutional knowledge (Appendix C, Q26). The decentralized nature of the University of Michigan campus creates a situation in which postdoctoral fellows that are not placed in positions that have strong communities of postdoctoral fellows. Consequently, these postdoctoral fellows are at higher risk of mentor-mentee conflict and workplace harassment. Given the vulnerability of postdoctoral fellows to harassment and the impact that a culture of harassment can have on an institutional level, this threat affects the University of Michigan as a whole. The creation of a centralized postdoctoral office (Section 1, “Opportunities”) would be an efficient means of reducing the isolation of this population. 
+
+
+\pagebreak
+
+
+# Section 3. Domestic Versus International Postdoctoral Fellows
+
+## Population
+
+Approximately 60% of the respondents are non-U.S. citizens (Appendix B, Q4), most of whom report English as an alternative language (Appendix D, Q5). Survey respondents who indicated that they are not U.S. citizens are over-represented in the College of Engineering, whereas the College of Literature, Science, and the Arts and the School of Medicine house slightly more domestic respondents (Appendix D, Q2). International respondents were more likely to have already completed another postdoctoral fellowship (Appendix D, Q4), though this did not skew their time spent as a postdoctoral fellow at the University of Michigan (Appendix D, Q3). Interestingly, compared to domestic postdoctoral fellows, international postdoctoral fellows are more likely to be older (Appendix D, Q6), male (Appendix D, Q7) married/partnered (Appendix D, Q9) and to have dependents (Appendix D, Q10). The high proportional of male international respondents did not greatly impact the distribution of respondents self-identifying as a member of an underrepresented population (Appendix D, Q8). 
+
+## Strengths
+
+The strengths of the postdoctoral experience are generally consistent with the overall findings regardless of the immigration status. However, it is noteworthy that international postdoctoral fellows generally report equivalent or higher levels of institutional knowledge than domestic postdoctoral fellows (Appendix D, Q11, Q26). Together these data illustrate the positive impact of current efforts to ensure that international postdoctoral fellows are able to navigate the University of Michigan, likely through interactions with University of Michigan International Center[^25]. Interestingly, international respondents display higher levels of confidence that the University of Michigan will help them achieve their career goals compared to domestic respondents (Appendix D, Q22) and indicate lower rates of feeling isolated (Appendix D, Q25), which may be a further indicator of positive institutional engagement.  
+
+## Weaknesses
+
+Despite having a better understanding of institutional resources, international respondents report feeling less safe than domestic respondents (Appendix D, Q28). This likely originates from two factors. Firstly, international respondents do not feel they will be taken seriously when reporting conflict and harassment (Appendix D, Q28).   Secondly, a high number of international respondents acknowledge that their immigration status affects their action as a postdoctoral fellow (Appendix D, Q29) and less than 40% of are confident that their immigration status cannot be used as leverage against them (Appendix B Q29). Given that there are multiple anecdotes of mentor-mentee conflicts leading to such outcomes for international postdoctoral fellows, this is not surprising. 
+
+## Opportunities
+
+The University of Michigan International Center provides significant resources for international postdoctoral fellows, as indicated by the institutional knowledge displayed by international survey respondents. There is significant opportunity to enhance the safety of international postdoctoral fellows through this resource. Building additional programming to address conflict and harassment in the international postdoctoral community is likely to be highly effective due to the level of engagement and opening a clear avenue for conflict and harassment reporting. Additionally, there is opportunity for direct engagement with the mentors of international postdoctoral fellows to provide education and training that can equilibrate the significant mentor-mentee power dynamic between, thus providing safeguards and security to the immigration status, and putting less dependence on the good will of the mentor.
+
+## Threats
+
+The most significant threat to the experience of the international postdoctoral fellows lies in the immigration status itself. The weakness of a one-year contract accompanied by the dependence on a single mentor-mentee relationship as protection for their immigration status highly influences the experience and decisions of international postdoctoral fellows. If additional protections for international postdoctoral fellows are not established, prospective postdoctoral fellows may be less inclined to complete their postdoctoral fellowship at the University of Michigan, current postdoctoral fellowship retainment may be harmed, and the reputation of the University of Michigan within the international scholar community may be tarnished. One of the aforementioned anecdotes is provided below to highlight the difficulties of navigating mentor-mentee conflict resolution, particularly as it applies to an international postdoctoral fellow (note: this statement has not been edited or shortened in order to best represent the words of the affected fellow).
+
+\setlength{\leftskip}{1.27cm}
+
+#### Background
+*"I started my postdoc in November 2016. I am an international scholar on a H1B visa. The situation in the lab when I started was not quite the one I was expecting: the lab manager had left 7mo before and was coming back from time to time to run experiments on an hourly basis but didn’t do the lab management tasks anymore. The only grad student in the lab had started in May and wasn’t trained to do any of that. The PI, although junior faculty, was not involved in the maintenance of the lab at all, and avoided any administrative task as long as he could. Therefore, the lab was fairly abandoned and I started my postdoc by putting everything back together, getting the lab back in track with animal regulations, waste disposal, ordering supplies,… in parallel of setting up a new research project. I was stuck in these administrative/lab manager tasks for about 6mo before my project was finally approved by the IACUC and I could start my own experiments, 4mo of which are imputable to the PI simply not submitting the protocol amendments I had written or not answering the IACUC questions.  In that time, I helped in other projects, wrote 2 articles, to wrap up my thesis project and a review with the PI and grad student, started processes to recruit students... The PI was very happy with my work as a lab manager (position I did not sign up for), even voicing that “women are so much better at micro-managing anyway!” (actual quote, in front of the entire lab, which I found very sexist and insulting, especially because I was reduced to this administrative position because of him). On several occasions, I mentioned the need to replace the lab manager, to which the PI initially answered that he was working on it but it would take time. The answer became more and more elusive and, after several months he told me that the current financial situation of the lab would not allow it until we have another grant."*
+ 
+#### When It Started to Go Wrong
+*"Once my project was finally approved (May 2017), I started to work on it. It took about 3 months to figure out some parameters, and in August I got my first promising results suggesting I was on the right track. At that time, PI forwarded me an ad for a MICHR grant I could apply to. It really interested me. In hindsight, I think he didn’t actually looked at what the grant was for. It required me to get together a group of mentors for a translational project I could build on my first preliminary results, and would pay half of my salary, giving me more freedom to do actual research, more mentors to help me navigate the next steps, and new research skills. PI was in vacation the two last weeks of August and the deadline was beginning of October so I started working on contacting potential other mentors and developing the project by myself. As soon as he came back, I updated him with my progress and my drafts for the project (Sept 3rd). I sent him regular updates on the project writing, but he showed little to no interest in helping me. I developed the entire project, involving him and 2 other mentors, with virtually no help from him. He sent me his mentor letter at the very last minute for the application submission, almost preventing me to submit it."*
+
+*"Toward the end of the application writing (Sept 22nd), I also informed PI that I would like to go back to my family for the holidays. I had wanted to take my plane tickets since mid-August but it was never really a good time to discuss that (he was on holidays or we had more pressing issues to discuss) and I had delayed the discussion. Prices for plane tickets were getting more and more expensive, I hadn’t been back to my country yet and had taken very little holidays for the entire year. I mentioned that I would like to take 3weeks off (12 workdays considering the university closes for season days) but would be back in the middle of the holiday week, coordinating with the grad student and a new postdoc of the lab so that there would always be at least one of us in the lab for the colony maintenance and other minor tasks (i.e. working on seasonal break, as I did the year before). He didn’t really comment on that but I received an email from him that evening, as I was about to take my tickets, asking me to hold on buying them until our next meeting, on October 3rd, when we would discuss the strategy for the R01 grant application. I agreed to it. On October 3rd, he never came to the lab and, when I emailed him to ask if we were still meeting, he said he was working on a grant from home and asked me to send him my experimental plans for the end of the year. I wrote a detailed email on different possible experiments I could do depending on what was the most needed for his next grant submission. He answered that that wasn’t the question he asked and asked me again what my plans were. I developed a detailed email with the different experiments I could reasonably do in my main project, with Ns considering how many animals I would have available in that time frame (limited, as we had had to limit the size of our colony because of recent space issues), and the results I was expecting. I also mentioned that because of the limitation of the colony we had, I would not have any animal to work with until beginning of November. He never answered that email, so I assumed he was satisfied with it and went on buying my plane tickets that night. On the 5th, he emailed me saying he would be in his office and we could discuss my experimental plan. He validated it and requested an additional experiment for a grant he was planning to write. I said that that experiment (experiment X) would need to be added to our IACUC protocol, that I would get on it right away, and I would start troubleshooting it as soon as the amendment would be approved. At the end of the meeting, I also mentioned that, as it seemed to me that he was okay with my experimental plans and tickets price were getting really expensive, I had taken my plane tickets. He got really angry about it, said that he could very well not approve my holiday. We left it to that. I was fairly shaken and went to discuss this with an admin (admin A), who sent me the postdoc handbook to look for answers about whether or not he could “not approve my holidays”. The only information I found was that “Fellows should always check with their research advisor/PI to determine if their presence will be needed at work during the holidays and/or desired vacation days”. I had made sure to discuss with the other lab members so that one of us would always be available to tend for the daily tasks of the lab, and that he hadn’t required any work that absolutely needed me to be in lab over the time I had planned away, I didn’t feel this applied to me."*
+ 
+#### Trying to Make Things Better
+*"The next day, after reading the postdoc handbook, considering the previous discussion, and the general state of our relationship, I thought we needed to check that we still had aligned goals and the same ideas of what my work should be, and maybe to set new ground to have a better relationship, with more communication. I emailed him (Oct 6th) saying that, the one-year anniversary of my hiring coming up, I thought it would be a good time to conduct a yearly evaluation of my work at UofM, and ask if we could set up a date for it. He agreed that it was a good idea and told me he would send me material to prepare for it. On Oct 17th, I still hadn’t received anything. I emailed him again asking if we could set a date for that meeting. The next day (Oct 18th), he sent me an annual review questionnaire, asked me to prepare a PowerPoint with all the data I had acquired during the past year, and gave me his availabilities for the following week. Gathering all the data of the year was going to take me some time, so I started working on that right away. On Oct 20th, I was almost do with the task and received an email saying that, as I hadn’t answered when I would what to meet, he wasn’t available anymore at any of these times and would need to move our meeting to the following week. I emailed him 3h later with the power point, the questionnaire filled out and my preferred date. I also stated that I had made both the description of the research outcomes and goals (part of the questionnaire), and the PowerPoint concise but I’d be happy to develop any point. He didn’t ask any clarification. We met on November 1st. Note that this was the first time we had met since the argument (about 1mo earlier), and that he was meeting with other people in the lab on a regular basis during that month. Until August, we were meeting at least every other week, more often every week, at least in an informal way. Our relationship had always been cordial to my opinion until then. Also note, that, by chances of calendar, my yearly contract was renewed that day."*
+
+*"The meeting didn’t go as I expected at all. He asked me to go over the questions I answered in the questionnaire and develop the different things I had done and was planning on doing. During the entire meeting, he was typing on his computer, taking notes of everything I was saying. I thought that this was supposed to be an honest discussion to set up new bases and laid out the things I really liked doing and the new things I had learned in the lab (mentoring students, writing grants and ethics protocols, collaborating with the lab next door on a very fancy technique I couldn’t do anywhere else, learning about human research and talking to clinicians to develop the translational project, how I was really enthusiast about the translational project I had submitted and was really hoping it would go through), but also my frustrations and my hopes for the future (too much time spent managing the colony, ordering supplies,… being a lab manager as I was almost the only one doing it in the lab, hoping to attend more conferences and have more networking opportunities, the problem that the research I was doing in the lab was not allowing me to acquire any new skills as it was just building on my PhD skills). I also asked him what he thought of my work and was very surprised by the answer: he didn’t want me to submit that grant application, he didn’t want me to work on human research while I was in his lab (he is a clinician and working in translational research was THE reason I came to his lab; all 3 grants we submitted together were on translational research), he didn’t want me to develop my own research in his lab but wanted me to continue the research of the previous postdoc. This was all new to me. He quickly mentioned that if I wanted to learn about human research, maybe I should look into joining a lab who was doing only that."*
+
+*"After the meeting had ended, I sent an email to him thanking him for his time and saying that following what we discussed, I thought it would be a good thing to define a fixed time for one-on-one weekly meetings to discuss data and projects and make sure our goals stay aligned. He answered the next day thanking me for being honest with him, that hearing from me “[quoting all the frustrations I had mentioned that he had taken notes on as I was talking]” helped him better understand my perspective, that he would do his best to work with me to find the best solutions and that he would check his calendar and let me know about further meetings."*
+ 
+#### Experiment X and Vacations
+*"Experiment X was first discussed on Oct 5th. The amendment was submitted on Oct 25th and approved on Nov 16th. In the meantime, I wasn’t supposed to run any experiment associated with it. PI had suggested that I start to troubleshoot for that experiment using another point of our protocol, already approved, although not for that project (I didn’t feel 100% comfortable with that). I did and started the first experiments as soon as I had animals for it, on Oct 30th. On Nov 15th, I emailed him saying that the first results were encouraging and I was thinking we should be able to start the actual experiment as soon as the protocol would be approved (I had firmly stated that I would not start the actual experiment without approval). He asked for pictures and offered to meet. I answered that I had the previous pictures, on the right track but there yet, and should have the pictures of the most recent experiment the following week. We met on Nov 19thwith the new pictures. They were showing I was clearly on the right track but still needed to adjust the parameters. On Dec 1st he asked if I had new images with the corrected parameters and if I would have them before my planned vacation. I was supposed to leave on the 7th. I answered that the newest pictures would not be ready by that time because of the processing time, but that I had set up everything so that my undergrads would be able to do the final processing steps while I would be away. We met again that day. During that meeting we discussed the planning of the experiment and the goal for the project. We also discussed the fact that I should look for another lab, that was doing more translational research. On the 4th, while I had already told him I would not have the images before leaving, he sent me an email asking if I had any images showing that I had properly defined the parameters of the experiment and added : “As we discussed during your annual review my approval of your vacation was conditional upon your demonstration that you [have the right parameters for experiment X].” This was the first time he had put any condition on approving my vacations and was 3days before my planned departure date. I answered on the 5th (the first day I could look at the sample before processing) that visual observation suggested that I did properly defined the parameters but I would not have the images for that until the 15th. He responded that “As we discussed it several weeks ago, unless [I show him I had the proper parameters for experiment X], I will not approve your vacation”. The following day, the day before my departure, I sent him an unprocessed image showing to the visual observation I had made. He answered that my image did not prove at all that I had the proper parameters and that “no journal or any grant funding agency would accept them” and asked another image of the same sample. I sent another unprocessed image of the same sample at 6pm. At 8pm the day before my departure, he said that this was still not sufficient and that I should send him pictures of the entire sample (z axis). I answered that I had just left the lab but would do it the next morning (my plane required me to leave at 12pm). He answered that he would be travelling the following day and not able to see the images until the evening. I went back to the lab to find out that I could not access the microscope room after all the personnel of the neighboring lab had left. I emailed him saying that and that they started early in the morning and I would try again then. I did so and was able to send him the entire stack at 8:31am. This email crossed one he sent me at 8:23am saying that “I haven't received any new images from you that will allow me to approve your vacation. I will be traveling and will have my phone off.” At 12pm, I still had no answered and went to the airport to take my plane. He answered my email only at 10:19pm (note that his travel was in the US), saying that this was still not satisfactory. I did not answer."*
+
+*"On Dec 13th, he asked me and the grad student to come to his office with our logs of control substance use so he could check our control substance logs (this never happened before). I asked the grad student to bring mine for me. He emailed me following that meeting with the grad student saying that he had been informed I had left for vacation and asking if this was true and when I left and was planning to return to work. I said it was, that I left on the 7th at noon and was coming back on the 29th. Over my vacations I kept working remotely until the 12th, as my students had projects to submit."*
+ 
+#### The Administration
+*"Throughout my postdoc, admin A was clearly seeing that I was working more as a lab manager than a postdoc for the lab and was compassionate about my situation. The first time PI stated that he could refuse to approve my holidays, I went to her to ask about that. She is the one who directed me to the postdoc handbook. On the 4th, when PI threatened me again to not approve my holiday, she looked with me into the postdoc handbook and suggested me to contact the ombudsman to ask her about the situation. I did so on the 6th, when it became obvious that, regardless of the picture I would send, PI would not approve my vacations. Ombudsman contacted the medical school to ask about that and call me back saying that it didn’t seem that I needed any approval on his part to go on holidays, and that she could ask HR to email that information to PI if I needed. I thought that it would only add fuel to the fire and said that I’d like them to hold on for now and that I’ll ask them to do it if he really formally refused me to go on holiday. I never made them do that afterward, probably because of the rush of the events before my departure and the need to leave all this in the US once I was on holiday."*
+
+*"I came back over season days and worked in the lab as planned. I also emailed him as soon as I came back to ask for a meeting to continue our discussion of Dec 1st when we said I should probably leave the lab, i.e. if we could define together a good timeline and what needed to be done by then for the project to be successful. In my head, it was obvious that I could not stay in the lab after the way I had been treated before the holidays, but the project was starting to work and looked promising, and I wanted to make sure it was in good shape to be continued by someone else or to have enough data for a small publication before leaving. I was anxious to get something out of that postdoc to not have that time as a black part on my resume when I would be applying to faculty positions. He answered on January 2nd, saying that I needed to leave at the end of January and that we would discuss what needed to be done by then later. That timeframe was clearly not enough for me to have publishable data (I would have needed 3mo to be comfortable, may have be able to put the project on a good momentum to be continued by students in 2mo). I answered that if he wanted to terminate me, there was some administrative process to go through, to which he answered that in that case I was terminated immediately and that this would imply the subsequent expiration of your visa within 3 days. At that point, I didn’t know what to do anymore. I forwarded that discussion to admin A and to the ombudsman to ask what I was supposed to do."*
+
+*"The next morning, admin A answered me saying that she was working on this with admin B and that they had contacted UMHS Human Resources as well as Academic Human Resources. I met with PI, admin A and admin B that morning. Both PI and myself explained the situation. In that meeting, the primary griefs of PI were that 1. I had left on unapproved holidays, 2. I had submitted an application to a grant that he didn’t want me to apply to. I answered that 1. I had checked with the ombudsman that I was allowed to leave and had done my very best to still send him the information he wanted before leaving and that 2. He never said that he didn’t want me to apply, and even sent signals in the other directions as he was the one who initially sent me the ad and, when I was starting the application writing, he had spontaneously sent an email to one of the other mentors I had involved in the project stating that I was a great postdoc and that he was excited to work with her and on that project. They offered me a first deal of 30days of separation agreement and a plane ticket back to my home country. The deal also stated that I could not come back to the lab within those 30d. I refused that deal, because I still wanted to finish some experiments for the project and make it possible to publish. This was my main request, as I had already set my mind on leaving, I just needed to make sure I hadn’t completely lost 1.5y."*
+
+*"Refusing this first deal started a process with academic HR: they set up a meeting that was supposed to include Academic HR, Michigan Medicine HR, PI, admin A & B and myself “to present the facts as we know them and what the options are for resolution of this matter, including the issue of your returning to the lab”. Academic HR and admin B had been discussing the case before the meeting, leaving me completely in the dark as to what was to happen, what were the standard procedures in this situation, or what my rights were. I emailed them saying that I was feeling very uncomfortable with the situation and thus that I would like to bring a witness to the meeting, to ensure that everything is done fairly and everyone has the opportunity to present the situation. I also asked for a written version of “the various concerns of which we have previously spoken” that they mentioned, as I still did not understand what they were. They agreed to let me bring a witness as long as that person remained silent throughout the meeting. The meeting held place on Jan 11th. I asked if it was a Disciplinary Review Conference, as I had seen that this was a first step to terminating an employee but was answered that it wasn’t, it was just an informal meeting to give both parties the opportunity to give their views on the situation. I had a friend coming as a witness, who remained silent. I also asked if anyone was taking official notes of the meeting and if these notes would be shared with me and the answer was no to both questions. During that 1-hour meeting, PI started by exposing 7 points against me, which took him over 40min. It was obvious during the meeting that he had been exchanging emails with all the other people in the room and had sent them a list of these points, but nothing was shared with me to give me an opportunity to prepare answers. To give an example of the points against me, PI argued that I was stealing money from the NIH because I was paid by his NIH grant and was not motivated to work or productive (I was working long hours and was fighting the first deal because I wanted to stay in the lab to wrap up the project, so hard to see how I was not motivated). He finished by requesting that I was terminated immediately and sued to recover the funds invested in my salary. The meeting was 1h long, giving me only 20min to answer these 7 points, one after the other. I had only answered to the first 4 points when, the hour being over, the meeting was ended."*
+
+*"After that meeting, I was again left out of all discussions and barred from the lab (I could not even retrieve my personal belongings). I had no idea of what the next steps were supposed to be. During the meeting, a timeline of my stay in the lab submitted by PI to HR had been mentioned. I requested to see it and it was sent to me after the meeting. Fact had been deformed or were simply false, and PI was mentioning that he was very unhappy with me very early on in my postdoc, when our relationship was still great to my opinion (before I started to write the MICHR grant) and when he hadn’t said anything to me to let me think such thing. Again, I was renewed without any question about it on Nov 1st. I sent a timeline from my point of view to HR. They acknowledge reception and left it at that."*
+
+*"On Jan 16th, I was informed by friends that PI had requested my access to the file server to be cancelled, effectively barring me from al the file and data had had generated. On Jan 19th, after I repeatedly asked what I was supposed to expect next, I was only answered that “the group continues to review the information provided by both [PI and myself] as well as review the University’s policies so as to give you and the lab satisfactory resolution” I asked again to have a copy of the university policies that applied to me and offered to meet again to answer the 3 points I wasn’t given time to answer. I was not answered. After barring me from the lab, PI removed me from the ethic protocols, making it more and more obvious that I would not be back to the lab at any time, but HR kept ignoring my questions and did not tell me that the resolution they were working on was immediate termination."*
+
+*"I was invited to a follow-up meeting on January 26th. On that meeting, I was presented with another deal that ended my employment the day I signed it and gave me a month salary of compensation. As it was a resignation, it did not even offered my flight back home, making it an even worse deal than the first one I was offered. I was not given any insight of the reasoning leading to that resolution, nor any impression that what I had said to defend myself had had any influence on the decision. Although PI actions since the last meeting led me to think that I would not be allowed back in the lab, because HR was not giving me any information in this direction, I had not realized at all that this would be the resolution they would offer. At this point, I refused to sign, stopped interacting with HR and hired a lawyer who handled everything for me interacting with the University lawyer."*
+ 
+#### The Final Result
+*"It took another full month to reach a termination that was satisfactory for both parties. The lawyer was clear from the beginning that I would never be allowed to finish my project and that allowed me to properly prepare my departure from the country. He was also obtaining responses from the other party, so I wasn’t in the dark as to what was going on anymore. The extra month gave me time to end my lease, sell my furniture and look for another position."*
+
+*"I was finally given a copy of my files but never got access to the actual recordings of my experiments, making it impossible for me to go back to the raw data. I have learnt since then that someone had took over my project in the lab and replicated all my results, but PI had made it very clear during the discussions with the lawyers that he would not publish with me, so my name will likely never be on the publications associated with that project (that I had started from scratch), nor any other I contributed to.”*
+
+\setlength{\leftskip}{0cm}
+
+
+\pagebreak
+
+
+# Section 4. Postdoctoral Fellows with Dependents Versus No Dependents
+
+## Population
+
+Approximately 35% of survey respondents have dependents (Appendix B, Q10). The College of Literature, Science, and the Arts has proportionally fewer respondents with dependents compared to other schools and colleges (Appendix E, Q2). Postdoctoral fellows with dependents are more likely to be international and speak English as an alternative language (Appendix E, Q5, Q6). Additionally, respondents with dependents are proportionally older (Appendix E, Q7), male (Appendix E, Q8), and married/partnered (Appendix E, Q10). The bias to male gender for respondents with dependents does not correlate with a substantially fewer respondents indicating that they are a member of an underrepresented population (Appendix E, Q9). Interestingly, respondents with dependents are more likely to have already completed another postdoctoral fellowship (Appendix E, Q4), and this correlates with a slightly longer time as a postdoctoral fellow at the University of Michigan (Appendix E, Q3).
+
+## Strengths
+
+The strengths of the postdoctoral experience are generally consistent with the overall findings regardless of having dependents or not. Institutional knowledge is high amongst both populations (Appendix E, Q11, Q26), with slightly higher levels of knowledge of resources concerning benefits in respondents with dependents (Appendix E, Q11). Notably both populations report roughly equal levels of feeling supported in their career choice by the University of Michigan (Appendix E, Q22, Q23) and their mentors (Appendix E, Q24). Interestingly, respondents with dependents reported lower levels of isolation (Appendix E, Q25). Together, these data suggest that institutional support and career development resources do not target postdoctoral fellows with or without dependents in an unequal manner. 
+
+## Weaknesses
+
+Respondents with dependents report lower levels of feeling compensated fairly for their work (Appendix E, Q25). This is unsurprising given the high financial burden of dependents in conjunction with the relatively minimal extra financial support provided to postdoctoral fellows with dependents. Interestingly, this is also reflected in male survey respondents (Appendix G, Q25), who are more likely to have dependents (Appendix E, Q8). Additionally, respondents with dependents were more likely to report that their immigration status affect their actions as a postdoctoral fellow (Appendix E, Q29). This is reflected by the proportionally higher number of international postdoctoral fellows with dependents (Appendix E, Q5), but may also reflect the impact of how the vulnerability of international postdoctoral fellows especially impacts those with dependents (Section 3). 
+
+## Opportunities
+
+The recent change in the University of Michigan parental leave policy as it pertains to postdoctoral fellows[^26] is an important and laudable step to benefit postdoctoral fellows with dependents. A significant opportunity to expand on this precedent is the enhancement of financial assistance for postdoctoral fellows with dependents, specifically to reduce the financial burden of childcare. Additionally, the expansion programming to address conflict and harassment during the postdoctoral fellowship can alleviate the additive impacts of a significant mentor-mentee power dynamic and the having dependents, especially in the international postdoctoral fellow community. Given that institutional knowledge is high amongst the community of postdoctoral fellows with dependents (Appendix E, Q11, Q26), and the community of international postdoctoral fellows (Appendix D, Q11, Q26), building additional resources into existing structures is likely an effective means to develop new conflict resolution and anti-harassment/harassment reporting resources. 
+
+## Threats
+
+The disparity between male and female respondents with dependents may reflect the choice delay starting a family for some female postdoctoral fellows. Without the development of equitable programs and benefits that fully permit the option to start a family, the University of Michigan risks disproportionately disadvantaging female postdoctoral fellows. Additionally, the lack of financial support for postdoctoral fellows with dependents may encourage potential postdoctoral fellows to choose an alternative institution for completion of their postdoctoral fellowship or diminish retention of postdoctoral fellows that need to make alternative financial arrangements when establishing a family. Finally, the intersection of paid sick leave and paid family medical leave significantly impacts the ability of postdoctoral fellows to provide support for sick or injured dependents, which may negatively impact recruitment of new postdoctoral fellows and the retainment of current postdoctoral fellows.  
+
+
+\pagebreak
+
+
+# Section 5. Partnered Versus Non-partnered Postdoctoral Fellows
+
+## Population
+
+Of all respondents, 58.2% are married or in a domestic partnership, 35,4% are single, 2.5% are divorced or separated and 0.2% are widowed (Appendix B, Q9). Given the small sample of divorced or separated and widowed respondents, the following analyses should be interpreted with the caveat that the characteristics of these populations may not be fully reflected in this survey. Indeed, further analysis of the widowed population is not provided. Partnered and non-partnered respondents were distributed relatively evenly across the various schools and colleges at the University of Michigan (Appendix F, Q2). Single respondents were more likely to be in their first postdoctoral fellowship (Appendix F, Q4). Partnered respondents were more likely to be international (Appendix F, Q5), speak English as an alternative language (Appendix F, Q6), older (Appendix F, Q7), male (Appendix F, Q8), and have dependents (Appendix F, Q10). Divorced/separated respondents were more frequently international (Appendix F, Q5) female (Appendix F, Q8), and self-identified as a member of an underrepresented population (Appendix F, Q9). 
+
+## Strengths
+
+The significant similarities between partnered and single respondents should be considered a strength. The current paradigm is that partnered individuals are more satisfied and successful due to external support from their partners[^27]; however, this is not reflected in postdoctoral fellows at the University of Michigan. This indicates that both populations are equally engaged in the broader postdoctoral and University of Michigan communities, which is also supported by respondent data (Appendix F, Q25). Together, these data indicate that there is no bias in programmatic targeting between single and partnered postdoctoral fellows.
+
+## Weaknesses
+
+The most significant weaknesses are present in the divorced/separated respondents. Overall, divorced/separated respondents indicate significantly less satisfaction with their postdoctoral experience at the University of Michigan (Appendix F, Q30), in conjunction with higher rates of feeling isolated (Appendix F, Q25). This creates a situation in which the overall engagement with the institution at large in negatively impacted, reflected by diminished feeling of value (Appendix F, Q25), institutional knowledge (Appendix F, Q26), and increased apprehension around reporting conflict and harassment (Appendix F, Q28), and increased fear of retaliation (Appendix F, Q28). Together, these data indicate that the needs of divorced/separated respondents are currently not well served.
+
+## Opportunities
+
+Fortunately, the divorced/separated respondent population is a small fraction of respondents, suggesting that it is a comparatively small population of postdoctoral fellows. This represents an opportunity, as specific, supportive programming targeted at this population should improve their experience. By creating communities that support divorced/separated postdoctoral fellows, their overall isolation can be decreased, which will likely improve their institutional engagement, thus reducing the potential for adverse outcomes, such as conflict and harassment. This is especially important, as international, female, and underrepresented individuals are a substantial portion of this population (Appendix F, Q5, Q8, Q9), thus programs to support these individuals falls directly in the purview of Diversity, Equity, and Inclusion Initiative at the University of Michigan[^28]. The equity of experience between partnered and single postdoctoral fellows indicates that programming targeted at divorced/separated postdoctoral fellows will be more successful if is created specifically for this population, as current structures do not sufficiently serve this group.
+
+## Threats
+
+Given the demographic makeup of the divorced/separated respondent population, the dissatisfaction and disengagement of this group should be considered a threat to the sustainability of a positive postdoctoral experience at the University of Michigan, as marginalization these populations is antithetical to an inclusive environment. As divorced/separated postdoctoral fellows become isolated, their likelihood of experiencing mentor-mentee conflict and harassment increases. Any instance of significant unresolved mentor-mentee conflict and harassment of marginalized communities represents a threat to the recruitment of new postdoctoral fellows and the retainment of current postdoctoral fellows.
+
+
+\pagebreak
+
+
+# Section 6. Postdoctoral Fellows Delineated by Gender
+
+## Population
+
+Of the 696 response 46.6% identified as female, 51.1% as male and 0.2% as non-binary (represents single response; Appendix B, Q7). There was a similar distribution of male and female respondents between the three major postdoctoral fellow containing schools: School of Medicine respondents were 38.2% male and 47.9% female, College of Literature, Sciences and Arts respondents were 27.3% male, 20.8% female and 100% non-binary, and College of Engineering respondents were 24.9% male and 11.2% female (Appendix G, Q2). All other respondents were combined to have 9.9% males and 18.8% females (Appendix G, Q2). Of note 1.2% of males and 1.3% of females preferred to not list a school affiliation in the survey. Female respondents were more likely to be in the very early or latter parts of their postdoctoral fellowship (Appendix G, Q3), perhaps reflecting the large portion of respondents from the School of Medicine (Appendix G, Q2). Non-citizen and EAL respondents were more likely to be male (Appendix G, Q5, Q6). Interestingly, female respondents were more likely to consider themselves to be part of an underrepresented population (Appendix G, Q8). Male respondents were more likely to be married or in domestic partnerships, whereas female respondents were more likely to single and never married (Appendix G, Q9). Correspondingly, male respondents were more likely to have dependents (Appendix G, Q10). In total, these data indicate clear demographic delineations between male and female postdoctoral fellows across the University of Michigan campus. 
+
+## Strengths
+
+The strengths of the postdoctoral experience are generally consistent with the overall findings regardless of gender. Interestingly, both female and male respondents have an equal breakdown in their desired career track (Appendix G, Q21), and both female and male respondents feel equally supported in their career choice by the University of Michigan (Appendix G, Q23) and their mentors (Appendix G, Q24). Additionally, survey respondents indicated equal rates of feeling valued and that their needs are taken seriously regardless of gender delineation (Appendix G, Q25). Importantly, both female and male respondents report high rates of feeling safe and a University of Michigan postdoctoral fellow (Appendix G, Q25). Finally, postdoctoral fellows from all genders that were identified in the survey indicated equal rates of satisfaction with their postdoctoral experience (Appendix G, Q30). These results are encouraging, as they indicate significant areas of gender equity at the University of Michigan for postdoctoral fellows.
+
+## Weaknesses
+
+One area of weakness in the female postdoctoral experience is conflict resolution and harassment reporting. Female respondents indicated lower levels of comfort in reporting mentor-mentee conflict and harassment (Appendix G, Q28). Correspondingly, female respondents also are less likely to feel these reports would be taken seriously and that they would be protected from retaliation (Appendix G, Q28). This is accompanied by lower levels of institutional knowledge surrounding conflict, harassment, and mental health resources for female postdoctoral fellows (Appendix G, Q26). Male respondents, which are largely non-US citizens (Appendix G, Q5) report that their immigration status affects their actions as a postdoctoral fellow at higher levels than female respondents (Appendix G, Q29). Finally, the disproportionate male-to-female ratio in the College of Engineering may be considered a weakness (Appendix G, Q2). 
+
+## Opportunities
+
+Significant opportunity lies in the ability to apply lessons learned in areas that report high levels of gender equity to areas with less gender equity. Intersectional learning can lead to effective and sustainable solutions to issues highlighted by gender inequality with relatively little resource expenditure. Additionally, significant opportunity lies in the possibility of enhancing conflict, harassment, and mental health resources for female postdoctoral fellows. This falls directly under the purview of Diversity, Equity, and Inclusion Initiative at the University of Michigan[^29], and can be addresses through dissemination of information and can rely on currently existing resources. For example, providing postdoctoral fellows with information regarding on-campus resources at the time the postdoctoral fellowship starts can be enhanced and emphasized, as well as be advertised through postdoctoral fellow-specific media platforms. Finally, an expansion of workshops and discussions on issues of diversity, equity, inclusion, and mental health awareness can be adjusted to include the postdoctoral community. 
+
+## Threats
+
+The major threat is most noticeable with female postdoctoral fellows. The low rates of comfort with reporting conflict and harassment in conjunction with poor institutional knowledge of conflict and harassment resources creates an environment which may permit such behavior. This is even more evident when it comes to reporting the witnessing any form of discrimination by any UM employee or mentor/supervisor. Twice as many female postdoctoral fellows do not feel they are protected from retaliation if they were to report a dispute with their mentor/supervisor. A culture of conflict and harassment is a threat to the sustainability of the University of Michigan postdoctoral fellowship, as potential fellows may be inclined to choose an institution with a different culture to complete their fellowship.
+
+
+\pagebreak
+
+
+# Section 7. Well-represented Versus Underrepresented Postdoctoral Fellows
+
+## Population
+
+Of the postdocs that participated in this survey, 30% identified as part of an underrepresented population (Appendix B, Q8), and a virtually equal distribution of well- and underrepresented respondents were located in each school/college, with the exception of the School of Dentistry (Appendix H, Q2). Interestingly, underrepresented respondents were more likely to have already completed a postdoctoral fellowship (Appendix H, Q4). Additionally, an equal distribution of well- and underrepresented respondents were US citizens (Appendix H, Q5); however, 62.9% of underrepresented respondents identified themselves as English as an alternative language speakers compared to only 52.1% of the well-represented respondents (Appendix H, Q6). Underrepresented respondents were more likely to be female (Appendix H, Q8). Age group and marital status were similar between both respondent groups (Appendix H, Q7, Q9). Of note, underrepresented postdoctoral fellows tend to have higher rates of having dependents than well-represented groups with 39.7% compared to 34.2% that have a dependent (Appendix H, Q10). Finally, 9.7% of well-represented respondents aimed to pursue an academic teaching position compared to 5.2% of underrepresented respondents (Appendix H, Q21).
+
+## Strengths
+
+The strengths of the postdoctoral experience are generally consistent with the overall findings regardless of well-represented or underrepresented status. Notably, both populations report feeling supported in their choice of career by the University of Michigan (Appendix H, Q23) and their mentors (Appendix H, Q24) and that the programming available to them will help them achieve their career goals. (Appendix H, Q22). Institutional knowledge of salary and benefits were also equivalent between both sets of respondents (Appendix H, Q11). Together, these data indicate that the basic institutional information and career support provided to postdoctoral fellows does not greatly differ between well-represented and underrepresented postdoctoral fellows and suggests that efforts to improve equity in these arenas are effective.
+
+## Weaknesses
+
+Unfortunately, there are many areas of disparity between well-represented and underrepresented postdoctoral fellows. Firstly, institutional knowledge about information and resources other than salary and benefits is lower amongst underrepresented respondents (Appendix H, Q11), and is particularly apparent when it comes to resources dedicated to conflict, harassment, and mental health resources for female postdoctoral fellows (Appendix H, Q26). Underrepresented respondents reported lower rates of feeling connected to the University of Michigan community and valued for their work or as a person (Appendix H, Q25). Additionally, underrepresented respondents indicate low rates of comfort reporting conflict and harassment and express significant concern about safety and retaliation for reporting conflict and harassment (Appendix H, Q28). These sentiments are shared in the international community of underrepresented postdoctoral fellows (Appendix H, Q29). Corresponding to the above, underrepresented respondents have lower satisfaction rates than well-represented respondents (Appendix H, Q30) and indicate high levels of isolation (Appendix H, Q25, Q33).
+
+## Opportunities
+
+Given the breadth of the disparity between the well-represented and underrepresented postdoctoral experience, there is significant opportunity in specifically targeting postdoctoral fellows from underrepresented populations for programming to improve the postdoctoral experience. Programming that improves the connectivity and reduces isolation within these communities can vastly enhance the experience of these postdoctoral fellows. Additionally, programming aimed at reducing isolation can work in conjunction with efforts to improve institutional knowledge. Efforts to improve the experience of underrepresented postdoctoral fellows can be built off of programs that have successfully developed equity between the two populations, such as career and mentoring support programs.
+
+## Threats
+
+The most significant threat to the sustainability of a positive postdoctoral experience at the University of Michigan is the disparity between well-represented and underrepresented postdoctoral fellows. Without efforts to improve this disparity, postdoctoral fellows may choose to complete a postdoctoral fellowship at an alternative institution. More specifically, the low rates of comfort with reporting conflict and harassment in conjunction with a disconnection from the University of Michigan community within underrepresented postdoctoral fellows may create an environment where unresolved conflict, harassment, and retaliation are common. An unsafe environment may decrease retention of postdoctoral fellows and inhibit recruitment of new postdoctoral fellows. 
+
+
+\pagebreak
+
+
+# Section 8. Postdoctoral Fellows Delineated by Desired Career Track
+
+## Population
+
+Of all respondents, 59% plan on pursuing an academic research career, 8% desire a career in academic teaching, 11% plan on pursuing a non-academic career, and 15% were unsure (Appendix B, Q21). Survey respondent populations were similar across the University of Michigan Ann Arbor campus and most populations delineations (Appendix I, Q2). One notable exception is US citizens versus non-US citizens, wherein domestic postdoctoral fellows more readily plan on careers in academic teaching and non-academic careers (Appendix I, Q5). The inverse of these trends is true for international postdoctoral fellows (Appendix I, Q5). A second exception is that self-reported underrepresented (UR) respondents are less likely to desire a career in academic teaching, and conversely, non-UR respondents are more likely to desire a career in academic teaching (Appendix I, Q9). A final, but subtle, exception is that female respondents are slightly more likely to be unsure of their future career choice, whereas male respondents are slightly less likely to be unsure of their future career choice (Appendix I, Q8). 
+
+## Strengths
+
+The demographic similarities between the four groups in this delineation should be considered a strength, as this indicates that, generally, postdoctoral fellows at the University of Michigan do not feel limited in their future career choice by a specific demographic factor (e.g. gender, UR status). Additionally, survey respondents that indicated plans to pursue an academic career either in research or teaching display multiple positive response attributes. Firstly, this population indicated higher rates of institutional knowledge than respondent averages (Appendix I, Q12), and similarly, higher rates of comfort reporting conflict, discrimination, and harassment, and consequential protection from retaliation compared to respondent averages (Appendix I, Q28). Secondly, this population reports feeling higher rates of being supported by their mentor in their choice of future career (Appendix I, Q24) and that postdoctoral-directed programming will help them achieve their career goals compared to respondent averages (Appendix I, Q22). Finally, compared to respondent averages, respondents that indicated plans to pursue an academic career either in research or teaching have higher rates of satisfaction (Appendix I, Q30). Together, these data indicate that postdoctoral fellows that aspire to continue in academia are currently well-served by the University of Michigan, and programming directed at these individuals should be supported, continued, and in some cases, expanded.
+
+## Weaknesses
+
+Many of the programmatic weaknesses are isolated to survey respondents that indicated plans to pursue a non-academic career. Firstly, compared to respondent averages, this population reports higher rates of feeling isolated, lower rates of feeling as though they are part of the University of Michigan community, and lower rates of being valued as a person or for their work (Appendix I, Q25). Secondly, survey respondents that indicated plans to pursue a non-academic career feel less supported by their mentors compared to respondent averages (Appendix I, Q24). Finally, likely as a consequence of lower rates of feeling valued, supported and connected to the University of Michigan community, this population reports lower satisfaction rates compared to respondent averages (Appendix I, Q30). One additional weakness is that survey respondents that indicated plans to pursue an academic career either in teaching report lower rates of participation in postdoctoral-directed programming compared to respondent averages (Appendix I, Q18).
+
+## Opportunities
+
+The most significant opportunity for programmatic improvement is a focus on addressing the needs of postdoctoral fellows that plan to pursue careers outside of academia. Increased career development and skill building efforts targeted at this population may alleviate feelings of devaluation and isolation, as targeted programming may provide an access point to feel connected to the University of Michigan community. Indeed, this issue has received recent attention for the graduate student population[^30], and parallel efforts should be made on behalf of postdoctoral fellows. Another opportunity that would be applicable to all postdoctoral fellows is to enhance mentor training to incorporate guidance on how mentors can best support their trainees career development, specifically by allocating protected career development time for trainees, providing information to mentors on career development resources across campus, and encouraging mentor support of all career pathways.
+
+## Threats
+
+As stated in Section 1, a global programmatic weakness is that postdoctoral career expectations are incongruent with national and institutional outcome data. If career placement data does not match the expectation of individuals with pre-determined career plans, individuals may choose to complete a postdoctoral fellowship at an institution that has a better reputation of matching individuals with their desired career. Given that a disproportionate amount of survey respondents plan on pursuing an academic research career (Appendix B, Q21), increased efforts to enhance the career programming to other career tracks may begin to normalize expectations and increase the legitimacy of the University of Michigan as an institute that trains and values all career choices for postdoctoral fellows. A more subtle threat is diminished institutional knowledge and community connection of survey respondents that plan to pursue a career outside of academia increases the likelihood that these individuals experience mentor-mentee conflict or harassment, and that these experiences go unreported. 
+
+
+\pagebreak
+
+
+# Section 9. First-time Postdoctoral Fellows Versus Non-first-time Postdoctoral Fellows
+
+## Population
+
+Of all respondents, 77% report being first-time postdoctoral fellows and 23% report being non-first-time postdoctoral fellows (Appendix B, Q3). Survey respondent populations were similar with three noticeable differences. The first difference is that non-first-time postdoctoral fellows are older, where 80% of respondents were between ages 31 and 40, compared to 55% of first-time postdoctoral fellows (Appendix J, Q6). The second difference is that non-first-time postdoctoral fellows have a higher proportion of non-US citizens compared to first-time postdoctoral fellows (Appendix J, Q4). Correspondingly, non-first-time postdoctoral fellows have a larger English as an alternative language (EAL) population than first-time postdoctoral fellows (Appendix J, Q5). The third difference is that non-first-time postdoctoral fellows have a higher proportion of partnered individuals compared to first-time postdoctoral fellows (Appendix J, Q9), and correspondingly, a higher proportion of individuals with dependents (Appendix J, Q10). These demographic dissimilarities clearly demonstrate the differential needs of these two populations, and as such, impact the policy and programming that should be targeted to these groups.
+
+## Strengths
+
+Most programmatic strengths of the non-first-time postdoctoral fellow experience are consistent with that of the overall findings of this study. One subtle finding is that non-first-time postdoctoral fellows have slightly higher rates of self-reported as a member of an underrepresented population (Appendix J, Q8). This points to the strength of the University of Michigan as a whole compared to sister institutions from where non-first-time postdoctoral fellows may have transitioned, wherein members of underrepresented populations are inclined to choose the University of Michigan after their first postdoctoral experience. 
+
+## Weaknesses
+
+As with strengths, most programmatic weaknesses of the non-first-time postdoctoral fellow experience are consistent with that of the overall findings of this study. One significant weakness that is highlighted by the demography of this group is the lack of support for the needs of the partners of postdoctoral fellows (Appendix B, Q27), as this population has higher rates of partnership (Appendix J, Q9). This is especially important given that these partners are likely non-US citizens and may experience greater needs during transitions to or within the US. Another significant weakness is the lack of institutional knowledge surrounding conflict resolution, anti-harassment resources (Appendix J, Q26), and fear of retaliation for reporting conflict or harassment (Appendix J, Q28). Given that non-first-time postdoctoral fellows are more frequently non-US citizens; this population is at high risk of having their immigration status used against them, which also includes their partners and dependents (Appendix J, Q29) in a conflict situation. Finally, one subtle finding is that non-first-time postdoctoral fellows have slightly lower rates of feeling supported in their career choice and professional development (Appendix J, Q23). Interestingly, this correlates with slightly higher rates of a desire to pursue a career in academia (Appendix J, Q21) and higher confidence in career choice (Appendix J, Q21, R: “Unsure”). 
+
+## Opportunities
+
+There is significant opportunity to develop programs that target individuals that are coming to the University of Michigan having already been a postdoctoral fellow elsewhere. Many of the weaknesses can be addressed by development of programs and resources that address weakness identified in the overall findings of this study. A specific opportunity within the non-first-time postdoctoral fellow is their knowledge of other institutions. As new programs and resources are developed, this population can provide unique insight into programs and resources that exist at other institutions that may be easily implemented at the University of Michigan. Information gathering efforts directed at this population should be undertaken to take advantage of this resource. 
+
+## Threats
+
+The treats posed to the non-first-time postdoctoral fellow experience are dependent on the demography of this group. Lack of support for the partners and dependents (Appendix B, Q27) of postdoctoral fellows continues to hinder the experience of postdoctoral fellows at the University of Michigan, and this is highlighted in non-first-time postdoctoral fellow population. Potential non-first-time postdoctoral fellows may choose an institution that is more supportive of partners and dependents for completion of their postdoctoral fellowship. Additionally, lack of institutional knowledge about conflict resolution and anti-harassment resources is a significant threat to the non-first-time postdoctoral fellow population, especially those that are non-US citizens (Appendix J, Q4), which makes up a predominant portion of this population. Given the vulnerability of non-US citizens to harassment and the impact that a culture of harassment can have on an institutional level, this threat affects non-first-time postdoctoral fellows, postdoctoral fellows as a whole, and the University of Michigan as a whole. 
+
+
+\pagebreak
+
+
+# Section 10. Satisfied Versus Unsatisfied Postdoctoral Fellows
+
+## Population
+
+Postdoctoral fellow satisfaction was assessed through self-reporting either “satisfied,” “unsatisfied,” or “neutral.” 67.4% of respondents reported that they are satisfied with their experience, whereas only 4% reported being explicitly not satisfied, 19.8% felt neutral (Appendix B, Q30). Unsatisfied respondents were over-represented in the Schools of Education, Kinesiology, and Medicine and satisfied respondents were over-represented in the College of Literature, Science, and the Arts (Appendix K, Q2). There was a steady decrease in satisfaction as the length of the postdoctoral fellowship increased (Appendix K, Q3) and older respondents were proportionally more unsatisfied (Appendix K, Q7). Similarly, respondents in their first fellowship indicated higher rates of satisfaction than respondents that are not in their first fellowship (Appendix K, Q4). Interestingly, international or English as an alternative language speaking respondents were proportionally less unsatisfied than domestic or English as a first language speaking respondents (Appendix K, Q5, Q6). Female and underrepresented respondents were proportionally unsatisfied compared to male and well-represented respondents (Appendix K, Q8, Q9). 
+
+## Strengths
+
+An obvious strength is that only a small fraction of respondents indicated that they are unsatisfied with their experience (Appendix B, Q30). Satisfied respondents reported higher levels of institutional knowledge (Appendix K, Q11, Q26), higher rates of feeling valued, part of the University of Michigan community, and that their needs are taken seriously (Appendix K, Q32). Additionally, satisfied respondents feel supported by the University of Michigan and their mentors in their choice of future career and that they are being set up for success (Appendix K, Q20, Q22, Q23, Q24). Finally, satisfied respondents feel safer and more comfortable reporting instances of conflict and harassment (Appendix K, Q28). Together, these data indicate that postdoctoral fellows that are satisfied with their postdoctoral experience have more positive interaction with virtually every aspect of their experience and the University of Michigan community at large. 
+
+## Weaknesses
+
+In contrast with the positive interactions that satisfied respondents have with their postdoctoral experience, unsatisfied respondents have almost entirely negative interactions with their postdoctoral experience. Unsatisfied respondents indicate lower levels of institutional knowledge, lower likelihood of reporting conflict and harassment (Appendix K, Q28), higher rates of isolation (Appendix K, Q25), lower rates of feeling supported in the choice of future careers (Appendix K, Q20, Q22, Q23, Q24). Interestingly, unsatisfied respondents indicate a greater desire to leave academia (Appendix K, Q21). Respondents that were neutral about their postdoctoral experience displayed similar trends to unsatisfied respondents, though when available as a response, indicated that they did not feel as strongly as unsatisfied respondents (e.g. “Neutral” response rather than “Agree/Disagree”). 
+
+## Opportunities
+
+The most significant opportunity for improvement of the postdoctoral experience comes in the population of respondents that were neutral about their postdoctoral experience. Given the vast differences in experience between satisfied and unsatisfied postdoctoral fellows, programming aimed at shifting the experience of neutral respondents to a more satisfying experience will lead to positive impacts on the global University of Michigan postdoctoral experience. A vast majority of the neutral respondent population remains unsure of the programming that already exists (Appendix K, Q18, Q20, Q22) and unsure of their future career choice (Appendix K, Q21, 23, 24). Enhancing communication to and connectivity of this population is likely an effective avenue for positive impacts on the postdoctoral fellow experience and lead to a broadening of the satisfied population. Finally, given the correlation between postdoctoral satisfaction and length of the postdoctoral fellowship suggests that creating structures to monitor and advance the professional development of postdoctoral fellows would be an effective means of improving the postdoctoral experience through avoiding delays or stagnation in career advancement.
+
+## Threats
+
+The correlation between length of postdoctoral fellowship and satisfaction suggests that a group of postdoctoral fellows are unable to advance in their careers, potentially through a systemic failure. In a competitive environment for attracting top-tier postdoctoral candidates the reputation of an institution for successfully advancing the careers of postdoctoral fellows is crucial. Additionally, once postdoctoral fellows have shifted into the “unsatisfied” category respondent data suggests that their entire postdoctoral experience becomes negative and they become isolated from the University of Michigan as a whole. Given that this puts this population at higher risk of adverse incidents, such as conflict and harassment, this this should be of high concern to the stainability of the postdoctoral experience, postdoctoral recruitment, and postdoctoral retention. Finally, the proportionally higher number of “neutral” respondents pose a threat due to their potential to shift into the “unsatisfied” category. 
+
+
+\pagebreak
+
+
+# Section 11. Executive Summary
+
+The University of Michigan Postdoctoral Association (UMPDA) designed, distributed, and evaluated a cross-section survey of the postdoctoral fellow population at the University of Michigan. The purpose of this survey was to generate data to assess the state of the postdoctoral experience, to make recommendations to improve the state of the postdoctoral experience, and to provide a framework for future studies. This survey was distribution from July 25th, 2018 to August 10th, 2018 and received a total of 696 responses, which accounted for approximately 50% of the total postdoctoral fellows at the University of Michigan. The distribution of survey respondents from the various schools and colleges reflected the distribution of postdoctoral fellows across the University of Michigan Ann Arbor campus. Below are the summaries of all respondent data summarized in four sections: *Strengths*, *Weaknesses*, *Opportunities*, and *Threats*. Further explanation of these points can be found in Section 1 of this document.  
+
+## Strengths
+
+1.	Postdoctoral fellows feel satisfied with their experience at the University of Michigan. 
+2.	Institutional knowledge about salary, benefits, career development programs, and social opportunities is strong. 
+3.	Postdoctoral fellows feel supported by their mentors in their choice of future career. 
+4.	Postdoctoral fellows feel valued at the University of Michigan.
+
+## Weaknesses
+
+1.	Institutional knowledge about conflict and harassment reporting is weak, and fear of retaliation is high. 
+2.	Postdoctoral fellows do not feel their needs, or the needs of their partners, are taken seriously. 
+3.	Postdoctoral fellows have career expectations that are dissonant with national and institutional outcome data, and postdoctoral fellows do not feel well-prepared for their future career. 
+4.	Institutional knowledge of where to locate emotional support and mental health services is limited. 
+
+## Opportunities
+
+1.	Creation of a centralized postdoctoral office.  
+2.	Creating of programming to address the needs to of the partners and dependents of postdoctoral fellow. 
+3.	Increase transparency of career outcomes and emphasize support of non-tenure track and non-academic careers.
+
+## Threats
+
+1.	The ability to prevent and respond to harassment and retaliation. 
+2.	The ability to successfully resolve mentor-mentee conflicts. 
+3.	The threat of other institutions providing better compensation for postdoctoral fellows.  
+
+&nbsp;
+
+Additionally, analyses of more granular response data for postdoctoral fellows delineated by *school/college*, *domestic versus international postdoctoral fellows*, *postdoctoral fellows with dependents versus no dependents*, *partnered versus non-partnered postdoctoral fellows*, *postdoctoral fellows delineated by gender*, *well-represented versus underrepresented postdoctoral fellows*, *postdoctoral fellows delineated by desired career track*, *first-time postdoctoral fellows versus non-first-time postdoctoral fellows*, and *satisfied versus unsatisfied postdoctoral fellows* can be found Sections 2-10 of this document. The *Strengths*, *Weaknesses*, *Opportunities*, and *Threats* of the more granular analyses broadly align with the conclusions of the entire study; however, there are specific and important nuances that can be used for the development of specific programming within each of these sub-populations. To the knowledge of the UMPDA, these are the most comprehensive data evaluating the state of the postdoctoral experience at the University of Michigan, and it is our hope that these data will be used to enhance the experience of University of Michigan postdoctoral fellows such that we continue to set the standard for a postdoctoral fellowship. 
+
+
+
+
+[^1]: http://pennsciencepolicy.blogspot.com/2015/06/training-biomedical-workforce.html  
+[^2]: https://cdn.ymaws.com/www.nationalpostdoc.org/resource/resmgr/docs/2017_supporting_the_needs_of.pdf  
+[^3]: http://nglscoalition.org/  
+[^4]: https://www.nationalpostdoc.org/page/recommpostdocpolicy  
+[^5]: https://umpda.rackham.umich.edu/about/bylaws/  
+[^6]: For all data, if response percentages do not equal 100%, the remaining respondents did not answer the question.  
+[^7]: http://nglscoalition.org/coalition-data/
+[^8]: Such as in http://www.nacme.org/underrepresented-minorities  
+[^9]: Compared to 2017 data reported in http://nglscoalition.org/coalition-data/
+[^10]: Discussed in https://www.nationalpostdoc.org/page/postdocket_08184, https://ejop.psychopen.eu/article/view/835/html, https://academic.oup.com/bioscience/article/63/4/245/253174, for example.
+[^11]: Discussed in https://www.nationalpostdoc.org/page/postdocket_07186, https://www.ncbi.nlm.nih.gov/books/NBK507206/, https://www.nationalpostdoc.org/page/postdocket_07186 
+[^12]: https://academic.oup.com/bioscience/article/63/4/245/253174 
+[^13]: http://ronininstitute.org/news-flash-postdocs-are-a-screw-job/977/
+[^14]: http://blogs.nature.com/naturejobs/2015/03/02/the-postdoc-series-insights-options-careers  
+[^15]: https://ejop.psychopen.eu/article/view/835/html
+[^16]: For example, there have been at least nine articles referencing postdoctoral fellows in the New York Times, Wall Street Journal, and Washington Post since 2016.  
+[^17]: http://www.smf.co.uk/publications/happiness-and-productivity-understanding-the-happy-productive-worker/
+[^18]: https://www.nature.com/articles/d41586-018-05838-y
+[^19]: http://nglscoalition.org/
+[^20]: http://record.umich.edu/articles/u-m-raises-5-billion-shattering-records-public-universities 
+[^21]: Discussed in https://www.nationalpostdoc.org/page/postdocket_07186, https://www.ncbi.nlm.nih.gov/books/NBK507206/, https://www.nationalpostdoc.org/page/postdocket_07186 
+[^22]: https://www.nationalpostdoc.org/page/policy_report_databa?
+[^23]: https://icahn.mssm.edu/education/postdoc/policies
+[^24]: https://www.nationalpostdoc.org/page/policy_report_databa?
+[^25]: https://internationalcenter.umich.edu/
+[^26]: https://hr.umich.edu/working-u-m/my-employment/academic-human-resources/benefits-postdoctoral-research-fellows
+[^27]: https://digitalcommons.ilr.cornell.edu/cgi/viewcontent.cgi?referer=https://www.google.com/&httpsredir=1&article=1112&context=workingpapers
+[^28]: https://diversity.umich.edu/ 
+[^29]: https://diversity.umich.edu/ 
+[^30]: https://www.nature.com/articles/d41586-018-05838-y
+
+
+
+
+\newpage
+
+
+# Section 12. Appendices
+
+## Appendix A. Methods
+
+### Data collection  
+
+The survey was designed using the Qualtrics platform and disseminated via email campaigns to the postdoctoral cohort at the University of Michigan. The survey was active from 2018-07-25 to 2018-08-10 and logged 696 unique responses over the 16 day response period. Upon conclusion of the response period, survey results were exported from Qualtrics for downstream use.
+
+### Analysis  
+
+During analysis, individual responses were either aggregated by question (Appendix B) or stratified into populations of interest before aggregating by question (Appendices C-K). In analyses comparing multiple postdoctoral populations throughout the University, data were stratified based on responses to the questions labeled as "Q1"" within the respective appendices
+
+All analyses were conducted in R (v3.5.1). For maps of degree granting institutions, degree location data was extracted and plotted using a Winkel tripel projection and 'fiftystater', 'ggalt', 'ggplot2', 'mapproj', and 'viridis' packages. For multiple-choice questions, response frequencies were calculated for each question and ambiguous responses (ex: "NA", "Prefer not to answer", etc.) were removed to minimize overplotting. Response frequencies were then plotted using 'ggplot2', 'ggpubr', 'grid', 'gridExtra', and 'viridis'. In plots generated from stratified data sets, vertical red lines represent the response rates for the entire postdoctoral cohort. For text-based responses, responses were broken into bigrams using the 'tidytext' package and any bigrams containing common stop words were removed. To identify overrepresented terms, the bigram term frequency (tf) was calculated for each question of the aggregated data set. When comparing multiple postdoctoral populations, term frequency-inverse document frequencies (tf-idf) were used to identify overrepresented bigrams and weight responses more favorably based on uniqueness to a given population. Overrepresented bigrams were plotted using 'ggplot2', 'ggpubr', 'ggwordcloud', 'grid', 'gridExtra', and 'viridis'.  Bigram size and color were scaled based on tf or tf-idf values for aggregated or stratified data sets, respectively.
+
+### Reproducibility
+
+All code used in this analysis is available at https://github.com/UMPDA1/UMPDA_PostdocSurvey_2018. Survey response data is available upon request.
+
+
+\pagebreak
+
+
+## Appendix B. Aggregated Postdoctoral Fellow Survey Data
+
+```{r world_location, echo=FALSE}
+# adding in location figures
+# myimages <- paste0("../", list.files("results/location/", pattern = ".png", full.names = TRUE))
+
+knitr::include_graphics("../results/location/world_degree_map.png")
+```
+
+&nbsp;
+
+```{r us_location, echo=FALSE}
+# adding in location figures
+knitr::include_graphics("../results/location/us_degree_map.png")
+```
+
+\pagebreak
+
+```{r survey_all, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+figures <- paste0("../", list.files("results/all/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
+  sort()
+
+figures_sorted <- paste0("../results/", "all", "/", paste0("all", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
+```
+
+\pagebreak
+
+## Appendix C. Postdoctoral Fellows by School and/or College
+
+```{r survey_college, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+figures <- paste0("../", list.files("results/college_school/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
+  sort()
+
+figures_sorted <- paste0("../results/", "college_school", "/", paste0("college_school", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
+```
+
+\pagebreak
+
+## Appendix D. Postdoctoral Fellows by Residency Status
+
+```{r survey_residency, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+figures <- paste0("../", list.files("results/residency/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
+  sort()
+
+figures_sorted <- paste0("../results/", "residency", "/", paste0("residency", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
+```
+
+\pagebreak
+
+## Appendix E. Postdoctoral Fellows by Number of Dependents
+
+```{r survey_dependents, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+figures <- paste0("../", list.files("results/dependents/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
+  sort()
+
+figures_sorted <- paste0("../results/", "dependents", "/", paste0("dependents", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
+```
+
+\pagebreak
+
+## Appendix F. Postdoctoral Fellows by Relationship Status
+
+```{r survey_relationship, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+figures <- paste0("../", list.files("results/relationship_status/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
+  sort()
+
+figures_sorted <- paste0("../results/", "relationship_status", "/", paste0("relationship_status", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
+```
+
+\pagebreak
+
+## Appendix G. Postdoctoral Fellows by Gender
+
+```{r survey_gender, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+figures <- paste0("../", list.files("results/gender/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
+  sort()
+
+figures_sorted <- paste0("../results/", "gender", "/", paste0("gender", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
+```
+
+\pagebreak
+
+## Appendix H. Postdoctoral Fellows by Population Representation
+
+```{r survey_representation, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+figures <- paste0("../", list.files("results/pop_representation/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
+  sort()
+
+figures_sorted <- paste0("../results/", "pop_representation", "/", paste0("pop_representation", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
+```
+
+\pagebreak
+
+## Appendix I. Postdoctoral Fellows by Desired Career Track
+
+```{r survey_career, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+figures <- paste0("../", list.files("results/career_track/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
+  sort()
+
+figures_sorted <- paste0("../results/", "career_track", "/", paste0("career_track", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
+```
+
+\pagebreak
+
+## Appendix J. Postdoctoral Fellows by Number of Postdoctoral Positions Held
+
+```{r survey_postdoc_no, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+figures <- paste0("../", list.files("results/postdoc_no/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
+  sort()
+
+figures_sorted <- paste0("../results/", "postdoc_no", "/", paste0("postdoc_no", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
+```
+
+\pagebreak
+
+## Appendix K. Postdoctoral Fellows by Satisfaction
+
+```{r survey_satisfaction, echo=FALSE, fig.width=20, fig.asp=1}
+# loading in figures for section
+figures <- paste0("../", list.files("results/satisfaction/", pattern = ".png", full.names = TRUE))
+
+figure_no <- str_extract(figures, pattern = "\\d+") %>%
+  as.numeric() %>%
+  sort()
+
+figures_sorted <- paste0("../results/", "satisfaction", "/", paste0("satisfaction", "_Q", figure_no), ".png")
+
+knitr::include_graphics(figures_sorted)
+```
+
