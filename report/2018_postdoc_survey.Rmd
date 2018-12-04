@@ -75,7 +75,7 @@ The statements in this document solely reflect the positions of the University o
 \newpage
 
 
-\setcounter{tocdepth}{1}
+\setcounter{tocdepth}{2}
 \tableofcontents
 
 
