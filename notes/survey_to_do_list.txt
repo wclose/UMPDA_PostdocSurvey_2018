@@ -20,17 +20,16 @@ x port updates from strat plot function to unstrat plot function
 	x combined the functions together
 
 2018-11-20
-- Academic - teaching, academic - research to academic (teaching), academic (research)
+x Academic - teaching, academic - research to academic (teaching), academic (research)
 - Reorganize so it's "agree", "neutral", "disagree" and "yes", "no"
-- Change question numbers so they go from 1 through n without missing any
-	- Need to be careful because some question numbers are hard coded so it could break scripts
-- Add question number tag to location plots
+x Change question numbers so they go from 1 through n without missing any
+	x Need to be careful because some question numbers are hard coded so it could break scripts
 - Go back through and clean up scripts where necessary
 
 2018-11-29
 - Add breakdown for MI vs everywhere else
-- Fix old Q6 plotting functions
-- Fix space between "word,word" in questions with typed responses
-- Fix label spacing for "relationship/status" breakdown (y axis labels overlap with question text)
+x Fix old Q6 plotting functions
+x Fix space between "word,word" in questions with typed responses
+x Fix label spacing for "relationship/status" breakdown (y axis labels overlap with question text)
 - Look into DeepBlue Data as repo for survey data
-- Set up UMPDA GitHub org and fork repo to it for dissemination
+x Set up UMPDA GitHub org and fork repo to it for dissemination
