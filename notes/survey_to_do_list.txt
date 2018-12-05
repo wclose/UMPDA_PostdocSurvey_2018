@@ -33,3 +33,6 @@ x Fix space between "word,word" in questions with typed responses
 x Fix label spacing for "relationship/status" breakdown (y axis labels overlap with question text)
 - Look into DeepBlue Data as repo for survey data
 x Set up UMPDA GitHub org and fork repo to it for dissemination
+
+2018-12-05
+- Increase font sizes and bar sizes for all plots
