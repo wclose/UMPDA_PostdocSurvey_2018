@@ -197,8 +197,8 @@ The University of Michigan Postdoctoral Association (UMPDA) designed, distribute
 
 ## Opportunities
 
-1.	Creation of a centralized postdoctoral office.  
-2.	Creating of programming to address the needs to of the partners and dependents of postdoctoral fellow. 
+1.	Creation of a centralized postdoctoral office.
+2.	Creating of programming to address the needs to of the partners and dependents of postdoctoral fellow.
 3.	Increase transparency of career outcomes and emphasize support of non-tenure track and non-academic careers.
 
 ## Threats
@@ -255,7 +255,7 @@ The survey was designed using the Qualtrics platform and disseminated via email 
 
 ### Analysis  
 
-During analysis, individual responses were either aggregated by question (Appendix B) or stratified into populations of interest before aggregating by question (Appendices C-K). In analyses comparing multiple postdoctoral populations throughout the University, data were stratified based on responses to the questions labeled as "Q1"" within the respective appendices
+During analysis, individual responses were either aggregated by question (Appendix B) or stratified into populations of interest before aggregating by question (Appendices C-K; see full report). In analyses comparing multiple postdoctoral populations throughout the University, data were stratified based on responses to the questions labeled as "Q1"" within the respective appendices
 
 All analyses were conducted in R (v3.5.1). For maps of degree granting institutions, degree location data was extracted and plotted using a Winkel tripel projection and 'fiftystater', 'ggalt', 'ggplot2', 'mapproj', and 'viridis' packages. For multiple-choice questions, response frequencies were calculated for each question and ambiguous responses (ex: "NA", "Prefer not to answer", etc.) were removed to minimize overplotting. Response frequencies were then plotted using 'ggplot2', 'ggpubr', 'grid', 'gridExtra', and 'viridis'. In plots generated from stratified data sets, vertical red lines represent the response rates for the entire postdoctoral cohort. For text-based responses, responses were broken into bigrams using the 'tidytext' package and any bigrams containing common stop words were removed. To identify overrepresented terms, the bigram term frequency (tf) was calculated for each question of the aggregated data set. When comparing multiple postdoctoral populations, term frequency-inverse document frequencies (tf-idf) were used to identify overrepresented bigrams and weight responses more favorably based on uniqueness to a given population. Overrepresented bigrams were plotted using 'ggplot2', 'ggpubr', 'ggwordcloud', 'grid', 'gridExtra', and 'viridis'.  Bigram size and color were scaled based on tf or tf-idf values for aggregated or stratified data sets, respectively.
 
