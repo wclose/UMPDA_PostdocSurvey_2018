@@ -36,3 +36,4 @@ x Set up UMPDA GitHub org and fork repo to it for dissemination
 
 2018-12-05
 - Increase font sizes and bar sizes for all plots
+- Think about Rmd history
