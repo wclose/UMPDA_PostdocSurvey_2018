@@ -3,6 +3,7 @@ mainfont: Helvetica
 header-includes:
   \usepackage{ragged2e}
   \usepackage[bottom,hang]{footmisc}
+geometry: margin=0.5in
 output:
   pdf_document:
     latex_engine: xelatex
