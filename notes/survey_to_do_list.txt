@@ -37,3 +37,8 @@ x Set up UMPDA GitHub org and fork repo to it for dissemination
 2018-12-05
 - Increase font sizes and bar sizes for all plots
 - Think about Rmd history
+
+2018-12-13
+- Automate scripts (make file?)
+- Work on updating survey questions for next round
+- Remove responses from stratified categories consisting of 1 individual to protect anonymity
