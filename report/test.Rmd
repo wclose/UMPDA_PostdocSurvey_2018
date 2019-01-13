@@ -30,6 +30,7 @@ if (!is.na(work_dir)){
   knitr::opts_knit$set(root.dir = "..")
 }
 # knitr::opts_knit$set(root.dir = "~/Dropbox/University_of_Michigan/umpda/postdoc_survey/UMPDA_PostdocSurvey_2018/")
+
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
