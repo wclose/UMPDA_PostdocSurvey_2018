@@ -7,8 +7,8 @@ library(tidyverse)
 
 # importing data and tidying ----------------------------------------------
 
-# importing survey data
-survey_data <- read_csv("data/UMPDA_2018_cross-section_survey.csv")
+# # importing survey data
+# survey_data <- read_csv("data/raw_data/UMPDA_2018_cross-section_survey.csv")
 
 # removing unnecessary data and tidying
 tidy_survey_data <- survey_data %>% 
@@ -32,19 +32,6 @@ tidy_survey_data <- survey_data %>%
                               TRUE ~ response)) %>% 
   mutate(response = ifelse(question_no == "Q22", str_split(response, ","), response)) %>% # splits concatenated answers for Q22 into a list of strings
   unnest(response) # breaks col of lists into separate rows (does not affect other answers)
-
-# tidy_survey_data %>% 
-#   # filter(question_no == "Q31") %>% 
-#   mutate(response = case_when(question_no == "Q31" & str_detect(response, "\\bAcademic") ~ gsub("\\b(Academic\\_)\\-\\_(\\w+)", "\\1\\(\\2\\)", response),
-#                               TRUE ~ response)) %>% 
-#   filter(question_no == "Q31") %>% 
-#   pull(response) %>% 
-#   unique()
-# 
-# test <- c("Academic_-_teaching", "Academic_-_research")
-# gsub("\\b(Academic)(_)", "\\2 \\1", test)
-# gsub("\\b(Academic\\_)\\-\\_(\\w+)", "\\1\\(\\2\\)", test)
-# str_replace(test, "")
 
 # creating df of all survey data minus specific location data (will be plotted elsewhere/differently)
 # also reassigns position of Q49 in order so it's nearer similar questions before renumbering the questions

@@ -1,7 +1,10 @@
 # loading dependencies ----------------------------------------------------
 
-# loading tidyverse and dataset
-source("code/calc_response_stats.R")
+# loads upstream scripts/variables if not already loaded
+# checks for variables generated at end of previous script in pipeline and sources if not found
+if (!exists("strat_response_freq")){
+  source("code/calc_response_stats.R")
+}
 
 # packages needed for plot size manipulation
 library(grid) # required for table grobbing of response plots

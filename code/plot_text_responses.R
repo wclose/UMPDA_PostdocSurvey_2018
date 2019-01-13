@@ -1,57 +1,19 @@
-# https://rpubs.com/joshyazman/sentiment-analysis-lexicon-comparison
-# https://www.tidytextmining.com/
-# https://lizrush.gitbooks.io/algorithms-for-webdevs-ebook/content/
-# https://www.kaggle.com/xvivancos/analyzing-star-wars-movie-scripts
-# https://www.kaggle.com/cosinektheta/mining-the-women-s-clothing-reviews
-# https://www.kaggle.com/ambarish/seinfeld-text-mining-wordembeddings-modelling
-# https://www.kaggle.com/ambarish/fun-in-text-mining-with-simpsons
+# loading dependencies ----------------------------------------------------
 
+# loads upstream scripts/variables if not already loaded
+# checks for variables generated at end of previous script in pipeline and sources if not found
+if (!exists("strat_data")){
+  source("code/stratify_data.R")
+}
 
-# sentiment scores (several options)
-  # do by question and include most pos/neg words
-  # look at emotions (fear, joy, etc.)
-  # sentiment of question + sentiment of words in each questions
-# word importance (LDA/TF-IDF)
-# word clouds (can do in shape of something)
-# word relationships
-  # networks
-  # bigrams
-  # trigrams
-
-
-# plan:
-  # break responses into individual words (tokenization)
-  # remove common words to focus analysis
-  # pool all responses and analyze each question
-  # break responses up by strat ids and analyze each question
-
-# list of questions with text responses
-  # Q: 
-
-# when comparing all the data
-# word cloud per question
-  # tokens vs bigrams vs trigrams
-# top 20 tokens per question chart
-# top 20 bigrams
-# top 20 trigrams
-
-# when comparing stratifications
-# everything from before but add:
-# TF-IDF (most important words per question) - token
-# TF-IDF - bigram
-# TF-IDF - trigram
-
-# importing stuff ---------------------------------------------------------
-
-# import dataset
-source("code/stratify_data.R")
-
+# loading packages required for text analysis
 library(tidytext) # text manipulation, used for tokenization and stop words
 library(ggwordcloud) # geom_text_wordcloud()
 library(grid) # required for table grobbing of response plots
 library(gridExtra) # used to align response plot coordinates
 library(ggpubr) # required to save gtable plots as ggplot items
 library(viridis) # color scaling
+
 
 
 # text analysis -----------------------------------------------------------

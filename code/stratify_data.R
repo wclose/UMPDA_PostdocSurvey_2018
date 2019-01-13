@@ -1,7 +1,10 @@
 # loading dependencies ----------------------------------------------------
 
-# loading tidyverse and dataset
-source("code/tidy_survey.R")
+# loads tidyverse and dataset if not already loaded
+# checks for variables generated at end of previous script in pipeline and sources if not found
+if (!exists("tidy_survey_data")){
+  source("code/tidy_survey.R")
+}
 
 
 

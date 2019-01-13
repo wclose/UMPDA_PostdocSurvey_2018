@@ -1,7 +1,10 @@
 # loading dependencies ----------------------------------------------------
 
-# loading tidyverse and dataset
-source("code/stratify_data.R")
+# loads upstream scripts/variables if not already loaded
+# checks for variables generated at end of previous script in pipeline and sources if not found
+if (!exists("strat_data")){
+  source("code/stratify_data.R")
+}
 
 
 

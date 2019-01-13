@@ -1,9 +1,12 @@
 # loading dependencies ----------------------------------------------------
 
-# loading tidyverse and dataset
-source("code/tidy_survey.R")
+# loads tidyverse and dataset if not already loaded
+# checks for variables generated at end of previous script in pipeline and sources if not found
+if (!exists("tidy_survey_data")){
+  source("code/tidy_survey.R")
+}
 
-# packages needed to plot maps
+# loading packages needed to plot maps
 library(mapproj) # needed to maintain dimensions
 library(fiftystater) # needed to plot HI and AK in insets of USA maps
 library(viridis) # needed for color scaling
@@ -15,7 +18,7 @@ library(ggalt) # needed for coord_proj
 
 # built in data sets don't include us territories so made new set
 # reading in list of us states/territories with abbreviations and
-us_states_territories <- read_csv("data/us_state_territories.csv") %>% 
+us_states_territories <- read_csv("data/other/us_state_territories.csv") %>% 
   mutate_all(tolower) # converting df to be all lower case for easier use later
 
 
@@ -219,6 +222,7 @@ ggsave(filename = "results/location/world_degree_map.png", plot = world_degree_m
 detach("package:mapproj", unload = TRUE)
 detach("package:ggalt", unload = TRUE)
 detach("package:maps", unload = TRUE)
+
 
 
 # notes -------------------------------------------------------------------
