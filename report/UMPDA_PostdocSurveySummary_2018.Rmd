@@ -16,10 +16,42 @@ library(tidyverse)
 library(knitr)
 ```
 
+```{r args, include=FALSE}
+# allowing use of command line inputs for rendering
+args <- commandArgs(trailingOnly = TRUE)
+# setting the variable for the working directory based on user input
+work_dir <- args[1]
+```
+
 ```{r setup, include=FALSE}
-knitr::opts_knit$set(root.dir = "~/Dropbox/University_of_Michigan/umpda/postdoc_survey/UMPDA_PostdocSurvey_2018/")
+# Setting the working directory for use during rendering of the document
+# Default is the directory where the .Rmd resides, even if it's already been set elsewhere
+# If the working directory is specified by the user via non-interactive command line interface
+if (!is.na(work_dir)){
+  
+  # Use the user specified working directory
+  knitr::opts_knit$set(root.dir = work_dir)
+
+# Otherwise, the working directory should be one level up
+# (this report should be in the report/ directory within the parent folder
+# and we want the working directory to be the parent project folder)
+} else {
+  
+  # Moving up a level
+  knitr::opts_knit$set(root.dir = "..")
+  
+}
+
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+```{r work_dir_check, include=FALSE}
+# Double-checking to make sure the working directory was set properly
+if (!any(grepl("\\.Rproj", list.files()))) {
+  stop("Please set the working directory to the parent folder containing the R project file (.Rproj).")
+}
+```
+
 
 
 \newpage
