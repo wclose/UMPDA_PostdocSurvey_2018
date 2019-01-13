@@ -1,0 +1,78 @@
+---
+title: "test"
+author: "me"
+date: "1/13/2019"
+output: html_document
+---
+
+```{r libraries, message = FALSE, include=FALSE}
+library(tidyverse)
+library(knitr)
+```
+
+```{r args}
+args <- commandArgs(trailingOnly = TRUE)
+
+work_dir <- args[1]
+test <- as.numeric(args[2])
+```
+
+```{r work_before}
+getwd()
+```
+
+```{r setup, include=FALSE}
+# knitr::opts_knit$set(root.dir = work_dir)
+# work_dir <- "~/Dropbox/University_of_Michigan/umpda/postdoc_survey/"
+if (!is.na(work_dir)){
+  knitr::opts_knit$set(root.dir = work_dir)
+} else {
+  knitr::opts_knit$set(root.dir = "..")
+}
+# knitr::opts_knit$set(root.dir = "~/Dropbox/University_of_Michigan/umpda/postdoc_survey/UMPDA_PostdocSurvey_2018/")
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r work_after}
+getwd()
+# Double-checking to make sure the working directory was set properly
+if (!any(grepl("\\.Rproj", list.files()))) {
+  stop("Please set the working directory to the parent folder containing the R project file (.Rproj).")
+}
+```
+
+```{r test}
+args[1]
+is.na(args[1])
+work_dir
+work_dir <- "here"
+
+if (!is.na(work_dir)){
+  "command line"
+} else {
+  "rstudio"
+}
+test
+class(test)
+exists("work_dir")
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
