@@ -7,6 +7,7 @@ library(tidyverse)
 
 # importing data and tidying ----------------------------------------------
 
+# ##### Only set this if testing, otherwise keep commented and set in "generate_all_figures.R" #####
 # # importing survey data
 # survey_data <- read_csv("data/raw_data/UMPDA_2018_cross-section_survey.csv")
 
@@ -68,15 +69,5 @@ multi_choice_question_list <- setdiff(question_list, typed_question_list)
 
 
 # notes -------------------------------------------------------------------
-
-# split location questions into separate df
-# will make it easier to renumber other questions and still use map functions (location question numbers won't change)
-# also change responses to be international vs domestic for Q10 vs Q11 (or make new question with domestic vs international vs na)
-# Need to take data from Q10/Q11 and combine into a single question -> Q10.5
-# Are you a U.S. citizen? Yes/No based on responses to Q10/11 (can look at format from stratify script)
-# USE Q9
-
-# tidy_survey_data %>%
-#   filter(question == "Are_you_a_U.S._citizen?")
 
 

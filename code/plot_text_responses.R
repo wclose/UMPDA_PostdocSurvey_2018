@@ -23,16 +23,6 @@ library(viridis) # color scaling
 # setting the seed for all functions in script (could put in original tidy script to have propagate through all scripts)
 my_seed <- 1
 
-# # creating test dataset
-# example_data <- strat_data$college_school %>% 
-#   filter(question_no %in% typed_question_list)
-# 
-# example_data %>% 
-#   filter(question_no == "Q44") %>% 
-#   filter(str_detect(response, "i\\.e\\."))
-
-# typed_question_list <- typed_question_list[-1:-2] # removing location 
-
 # creating custom stop_words df to filter out specific terms that may affect results
 my_stop_words <- stop_words %>%
   add_row(word = c("post", "doc"), lexicon = "custom")
@@ -48,8 +38,6 @@ my_stop_words <- stop_words %>%
 # Term Frequency - Inverse Document Frequency (aka most important words)
 # need to compare questions that are inverse of each other
 # works similar to random forest modelling by finding words that are common but to only a subset of the collection of documents
-
-# test %>% filter(str_detect(n_gram, paste(c("\\b\\d+\\b", "\\d+th", "\\w\\.\\w"), collapse = "|"))) # removing numbers, dates, and n_grams with punctuation from list of n-grams
 
 # creating function to break responses into n-grams
 # survery_df = df containing survey responses; n_token = size of n-gram to use (ex: 2 = bigram)
@@ -271,7 +259,7 @@ get_top_n_gram <- function(survey_df, question_no_chr, n_token = 1, freq_type = 
   
 }
 
-# # # testing the combined function
+# # testing the combined function
 # get_top_n_gram(survey_df = strat_data$college_school, question_no_chr = "Q23", freq_type = "tf-idf", n_token = 2, n_top = 15)
 
 
@@ -403,25 +391,7 @@ plot_top_wordcloud <- function(survey_df, question_no_chr, n_token = 1, freq_typ
 }
 
 # plot_top_wordcloud(strat_data$residency, "Q44", 2, freq_type = "tf", n_top = 15)
-# 
 # plot_top_wordcloud(strat_data$college_school, "Q44", 2, freq_type = "tf-idf", n_top = 15)
-
-
-
-# ### shared formatting elements of the facets/strips (facet labels) ###
-# # needs be added after faceting and different questions require different faceting strategies
-# shared_theme <- theme(plot.margin = margin(20,40,20,0), # giving plot a bit of padding on edges in case something is plotted out of bounds
-#                       panel.background = element_rect(fill = "white"), # making panels have white background
-#                       panel.spacing = unit(1, "lines"), # increasing spacing between panels
-#                       panel.spacing.x = unit(2.5, "lines"), # adding a bit more horizontal space between panels
-#                       strip.text = element_text(size = 9, face = "bold"), # setting strip labels to same size as other plot labels
-#                       strip.text.y = element_text(angle = 180, margin = margin(0,10,0,10)), # formatting and positioning new y labels
-#                       strip.text.x = element_text(margin = margin(15,0,15,0)),
-#                       strip.background = element_rect(fill = "white", color = NA), # formatting strip col labels
-#                       strip.placement = "outside") # moving strip row labels outside y axis labels to make them the new y labels
-# 
-# # # testing plot_top_wordcloud() function
-# plot_top_wordcloud(example_data, "Q44", n_token = 2, freq_type = "tf-idf", n_top = 15)
 
 
 
@@ -518,9 +488,7 @@ save_wordclouds <- function(freq_type, question_no_chr, category = NULL) {
 
 # # testing save_wordclouds
 # save_wordclouds("tf", "Q51", "all")
-# save_wordclouds("tf-idf", "Q44", category = "gender")
 # save_wordclouds("tf-idf", "Q44", category = "college_school")
-# save_wordclouds("tf", "Q44", category = "all")
 
 
 
@@ -550,18 +518,13 @@ save_all_wordclouds <- function(freq_type, question_no_chr_list, category_list) 
 # # testing save_all_wordclouds()
 # save_all_wordclouds("tf-idf", typed_question_list, "gender")
 
+
+
 # saving all tf wordclouds
 save_all_wordclouds("tf", typed_question_list, "all")
 
 # saving all tf-idf wordclouds
 save_all_wordclouds("tf-idf", typed_question_list, names(strat_list))
-
-
-# all_tf_idf_wordclouds$college_school$Q23
-
-
-
-
 
 
 
@@ -615,15 +578,6 @@ save_all_wordclouds("tf-idf", typed_question_list, names(strat_list))
 
 
 
-# wordclouds --------------------------------------------------------------
-
-# top_30_sentiment %>% 
-#   wordcloud2(word, size = 0.5)
-
-
 # notes -------------------------------------------------------------------
 
-# # cmd for removing weird NA responses if desired
-# filter(str_detect(response, regex(paste(paste0("\\b", c("n[/]a", "na"), "\\b"), collapse = "|"), ignore_case = TRUE)))
 
-# NOTE: combine calc function and plot function then take out question col from calc function and only have in plot

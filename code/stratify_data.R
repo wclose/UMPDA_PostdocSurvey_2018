@@ -126,9 +126,5 @@ strat_data <- map(strat_list, get_strat_data) # running a nested map series take
 
 
 # notes -------------------------------------------------------------------
-# strat_data$career_track
-# question_data
-# strat_data$career_track %>%
-#   filter(question_no == "Q31") %>%
-#   pull(strat_id) %>% 
-#   unique()
+
+
