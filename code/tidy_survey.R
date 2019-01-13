@@ -1,3 +1,10 @@
+# checking dependencies ---------------------------------------------------
+
+# checking working directory and packages
+source("code/dependencies.R")
+
+
+
 # loading packages --------------------------------------------------------
 
 # loading packages
@@ -5,11 +12,28 @@ library(tidyverse)
 
 
 
-# importing data and tidying ----------------------------------------------
+# importing data ----------------------------------------------------------
 
-# ##### Only set this if testing, otherwise keep commented and set in "generate_all_figures.R" #####
-# # importing survey data
-# survey_data <- read_csv("data/raw_data/UMPDA_2018_cross-section_survey.csv")
+# detecting whether this script is being run as part of generate_all_figures.R and if not, creates a dummy variable
+if (!exists("survey_csv")) survey_csv <- NA_character_
+
+# if survey_csv has a non-NA value (aka this script is being run from the command line and NOT in an interactive R/RStudio session) 
+if (!is.na(survey_csv)){
+  
+  # the survey file will imported from the specified location set as part of generate_all_figures.R
+  survey_data <- read_csv(survey_csv)
+  
+# if survey_csv has not been defined (aka this script is being run directly in an interactive R/RStudio and NOT the command line)
+} else {
+  
+  # specify which survey file you want to use here (use path relative to working directory)
+  survey_data <- read_csv("data/raw_data/UMPDA_2018_cross-section_survey.csv")
+  
+}
+
+
+
+# tidying data ------------------------------------------------------------
 
 # removing unnecessary data and tidying
 tidy_survey_data <- survey_data %>% 
