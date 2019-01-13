@@ -7,7 +7,7 @@
 .DS_Store
 
 # project specific files
-data/*
+data/raw_data/*
 !README.md
 notes/*
 !notes/*.txt
